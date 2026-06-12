@@ -63,9 +63,6 @@ backend/apis/bootstrap/cache/*
 # PHPUnit
 backend/apis/.phpunit.result.cache
 
-# Composer
-backend/apis/composer.lock
-
 # =========================
 # Misc
 # =========================
