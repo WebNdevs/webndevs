@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('redirects')) {
+            return;
+        }
+
         Schema::create('redirects', function (Blueprint $table) {
             $table->id();
             $table->string('from_url', 1000)->unique();
