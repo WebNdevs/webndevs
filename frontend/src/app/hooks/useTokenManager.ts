@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { API_ORIGIN } from '../../config/api';
+import { API_ROOT } from '../../config/api';
 
 export interface TokenInfo {
   token_id: number;
@@ -20,7 +20,7 @@ export interface TokenManagerResult {
   clearError: () => void;
 }
 
-const API_BASE_URL = `${API_ORIGIN}/api`;
+const API_BASE_URL = API_ROOT;
 
 export function useTokenManager(): TokenManagerResult {
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);

@@ -22,36 +22,40 @@ import { SeoModule } from "./pages/SeoModule";
 import { CaseStudiesModule } from "./pages/CaseStudiesModule";
 import { FreeToolsModule } from "./pages/FreeToolsModule";
 
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+  [
+    {
+      path: "/login",
+      Component: LoginPage,
+    },
+    {
+      path: "/",
+      Component: Root,
+      children: [
+        { index: true, Component: DashboardHome },
+        { path: "service-management", Component: ServicePlansModule },
+        { path: "blog", Component: BlogModule },
+        { path: "customers", Component: CustomersModule },
+        { path: "invoicing", Component: InvoicingModule },
+        { path: "sitemap", Component: SitemapModule },
+        { path: "policies", Component: GooglePoliciesModule },
+        { path: "content", Component: ContentModule },
+        { path: "settings", Component: SettingsModule },
+        { path: "tools", Component: ToolsModule },
+        { path: "industries", Component: IndustriesModule },
+        { path: "entities", Component: EntityManagerModule },
+        { path: "cross-references", Component: CrossReferenceModule },
+        { path: "solutions", Component: SolutionsModule },
+        { path: "comparisons", Component: ComparisonModule },
+        { path: "ai-content", Component: AiContentModule },
+        { path: "navigation", Component: NavigationBuilderModule },
+        { path: "seo", Component: SeoModule },
+        { path: "case-studies", Component: CaseStudiesModule },
+        { path: "free-tools", Component: FreeToolsModule },
+      ],
+    },
+  ],
   {
-    path: "/login",
-    Component: LoginPage,
-  },
-  {
-    path: "/",
-    Component: Root,
-    children: [
-      { index: true, Component: DashboardHome },
-      { path: "service-management", Component: ServicePlansModule },
-      { path: "blog", Component: BlogModule },
-      { path: "customers", Component: CustomersModule },
-      { path: "invoicing", Component: InvoicingModule },
-      { path: "sitemap", Component: SitemapModule },
-      { path: "policies", Component: GooglePoliciesModule },
-      { path: "content", Component: ContentModule },
-      { path: "settings", Component: SettingsModule },
-      // Phase 3 — New Modules
-      { path: "tools", Component: ToolsModule },
-      { path: "industries", Component: IndustriesModule },
-      { path: "entities", Component: EntityManagerModule },
-      { path: "cross-references", Component: CrossReferenceModule },
-      { path: "solutions", Component: SolutionsModule },
-      { path: "comparisons", Component: ComparisonModule },
-      { path: "ai-content", Component: AiContentModule },
-      { path: "navigation", Component: NavigationBuilderModule },
-      { path: "seo", Component: SeoModule },
-      { path: "case-studies", Component: CaseStudiesModule },
-      { path: "free-tools", Component: FreeToolsModule },
-    ],
-  },
-]);
+    basename: "/admin",
+  }
+);

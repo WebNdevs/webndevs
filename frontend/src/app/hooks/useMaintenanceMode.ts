@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { API_ORIGIN } from '../../config/api';
+import { API_ROOT } from '../../config/api';
 
-const API_BASE_URL = `${API_ORIGIN}/api`;
+const API_BASE_URL = API_ROOT;
 
 export function useMaintenanceMode() {
   const [isUnderMaintenance, setIsUnderMaintenance] = useState(false);

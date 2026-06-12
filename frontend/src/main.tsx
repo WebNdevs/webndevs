@@ -4,11 +4,13 @@
   import { API_ORIGIN } from "./config/api";
   import "./styles/index.css";
 
-  const preconnect = document.createElement("link");
-  preconnect.rel = "preconnect";
-  preconnect.href = API_ORIGIN;
-  preconnect.crossOrigin = "anonymous";
-  document.head.appendChild(preconnect);
+  if (API_ORIGIN) {
+    const preconnect = document.createElement("link");
+    preconnect.rel = "preconnect";
+    preconnect.href = API_ORIGIN;
+    preconnect.crossOrigin = "anonymous";
+    document.head.appendChild(preconnect);
+  }
 
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
