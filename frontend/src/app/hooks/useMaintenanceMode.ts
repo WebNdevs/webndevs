@@ -16,12 +16,24 @@ export function useMaintenanceMode() {
             'Accept': 'application/json',
           },
         });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.data?.values?.maintenance_mode) {
-            setIsUnderMaintenance(true);
-          }
+
+        if (!response.ok) {
+          return;
+        }
+
+        const contentType = response.headers.get('content-type') ?? '';
+        if (!contentType.includes('application/json')) {
+          console.warn('Maintenance mode endpoint returned a non-JSON response.', {
+            url: `${API_BASE_URL}/settings/general`,
+            status: response.status,
+            contentType,
+          });
+          return;
+        }
+
+        const data = await response.json();
+        if (data.data?.values?.maintenance_mode) {
+          setIsUnderMaintenance(true);
         }
       } catch (error) {
         console.error('Failed to check maintenance mode:', error);
