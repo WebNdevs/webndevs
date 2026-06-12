@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+      <loc>https://webndevs.com/sitemaps/main.xml</loc>
+      <lastmod>2024-12-21</lastmod>
+  </sitemap>
+  <sitemap>
+      <loc>https://webndevs.com/sitemaps/tools.xml</loc>
+  </sitemap>
+  <sitemap>
+      <loc>https://webndevs.com/sitemaps/industries.xml</loc>
+  </sitemap>
+  <sitemap>
+      <loc>https://webndevs.com/sitemaps/solutions.xml</loc>
+  </sitemap>
+  <sitemap>
+      <loc>https://webndevs.com/sitemaps/comparisons.xml</loc>
+  </sitemap>
+  <sitemap>
+      <loc>https://webndevs.com/sitemaps/cross-references.xml</loc>
+  </sitemap>
+  <sitemap>
+      <loc>https://webndevs.com/sitemaps/case-studies.xml</loc>
+  </sitemap>
+  <sitemap>
+      <loc>https://webndevs.com/sitemaps/blog-posts.xml</loc>
+  </sitemap>
+  <sitemap>
+      <loc>https://webndevs.com/sitemaps/free-tools.xml</loc>
+  </sitemap>
+</sitemapindex>

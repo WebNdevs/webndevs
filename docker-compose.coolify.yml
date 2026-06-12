@@ -1,0 +1,68 @@
+version: "3.9"
+
+x-laravel-env: &laravel-env
+  APP_NAME: WebNDevs
+  APP_ENV: production
+  APP_DEBUG: "false"
+  APP_URL: https://api.webndevs.com
+  APP_KEY: CHANGE_ME_BASE64_APP_KEY
+  LOG_CHANNEL: stack
+  LOG_LEVEL: warning
+  DB_CONNECTION: sqlite
+  DB_DATABASE: /var/www/html/database/database.sqlite
+  SESSION_DRIVER: file
+  SESSION_DOMAIN: .webndevs.com
+  CACHE_STORE: file
+  QUEUE_CONNECTION: database
+  FILESYSTEM_DISK: public
+  MAIL_MAILER: log
+  FRONTEND_URL: https://webndevs.com
+  ADMIN_URL: https://admin.webndevs.com
+  SANCTUM_STATEFUL_DOMAINS: webndevs.com,www.webndevs.com,admin.webndevs.com
+  CORS_ALLOWED_ORIGINS: https://webndevs.com,https://www.webndevs.com,https://admin.webndevs.com
+
+services:
+  website:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: https://api.webndevs.com
+    restart: unless-stopped
+
+  admin:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: https://api.webndevs.com
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./backend/apis
+      dockerfile: Dockerfile
+    environment:
+      <<: *laravel-env
+    volumes:
+      - laravel-storage:/var/www/html/storage
+      - laravel-database:/var/www/html/database
+    restart: unless-stopped
+
+  queue:
+    build:
+      context: ./backend/apis
+      dockerfile: Dockerfile
+    command: php artisan queue:work --verbose --tries=3 --timeout=120
+    environment:
+      <<: *laravel-env
+    volumes:
+      - laravel-storage:/var/www/html/storage
+      - laravel-database:/var/www/html/database
+    restart: unless-stopped
+    depends_on:
+      - api
+
+volumes:
+  laravel-storage:
+  laravel-database:
