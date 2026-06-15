@@ -56,6 +56,6 @@ export const router = createBrowserRouter(
     },
   ],
   {
-    basename: "/admin",
+    basename: "/",
   }
 );

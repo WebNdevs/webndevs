@@ -8,7 +8,13 @@ export function HeroSection() {
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop stop-color='%2322C55E'/%3E%3Cstop offset='1' stop-color='%2306B6D4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='800' fill='%230B0F14'/%3E%3Ccircle cx='900' cy='200' r='220' fill='url(%23g)' opacity='0.25'/%3E%3Ccircle cx='260' cy='620' r='180' fill='url(%23g)' opacity='0.18'/%3E%3C/svg%3E";
 
   useEffect(() => {
-    let link = document.head.querySelector('link[data-hero-preload="true"]') as HTMLLinkElement | null;
+    const existing = document.head.querySelector('link[data-hero-preload="true"]') as HTMLLinkElement | null;
+    if (heroIllustration.startsWith("data:")) {
+      existing?.remove();
+      return;
+    }
+
+    let link = existing;
     if (!link) {
       link = document.createElement("link");
       link.rel = "preload";
