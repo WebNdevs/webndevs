@@ -3,7 +3,7 @@ import { HomePage } from "../views/Home";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = generateSEO({
-  title: "Home",
+  title: "WebNDevs",
   description:
   "WebNDevs helps businesses build modern websites, AI automation, custom software, mobile apps, analytics dashboards, and digital solutions that drive growth.",
   canonical: "/",
