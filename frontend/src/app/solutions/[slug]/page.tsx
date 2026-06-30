@@ -23,7 +23,7 @@ export async function generateMetadata({
     description: solution.seo.description,
     keywords: solution.seo.keywords,
     image: solution?.seo?.image,
-    canonical: `/solutions/${solution.slug}`,
+    path: `/solutions/${solution.slug}`,
   });
 }
 

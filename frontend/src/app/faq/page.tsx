@@ -6,7 +6,7 @@ export const metadata: Metadata = generateSEO({
   title: "FAQs",
   description:
     "Find answers to some of your queries and doubts.",
-    canonical: "/faq",
+    path: "/faq",
 });
 
 export default function Page() {

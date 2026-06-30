@@ -6,7 +6,7 @@ export const metadata: Metadata = generateSEO({
   title: "WebNDevs",
   description:
   "WebNDevs helps businesses build modern websites, AI automation, custom software, mobile apps, analytics dashboards, and digital solutions that drive growth.",
-  canonical: "/",
+  path: "/",
 });
 
 export default function Page() {

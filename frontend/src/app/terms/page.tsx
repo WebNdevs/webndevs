@@ -6,7 +6,7 @@ export const metadata: Metadata = generateSEO({
   title: "Terms of Services",
   description:
     "Terms & Conditions applied for using our services.",
-    canonical: "/terms",
+    path: "/terms",
 });
 
 export default function Page() {

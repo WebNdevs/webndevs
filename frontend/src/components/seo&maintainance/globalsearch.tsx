@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useReducer } from "react";
 import Link from "next/link";
 import { apiFetch } from "@/config/api";
 
@@ -71,31 +71,45 @@ function flattenResults(
   return flat.slice(0, limit);
 }
 
+type SearchState = {
+  results: SearchItem[];
+  loading: boolean;
+  searchError: boolean;
+  selectedIndex: number;
+};
+
+type SearchAction = Partial<SearchState>;
+
 export function GlobalSearch({
   placeholder = "Search tools, industries, solutions...",
   limit = 8,
 }: GlobalSearchProps) {
   const [term, setTerm] = useState("");
-  const [results, setResults] = useState<SearchItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searchError, setSearchError] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [searchState, dispatchSearch] = useReducer(
+    (state: SearchState, action: SearchAction): SearchState => ({
+      ...state,
+      ...action,
+    }),
+    {
+      results: [],
+      loading: false,
+      searchError: false,
+      selectedIndex: -1,
+    }
+  );
 
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
   useEffect(() => {
     if (term.length < MIN_SEARCH_LENGTH) {
-      setResults([]);
-      setSearchError(false);
-      setSelectedIndex(-1);
+      dispatchSearch({ results: [], searchError: false, selectedIndex: -1 });
       return;
     }
 
     const controller = new AbortController();
 
     const timer = setTimeout(async () => {
-      setLoading(true);
-      setSearchError(false);
+      dispatchSearch({ loading: true, searchError: false });
 
       try {
         const response = await apiFetch<SearchResults>(
@@ -110,16 +124,14 @@ export function GlobalSearch({
           limit
         );
 
-        setResults(mapped);
-        setSelectedIndex(-1);
+        dispatchSearch({ results: mapped, selectedIndex: -1 });
       } catch {
         if (!controller.signal.aborted) {
-          setResults([]);
-          setSearchError(true);
+          dispatchSearch({ results: [], searchError: true });
         }
       } finally {
         if (!controller.signal.aborted) {
-          setLoading(false);
+          dispatchSearch({ loading: false });
         }
       }
     }, 300);
@@ -132,53 +144,60 @@ export function GlobalSearch({
 
   useEffect(() => {
     if (
-      selectedIndex >= 0 &&
-      selectedIndex < linkRefs.current.length
+      searchState.selectedIndex >= 0 &&
+      searchState.selectedIndex < linkRefs.current.length
     ) {
-      linkRefs.current[selectedIndex]?.focus();
+      linkRefs.current[searchState.selectedIndex]?.focus();
     }
-  }, [selectedIndex]);
+  }, [searchState.selectedIndex]);
 
   const clearSearch = () => {
     setTerm("");
-    setResults([]);
-    setSelectedIndex(-1);
+    dispatchSearch({ results: [], selectedIndex: -1 });
   };
 
   const handleKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
-    if (!results.length) return;
+    if (!searchState.results.length) return;
+
+    const resultsLength = searchState.results.length;
+    let newIndex = searchState.selectedIndex;
 
     switch (event.key) {
       case "ArrowDown":
         event.preventDefault();
-        setSelectedIndex((prev) =>
-          prev < results.length - 1 ? prev + 1 : 0
-        );
+        newIndex = searchState.selectedIndex < resultsLength - 1 
+          ? searchState.selectedIndex + 1 
+          : 0;
         break;
 
       case "ArrowUp":
         event.preventDefault();
-        setSelectedIndex((prev) =>
-          prev > 0 ? prev - 1 : results.length - 1
-        );
+        newIndex = searchState.selectedIndex > 0 
+          ? searchState.selectedIndex - 1 
+          : resultsLength - 1;
         break;
 
       case "Escape":
         clearSearch();
-        break;
+        return;
 
       case "Enter":
         if (
-          selectedIndex >= 0 &&
-          results[selectedIndex]
+          searchState.selectedIndex >= 0 &&
+          searchState.results[searchState.selectedIndex]
         ) {
           window.location.href =
-            results[selectedIndex].to;
+            searchState.results[searchState.selectedIndex].to;
         }
-        break;
+        return;
+
+      default:
+        return;
     }
+
+    dispatchSearch({ selectedIndex: newIndex });
   };
 
   return (
@@ -192,15 +211,15 @@ export function GlobalSearch({
         className="w-full rounded-lg bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#22C55E]"
       />
 
-      {loading && (
+      {searchState.loading && (
         <p className="mt-3 text-sm text-slate-400">
           Searching...
         </p>
       )}
 
-      {!loading && results.length > 0 && (
+      {!searchState.loading && searchState.results.length > 0 && (
         <ul className="mt-3 space-y-1">
-          {results.map((item, index) => (
+          {searchState.results.map((item, index) => (
             <li key={item.to}>
               <Link
                 href={item.to}
@@ -209,7 +228,7 @@ export function GlobalSearch({
                 }}
                 onClick={clearSearch}
                 className={`block rounded-lg px-3 py-2 transition-colors ${
-                  selectedIndex === index
+                  searchState.selectedIndex === index
                     ? "bg-white/20 text-white"
                     : "text-slate-200 hover:bg-white/10"
                 }`}
@@ -221,18 +240,18 @@ export function GlobalSearch({
         </ul>
       )}
 
-      {!loading && searchError && (
+      {!searchState.loading && searchState.searchError && (
         <p className="mt-3 text-sm text-slate-400">
           Search is unavailable right now.
         </p>
       )}
 
-      {!loading &&
-        !searchError &&
+      {!searchState.loading &&
+        !searchState.searchError &&
         term.length >= MIN_SEARCH_LENGTH &&
-        results.length === 0 && (
+        searchState.results.length === 0 && (
           <p className="mt-3 text-sm text-slate-400">
-            No results found for "{term}".
+            No results found for `${term}`.
           </p>
         )}
     </div>

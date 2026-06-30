@@ -24,7 +24,7 @@ export async function generateMetadata({
     description: service.seo.description,
     keywords: service.seo.keywords,
     image: service.seo.image,
-    canonical: `/services/${service.slug}`,
+    path: `/services/${service.slug}`,
   });
 }
 

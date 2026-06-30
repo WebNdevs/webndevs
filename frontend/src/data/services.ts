@@ -10,7 +10,7 @@ export const ServicePages: DynamicServiceData[] = [
       description: "Build fast, secure, and scalable websites and web applications with WebNDevs. From business websites to custom SaaS platforms.",
       keywords: ["web development", "website development", "web design", "custom web applications", "Next.js development", "React development"],
       image: "/images/web-development.jpg",
-      canonical: "/services/web-development"
+      path: "/services/web-development"
     },
 
     // Hero Section
@@ -311,7 +311,7 @@ export const ServicePages: DynamicServiceData[] = [
       description: "Professional mobile app development for iOS and Android. We build native and cross-platform apps that users love.",
       keywords: ["mobile app development", "iOS app development", "Android app development", "React Native", "cross-platform app"],
       image: "/images/mobile-app.jpg",
-      canonical: "/services/mobile-app-development"
+      path: "/services/mobile-app-development"
     },
 
     // Hero Section
@@ -613,7 +613,7 @@ export const ServicePages: DynamicServiceData[] = [
       description: "Professional UI/UX design services for websites and mobile apps. Create intuitive, visually engaging interfaces.",
       keywords: ["UI design", "UX design", "user experience", "interface design", "Figma design", "product design"],
       image: "/images/ui-ux-design.jpg",
-      canonical: "/services/ui-ux-design"
+      path: "/services/ui-ux-design"
     },
 
     // Hero Section
@@ -828,7 +828,7 @@ export const ServicePages: DynamicServiceData[] = [
       description: "Grow your business with SEO, Google Ads, social media marketing, and performance-driven digital marketing strategies.",
       keywords: ["digital marketing", "SEO services", "Google Ads", "social media marketing", "content marketing", "PPC advertising"],
       image: "/images/digital-marketing.jpg",
-      canonical: "/services/digital-marketing"
+      path: "/services/digital-marketing"
     },
 
     // Hero Section
@@ -1048,7 +1048,7 @@ export const ServicePages: DynamicServiceData[] = [
       description: "Transform your business data into actionable insights with custom dashboards, reports, and analytics solutions.",
       keywords: ["data analytics", "business intelligence", "dashboard development", "data visualization", "Power BI", "reporting automation"],
       image: "/images/data-analytics.jpg",
-      canonical: "/services/data-analytics"
+      path: "/services/data-analytics"
     },
 
     // Hero Section
@@ -1342,7 +1342,7 @@ export const ServicePages: DynamicServiceData[] = [
       description: "Create memorable brand identities with professional logo design, brand guidelines, and visual identity systems.",
       keywords: ["branding services", "logo design", "brand identity", "brand guidelines", "visual identity", "brand strategy"],
       image: "/images/branding.jpg",
-      canonical: "/services/branding-design"
+      path: "/services/branding-design"
     },
 
     // Hero Section
@@ -1627,7 +1627,7 @@ export const ServicePages: DynamicServiceData[] = [
       description: "Automate business workflows, integrate AI chatbots, and streamline operations with smart automation solutions.",
       keywords: ["AI automation", "workflow automation", "chatbot development", "CRM automation", "business automation", "AI integration"],
       image: "/images/automation.jpg",
-      canonical: "/services/ai-automation"
+      path: "/services/ai-automation"
     },
 
     // Hero Section

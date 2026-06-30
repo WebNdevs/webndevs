@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { DSBadge, DSCard } from "./DScomponents"
 import { ICONS, FallbackIcon } from "../../data/icons";
-import { div } from "framer-motion/client";
 
 
 export type IconCardProps = {

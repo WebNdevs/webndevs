@@ -6,7 +6,7 @@ export const metadata: Metadata = generateSEO({
   title: "Blogs",
   description:
     "Latest news and articles about some very interesting topics of the IT industry.",
-    canonical: "/blogs",
+    path: "/blogs",
 })
 
 export default function Page() {

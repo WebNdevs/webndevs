@@ -6,7 +6,7 @@ export const metadata: Metadata = generateSEO({
   title: "Comparisons",
   description:
     "Our case studies on some important and helpful researches",
-    canonical: "/comparisons",
+    path: "/comparisons",
 });
 
 export default function Page() {

@@ -3,7 +3,7 @@ import { CTASection, ShortCTA, ShortCTAProps } from './cta-section';
 import { IconCardGrid, IconCardProps } from '../cards/icon-card';
 import { PageHero, PageHeroProps } from './pagehero';
 import { StatsCardGrid, StatsCardProps } from '../cards/stats-card';
-import { ContentTile, DSTiles } from '../cards/DScomponents';
+import { ContentTile } from '../cards/DScomponents';
 import { FAQCard, FAQItemProps } from '../cards/faq-card';
 import { ResultCardGrid, ResultCardProps } from '../cards/result-card';
 import { LadderCardProps, LadderSection } from '../cards/ladder-card';
@@ -17,7 +17,7 @@ export type DynamicServiceData = {
     description: string;
     keywords: string[];
     image?: string;
-    canonical: string;
+    path: string;
   };
   hero?: PageHeroProps;
   tag?: string;

@@ -6,7 +6,7 @@ export const metadata: Metadata = generateSEO({
   title: "Data Hub",
   description:
     "Check out our resources for more information.",
-    canonical: "/datahub",
+    path: "/datahub",
 });
 
 export default function Page() {

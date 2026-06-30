@@ -7,7 +7,6 @@ import { getDataHub } from '@/data/datahub';
 import { StatsCardGrid, StatsCardProps } from '../cards/stats-card';
 import { IconCardGrid, IconCardProps } from '../cards/icon-card';
 import { FAQCard, FAQItemProps } from '../cards/faq-card';
-import { FilterBar, FilterBarProps } from '../filter-bar';
 import { FilteredEntityGrid } from '../entity-filtered';
 
 export function IndustrySection() {

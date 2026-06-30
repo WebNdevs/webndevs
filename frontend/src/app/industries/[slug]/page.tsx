@@ -24,7 +24,7 @@ export async function generateMetadata({
     description: industry.seo.description,
     keywords: industry.seo.keywords,
     image: industry.seo.image,
-    canonical: `/industries/${industry.slug}`,
+    path: `/industries/${industry.slug}`,
   });
 }
 

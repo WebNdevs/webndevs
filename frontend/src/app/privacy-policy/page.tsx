@@ -6,7 +6,7 @@ export const metadata: Metadata = generateSEO({
   title: "Privacy Policy",
   description:
     "Privacy is needed to be guaranteed and given by default.",
-    canonical: "/privacy-policy",
+    path: "/privacy-policy",
 });
 
 export default function Page() {

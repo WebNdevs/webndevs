@@ -104,7 +104,7 @@ export function CTAForm() {
           </p>
 
           <p className="text-[#9CA3AF] mb-6">
-            We'll get back to you within 24 hours.
+            We&apos;ll get back to you within 24 hours.
           </p>
 
           <button

@@ -6,7 +6,7 @@ export const metadata: Metadata = generateSEO({
   title: "Portfolio",
   description:
     "Explore WebNDevs projects, case studies, and measurable business results.",
-    canonical: "/portfolio",
+    path: "/portfolio",
 });
 
 export default function Page() {

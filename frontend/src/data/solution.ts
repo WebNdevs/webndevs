@@ -9,7 +9,7 @@ export const solutionPages: DynamicSectionData[] = [
       description: "Build stronger customer relationships with modern CRM solutions. Streamline sales pipelines, automate follow-ups, and improve customer experiences.",
       keywords: ["CRM solutions", "customer relationship management", "CRM software", "sales CRM", "HubSpot", "Salesforce"],
       image: "/images/crm-solutions.jpg",
-      canonical: "/solutions/crm-solutions"
+      path: "/solutions/crm-solutions"
     },
 
     hero: {
@@ -224,7 +224,7 @@ export const solutionPages: DynamicSectionData[] = [
       description: "Unify finance, operations, inventory, and HR with modern ERP solutions. Streamline business processes and improve operational efficiency.",
       keywords: ["ERP solutions", "enterprise resource planning", "ERP software", "business ERP", "SAP", "Oracle ERP"],
       image: "/images/erp-solutions.jpg",
-      canonical: "/solutions/erp-solutions"
+      path: "/solutions/erp-solutions"
     },
 
     hero: {
@@ -450,7 +450,7 @@ export const solutionPages: DynamicSectionData[] = [
       description: "Transform business processes with AI-powered automation. We build intelligent workflows using AI, machine learning, and modern automation platforms.",
       keywords: ["AI automation", "business automation", "workflow automation", "AI solutions", "machine learning"],
       image: "/images/ai-automation.jpg",
-      canonical: "/solutions/ai-automation"
+      path: "/solutions/ai-automation"
     },
 
     hero: {
@@ -686,7 +686,7 @@ export const solutionPages: DynamicSectionData[] = [
       description: "Automate repetitive business processes, eliminate manual work, and connect your applications to improve efficiency across every department.",
       keywords: ["workflow automation", "business process automation", "no-code automation", "Zapier", "Make"],
       image: "/images/workflow-automation.jpg",
-      canonical: "/solutions/workflow-automation"
+      path: "/solutions/workflow-automation"
     },
 
     hero: {
@@ -922,7 +922,7 @@ export const solutionPages: DynamicSectionData[] = [
       description: "Deliver faster, smarter, and more personalized customer service through modern support platforms, AI assistants, and omnichannel communication.",
       keywords: ["customer support solutions", "help desk software", "AI chatbots", "omnichannel support", "customer service"],
       image: "/images/customer-support-solutions.jpg",
-      canonical: "/solutions/customer-support-solutions"
+      path: "/solutions/customer-support-solutions"
     },
 
     hero: {
@@ -1158,7 +1158,7 @@ export const solutionPages: DynamicSectionData[] = [
       description: "Plan, organize, collaborate, and deliver projects efficiently with modern project management solutions designed for growing teams.",
       keywords: ["project management software", "task management", "team collaboration", "project planning", "ClickUp", "Asana"],
       image: "/images/project-management.jpg",
-      canonical: "/solutions/project-management"
+      path: "/solutions/project-management"
     },
 
     hero: {
@@ -1394,7 +1394,7 @@ export const solutionPages: DynamicSectionData[] = [
       description: "Transform raw business data into actionable insights with powerful dashboards, analytics, reporting, and real-time decision-making.",
       keywords: ["business intelligence", "data analytics", "BI dashboards", "data visualization", "Power BI"],
       image: "/images/business-intelligence.jpg",
-      canonical: "/solutions/business-intelligence"
+      path: "/solutions/business-intelligence"
     },
 
     hero: {
@@ -1630,7 +1630,7 @@ export const solutionPages: DynamicSectionData[] = [
       description: "Protect your business from cyber threats with modern security strategies, continuous monitoring, secure infrastructure, and proactive risk management.",
       keywords: ["cybersecurity solutions", "data security", "threat protection", "network security", "risk management"],
       image: "/images/cybersecurity.jpg",
-      canonical: "/solutions/cybersecurity"
+      path: "/solutions/cybersecurity"
     },
 
     hero: {
@@ -1866,7 +1866,7 @@ export const solutionPages: DynamicSectionData[] = [
       description: "Build secure, scalable, and high-performance cloud environments that support modern applications, remote teams, and business growth.",
       keywords: ["cloud infrastructure", "cloud solutions", "AWS", "cloud hosting", "scalable infrastructure"],
       image: "/images/cloud-infrastructure.jpg",
-      canonical: "/solutions/cloud-infrastructure"
+      path: "/solutions/cloud-infrastructure"
     },
 
     hero: {
@@ -2102,7 +2102,7 @@ export const solutionPages: DynamicSectionData[] = [
       description: "Organize, secure, and automate your business documents with centralized document management solutions that improve collaboration and productivity.",
       keywords: ["document management system", "DMS", "file management", "document collaboration", "secure storage"],
       image: "/images/document-management.jpg",
-      canonical: "/solutions/document-management"
+      path: "/solutions/document-management"
     },
 
     hero: {
@@ -2338,7 +2338,7 @@ export const solutionPages: DynamicSectionData[] = [
       description: "Build stronger customer relationships, increase engagement, and drive more sales with personalized email marketing campaigns and marketing automation.",
       keywords: ["email marketing", "marketing automation", "email campaigns", "lead nurturing", "HubSpot"],
       image: "/images/email-marketing.jpg",
-      canonical: "/solutions/email-marketing"
+      path: "/solutions/email-marketing"
     },
 
     hero: {
@@ -2574,7 +2574,7 @@ export const solutionPages: DynamicSectionData[] = [
       description: "Accept payments securely, simplify transactions, automate billing, and deliver seamless checkout experiences for customers worldwide.",
       keywords: ["payment solutions", "online payments", "payment processing", "recurring billing", "Stripe"],
       image: "/images/payment-solutions.jpg",
-      canonical: "/solutions/payment-solutions"
+      path: "/solutions/payment-solutions"
     },
 
     hero: {

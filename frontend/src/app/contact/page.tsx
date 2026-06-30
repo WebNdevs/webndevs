@@ -6,7 +6,7 @@ export const metadata: Metadata = generateSEO({
   title: "Contact Us",
   description:
     "We are here to support and guide you through the process and your queries.",
-    canonical: "/contact",
+    path: "/contact",
 });
 
 export default function Page() {

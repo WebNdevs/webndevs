@@ -14,7 +14,7 @@ export type DynamicSectionData = {
     description: string;
     keywords: string[];
     image?: string;
-    canonical: string;
+    path: string;
   }
   hero?: PageHeroProps;
   tag?: string;

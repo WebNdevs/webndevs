@@ -1,4 +1,5 @@
 import { DSCard } from "./DScomponents";
+import Image from "next/image";
 
 export type ContentCardProps = {
   title?: string;
@@ -19,9 +20,11 @@ export function ContentCard({title, excerpt, image, tags, onClick,} : ContentCar
       onClick={onClick}
       className="cursor-pointer overflow-hidden"
     >
-      <img
+      <Image
+        width={300}
+        height={48}
         src={image || "/logo.png"}
-        alt={title}
+        alt={title || "Card image"}
         className="w-full h-48 object-cover rounded-lg mb-4"
       />
 

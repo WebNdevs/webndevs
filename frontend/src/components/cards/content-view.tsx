@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { DSButton } from "./DScomponents";
 import { ContentCardProps, ContentCardGrid } from "./content-card";
@@ -37,9 +37,11 @@ export function ContentModal({content, onClose} : ContentModalProps) {
           ✕
         </button>
 
-        <img
+        <Image
+          width={300}
+          height={48}
           src={content.image || "/logo.png"}
-          alt={content.title}
+          alt={content.title || "Card image"}
           className="w-full h-64 object-cover rounded-xl mb-6"
         />
 

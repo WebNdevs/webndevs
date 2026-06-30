@@ -6,7 +6,7 @@ export const metadata: Metadata = generateSEO({
   title: "CaseStudies",
   description:
     "Our case studies on some important and helpful researches",
-    canonical: "/case-studies",
+    path: "/case-studies",
 });
 
 export default function Page() {

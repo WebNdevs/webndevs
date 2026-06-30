@@ -16,7 +16,8 @@ export function ResultCard({title, category, description, tags, badge, url, resu
     <DSCard hoverable className="flex flex-col">
       <div className="flex items-center justify-between mb-4">
         { badge && (
-          <DSBadge variant={badge as any}>
+          <DSBadge variant={(badge as "default") || "default"}>
+
             {category}
           </DSBadge>
         )}

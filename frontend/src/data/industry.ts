@@ -10,7 +10,7 @@ export const IndustryPages: DynamicSectionData[] = [
         "Digital solutions for healthcare providers to improve patient care, streamline operations, and enhance communication.",
       keywords: ["healthcare technology", "patient portals", "telemedicine", "healthcare automation", "medical software"],
       image: "/images/industries/healthcare.jpg",
-      canonical: "/industries/healthcare",
+      path: "/industries/healthcare",
     },
 
     hero: {
@@ -247,7 +247,7 @@ export const IndustryPages: DynamicSectionData[] = [
         "Technology solutions for real estate to accelerate sales, manage leads, and improve buyer experiences.",
       keywords: ["real estate technology", "property listings", "real estate CRM", "lead management", "realtor websites"],
       image: "/images/industries/real-estate.jpg",
-      canonical: "/industries/real-estate",
+      path: "/industries/real-estate",
     },
 
     hero: {
@@ -484,7 +484,7 @@ export const IndustryPages: DynamicSectionData[] = [
         "Secure and scalable digital solutions for financial institutions to improve customer experience and operations.",
       keywords: ["fintech solutions", "banking technology", "financial software", "cybersecurity", "payment solutions"],
       image: "/images/industries/finance-banking.jpg",
-      canonical: "/industries/finance-banking",
+      path: "/industries/finance-banking",
     },
 
     hero: {
@@ -721,7 +721,7 @@ export const IndustryPages: DynamicSectionData[] = [
         "Modern education technology to enhance student engagement, simplify administration, and empower educators.",
       keywords: ["education technology", "EdTech", "LMS", "student portals", "online learning"],
       image: "/images/industries/education.jpg",
-      canonical: "/industries/education",
+      path: "/industries/education",
     },
 
     hero: {
@@ -958,7 +958,7 @@ export const IndustryPages: DynamicSectionData[] = [
         "Modern retail and eCommerce solutions to deliver seamless shopping experiences and increase online sales.",
       keywords: ["eCommerce solutions", "retail technology", "online store", "omnichannel retail", "inventory management"],
       image: "/images/industries/retail-ecommerce.jpg",
-      canonical: "/industries/retail-ecommerce",
+      path: "/industries/retail-ecommerce",
     },
 
     hero: {
@@ -1195,7 +1195,7 @@ export const IndustryPages: DynamicSectionData[] = [
         "Digital solutions for manufacturing to optimize production, improve visibility, and automate workflows.",
       keywords: ["manufacturing technology", "smart manufacturing", "ERP solutions", "production planning", "IIoT"],
       image: "/images/industries/manufacturing.jpg",
-      canonical: "/industries/manufacturing",
+      path: "/industries/manufacturing",
     },
 
     hero: {
@@ -1432,7 +1432,7 @@ export const IndustryPages: DynamicSectionData[] = [
         "Intelligent digital solutions to streamline transportation, warehouse operations, and supply chain management.",
       keywords: ["logistics technology", "supply chain management", "warehouse management", "fleet management", "route optimization"],
       image: "/images/industries/logistics-supply-chain.jpg",
-      canonical: "/industries/logistics-supply-chain",
+      path: "/industries/logistics-supply-chain",
     },
 
     hero: {
@@ -1669,7 +1669,7 @@ export const IndustryPages: DynamicSectionData[] = [
         "Digital solutions for hospitality and travel to deliver exceptional guest experiences and simplify bookings.",
       keywords: ["hospitality technology", "travel technology", "booking systems", "hotel management software", "guest experience"],
       image: "/images/industries/hospitality-travel.jpg",
-      canonical: "/industries/hospitality-travel",
+      path: "/industries/hospitality-travel",
     },
 
     hero: {
@@ -1906,7 +1906,7 @@ export const IndustryPages: DynamicSectionData[] = [
         "Secure technology for law firms to simplify case management, document handling, and client communication.",
       keywords: ["legal tech", "law firm software", "case management", "document management", "client portals"],
       image: "/images/industries/legal-services.jpg",
-      canonical: "/industries/legal-services",
+      path: "/industries/legal-services",
     },
 
     hero: {
@@ -2143,7 +2143,7 @@ export const IndustryPages: DynamicSectionData[] = [
         "Digital solutions for construction to improve project planning, communication, and on-site productivity.",
       keywords: ["construction tech", "project management software", "workforce management", "equipment tracking", "construction software"],
       image: "/images/industries/construction.jpg",
-      canonical: "/industries/construction",
+      path: "/industries/construction",
     },
 
     hero: {
@@ -2380,7 +2380,7 @@ export const IndustryPages: DynamicSectionData[] = [
         "Build scalable software products and accelerate innovation with modern cloud-native technology solutions.",
       keywords: ["SaaS development", "cloud-native", "software products", "subscription management", "API integration"],
       image: "/images/industries/saas-technology.jpg",
-      canonical: "/industries/saas-technology",
+      path: "/industries/saas-technology",
     },
 
     hero: {
@@ -2617,7 +2617,7 @@ export const IndustryPages: DynamicSectionData[] = [
         "Digital solutions for nonprofits to improve fundraising, volunteer management, and community engagement.",
       keywords: ["nonprofit technology", "fundraising platform", "donor management", "volunteer management", "NGO software"],
       image: "/images/industries/nonprofit-ngos.jpg",
-      canonical: "/industries/nonprofit-ngos",
+      path: "/industries/nonprofit-ngos",
     },
 
     hero: {

@@ -3,7 +3,7 @@ import { Metadata } from "next";
 type SEOProps = {
   title: string;
   description: string;
-  canonical: string;
+  path: string;
 
   image?: string;
 

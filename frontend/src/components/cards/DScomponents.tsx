@@ -112,7 +112,8 @@ interface DSInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 };
 
 export function DSInput({ id,label, error, helperText, className = "", ...props }: DSInputProps) {
-  const inputId = id ?? useId();
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
   return (
     <div className="w-full">
       {label && (

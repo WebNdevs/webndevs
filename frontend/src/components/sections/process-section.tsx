@@ -1,4 +1,4 @@
-import { homeData, getHome } from '@/data/homedata';
+import { getHome } from '@/data/homedata';
 import { HeaderSection } from '../cards/header-card';
 import { ShortCTA } from './cta-section';
 import { LadderCardProps, LadderSection } from '../cards/ladder-card';

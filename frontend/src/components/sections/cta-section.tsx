@@ -23,7 +23,7 @@ export function CTASection() {
           <div>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-full mb-6">
               <div className="w-2 h-2 bg-[#22C55E] rounded-full animate-pulse" />
-              <span className="text-[14px] font-medium text-[#22C55E]">Let's Build Something Amazing</span>
+              <span className="text-[14px] font-medium text-[#22C55E]">Let&apos;s Build Something Amazing</span>
             </div>
 
             <h2 style={{ fontSize: '48px' }} className="font-bold text-[#F9FAFB] mb-4 leading-tight">

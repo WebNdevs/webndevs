@@ -122,30 +122,6 @@ export function MegaMenu({
   );
 }
 
-// export function BreadcrumbNav({ items }: { items: { label: string; to?: string }[] }) {
-//   const schemaItems = items.map((item, index) => ({
-//     "@type": "ListItem",
-//     position: index + 1,
-//     name: item.label,
-//     ...(item.to ? { item: `${window.location.origin}${item.to}` } : {}),
-//   }));
-
-//   return (
-//     <>
-//       <SchemaOrg id="breadcrumb-schema" data={{ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: schemaItems }} />
-//       <nav aria-label="Breadcrumb" className="text-sm text-slate-300">
-//         <ol className="flex flex-wrap gap-2">
-//           {items.map((item, idx) => (
-//             <li key={`${item.label}-${idx}`} className="flex items-center gap-2">
-//               {item.to ? <Link href={item.to}>{item.label}</Link> : <span className="text-white">{item.label}</span>}
-//               {idx < items.length - 1 ? <span>/</span> : null}
-//             </li>
-//           ))}
-//         </ol>
-//       </nav>
-//     </>
-//   );
-// }
 
 export function TableOfContents({ items }: { items: string[] }) {
   return (
