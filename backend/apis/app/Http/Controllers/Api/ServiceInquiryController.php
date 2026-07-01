@@ -68,12 +68,33 @@ class ServiceInquiryController extends Controller
               . "Service: " . $inquiry->service_slug . "\n"
               . "project WebNDevs: \n" . $inquiry->project_brief . "\n";
 
+        // 1. Send inquiry notification to admin
         try {
-            \Illuminate\Support\Facades\Mail::raw($body, function ($message) use ($supportEmail, $subject) {
+            \Illuminate\Support\Facades\Mail::send('emails.inquiry_notification', [
+                'name' => $inquiry->name,
+                'email' => $inquiry->email,
+                'phone' => $inquiry->phone,
+                'service_slug' => $inquiry->service_slug,
+                'project_brief' => $inquiry->project_brief,
+            ], function ($message) use ($supportEmail, $subject) {
                 $message->to($supportEmail)->subject($subject);
             });
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Failed to send contact form email: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error("Failed to send admin notification email: " . $e->getMessage());
+        }
+
+        // 2. Send confirmation email to customer
+        try {
+            $customerSubject = "We have received your inquiry - WebNDevs";
+            \Illuminate\Support\Facades\Mail::send('emails.customer_confirmation', [
+                'name' => $inquiry->name,
+                'service_slug' => $inquiry->service_slug,
+                'project_brief' => $inquiry->project_brief,
+            ], function ($message) use ($inquiry, $customerSubject) {
+                $message->to($inquiry->email)->subject($customerSubject);
+            });
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to send customer confirmation email: " . $e->getMessage());
         }
 
         return $this->success($inquiry, 'Inquiry submitted successfully.', 201);
