@@ -53,10 +53,10 @@ class ServiceInquiryController extends Controller
             ]);
         }
 
-        // Retrieve support email to send notifications to, fallback to mail.from.address (MAIL_FROM_ADDRESS in .env)
+        // Retrieve support email to send notifications to, fallback to sales@webndevs.com
         $supportEmail = \App\Services\SettingsService::get('general', 'support_email');
         if (empty($supportEmail) || $supportEmail === 'support@webndevs.local') {
-            $supportEmail = config('mail.from.address') ?? 'sales@webndevs.com';
+            $supportEmail = 'sales@webndevs.com';
         }
 
         // Compile mail content
@@ -93,6 +93,7 @@ class ServiceInquiryController extends Controller
                 'name' => $inquiry->name,
                 'service_slug' => $inquiry->service_slug,
                 'project_brief' => $inquiry->project_brief,
+                'support_email' => $supportEmail,
             ], function ($message) use ($inquiry, $customerSubject) {
                 $message->to($inquiry->email)->subject($customerSubject);
             });

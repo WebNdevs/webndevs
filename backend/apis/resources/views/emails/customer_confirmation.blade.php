@@ -113,7 +113,7 @@
         </div>
         <div class="footer" style="background-color: #0B0F14; padding: 20px; text-align: center; font-size: 13px; color: #6B7280; border-top: 1px solid #1F2937;">
             <p style="margin: 0 0 10px 0;">© 2026 WebNDevs. All rights reserved.</p>
-            <p style="margin: 0;">If you have any urgent queries, reply to this email or reach us at <a href="mailto:hitesh@webndevs.com" style="color: #22C55E; text-decoration: none;">hitesh@webndevs.com</a></p>
+            <p style="margin: 0;">If you have any urgent queries, reply to this email or reach us at <a href="mailto:{{ $support_email }}" style="color: #22C55E; text-decoration: none;">{{ $support_email }}</a></p>
         </div>
     </div>
 </body>
