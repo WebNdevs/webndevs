@@ -68,6 +68,8 @@ class ServiceInquiryController extends Controller
               . "Service: " . $inquiry->service_slug . "\n"
               . "project WebNDevs: \n" . $inquiry->project_brief . "\n";
 
+        $mailErrors = [];
+
         // 1. Send inquiry notification to admin
         try {
             \Illuminate\Support\Facades\Mail::send('emails.inquiry_notification', [
@@ -81,6 +83,7 @@ class ServiceInquiryController extends Controller
             });
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Failed to send admin notification email: " . $e->getMessage());
+            $mailErrors['admin'] = $e->getMessage();
         }
 
         // 2. Send confirmation email to customer
@@ -95,8 +98,16 @@ class ServiceInquiryController extends Controller
             });
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Failed to send customer confirmation email: " . $e->getMessage());
+            $mailErrors['customer'] = $e->getMessage();
         }
 
-        return $this->success($inquiry, 'Inquiry submitted successfully.', 201);
+        $responseData = [
+            'inquiry' => $inquiry,
+        ];
+        if (!empty($mailErrors)) {
+            $responseData['mail_errors'] = $mailErrors;
+        }
+
+        return $this->success($responseData, 'Inquiry submitted successfully.', 201);
     }
 }
