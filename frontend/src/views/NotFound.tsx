@@ -8,7 +8,7 @@ import { getHome } from "@/data/homedata";
 export default function NotFoundPage() {
   const section = getHome('error')
   return (
-    <section className="py-20 px-6">
+    <section aria-label="Page Not Found" className="py-20 px-6">
       <div className="max-w-7xl mx-auto">
 
         <HeaderSection {...section}/>

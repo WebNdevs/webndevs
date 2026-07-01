@@ -84,7 +84,7 @@ export function DSButton({ variant = 'primary', size = 'md', loading = false, as
 };
 
 // -----------------------
-interface DSCardProps {
+interface DSCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   className?: string;
   hoverable?: boolean;
@@ -95,9 +95,9 @@ const Card = 'bg-[#1F2937] rounded-xl p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4)
 
 const Card_hover = 'transition-all duration-200 hover:bg-[#273449] hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.5)]';
 
-export function DSCard({ children, className = '', hoverable = false, onClick }: DSCardProps) {
+export function DSCard({ children, className = '', hoverable = false, onClick, ...props }: DSCardProps) {
   return (
-    <div onClick={onClick} className={`${Card} ${hoverable ? Card_hover : ''} ${className}`}>
+    <div onClick={onClick} className={`${Card} ${hoverable ? Card_hover : ''} ${className}`} {...props}>
       {children}
     </div>
   );

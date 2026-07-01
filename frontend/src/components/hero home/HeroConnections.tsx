@@ -9,7 +9,7 @@ export default function HeroConnections() {
         className="absolute inset-0 h-full w-full"
         viewBox="0 0 600 600"
         fill="none"
-        aria-hidden
+        aria-hidden="true"
       >
         {/* ===============================
             Center Connections

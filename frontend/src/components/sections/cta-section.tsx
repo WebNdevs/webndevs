@@ -13,7 +13,7 @@ const Benefits = [
 
 export function CTASection() {
   return (
-    <section id="get-started" className="py-20 px-6 bg-[#111827] relative overflow-hidden">
+    <section id="get-started" aria-label="Contact and consultation request" className="py-20 px-6 bg-[#111827] relative overflow-hidden">
       <div className="absolute top-0 right-0 w-125 h-125 bg-[#22C55E]/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-100 h-100 bg-[#06B6D4]/5 rounded-full blur-3xl" />
 
@@ -58,11 +58,11 @@ export function CTASection() {
                 sales@webndevs.com
               </a>
               <a href="tel:+17627603015" rel="noopener noreferrer" className="flex items-center gap-2 text-[14px] text-[#9CA3AF] hover:text-[#22C55E] transition-colors">
-                <MessageSquare className="w-4 h-4" /> <h4>US</h4>
+                <MessageSquare className="w-4 h-4" /> <strong className="font-semibold">US</strong>
                 +1 (762) 760-3015
               </a>
               <a href="tel:+919887603015" rel="noopener noreferrer" className="flex items-center gap-2 text-[14px] text-[#9CA3AF] hover:text-[#22C55E] transition-colors">
-                <MessageSquare className="w-4 h-4" /> <h4>IN</h4>
+                <MessageSquare className="w-4 h-4" /> <strong className="font-semibold">IN</strong>
                 +91 (988) 760-3015
               </a>
             </div>
@@ -94,11 +94,13 @@ export function ShortCTA({ variant = "full", preview, full} : ShortCTAProps) {
     return(
       <div className="text-center mt-12 mb-8">
         { preview && (
-          <DSButton className="text-xl font-medium">
-            <Link href={preview.url} >
-              {preview.text}
-            </Link >
-          </DSButton>
+          <Link href={preview.url} passHref legacyBehavior={false}>
+            <DSButton className="text-xl font-medium" asChild>
+              <span>
+                {preview.text}
+              </span>
+            </DSButton>
+          </Link>
         )}
       </div>
     )

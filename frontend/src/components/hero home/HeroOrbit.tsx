@@ -17,7 +17,7 @@ export default function HeroOrbit({
 }: HeroOrbitProps) {
   return (
     <div
-      aria-hidden
+      aria-hidden="true"
       className="
         relative
 

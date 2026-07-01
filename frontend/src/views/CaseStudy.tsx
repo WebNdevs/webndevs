@@ -3,9 +3,9 @@ import { CaseStudySection } from '@/components/sections/case-study-section';
 
 export function CaseStudyPage() {
   return (
-    <section className="space-y-10">
+    <div className="space-y-10">
       <CaseStudySection/>
       <CTASection/>
-    </section>
+    </div>
   );
 }

@@ -83,6 +83,7 @@ export const FilterBar = memo(function FilterBar({
               key={option.value}
               type="button"
               onClick={() => handleSelect(option.value)}
+              aria-pressed={active}
               className={[
                 "rounded-full border px-4 py-2 text-sm font-medium",
                 "transition-colors duration-150",
@@ -111,6 +112,9 @@ export const FilterBar = memo(function FilterBar({
         <button
           type="button"
           onClick={toggleDropdown}
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-label="Filter by category"
           className="flex min-w-48 items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white transition-colors duration-150 hover:bg-white/10"
         >
           <span>{selected.label}</span>
@@ -129,6 +133,7 @@ export const FilterBar = memo(function FilterBar({
                 key={option.value}
                 type="button"
                 onClick={() => handleSelect(option.value)}
+                aria-pressed={option.value === value}
                 className={[
                   "flex w-full items-center justify-between px-4 py-3 text-left text-sm",
                   "transition-colors duration-150 hover:bg-white/10",

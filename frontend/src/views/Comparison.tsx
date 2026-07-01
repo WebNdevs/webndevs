@@ -3,9 +3,9 @@ import { ComparisonSection } from "@/components/sections/comparison-section";
 
 export function ComparisonPage() {
   return(
-    <section className="space-y-10">
+    <div className="space-y-10">
       <ComparisonSection/>
       <CTASection/>
-    </section>
+    </div>
   )
 }

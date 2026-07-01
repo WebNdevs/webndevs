@@ -3,9 +3,9 @@ import { FreeToolSection } from "@/components/sections/free-tool-section";
 
 export function FreeToolsPage() {
   return(
-    <section className="space-y-10">
+    <div className="space-y-10">
       <FreeToolSection/>
       <CTASection/>
-    </section>
+    </div>
   )
 }

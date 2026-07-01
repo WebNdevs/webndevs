@@ -201,7 +201,7 @@ export function GlobalSearch({
   };
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4 mb-16">
+    <div role="search" className="rounded-xl border border-white/10 bg-white/5 p-4 mb-16">
       <input
         value={term}
         onChange={(e) => setTerm(e.target.value)}

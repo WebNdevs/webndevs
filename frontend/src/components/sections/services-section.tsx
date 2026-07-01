@@ -11,7 +11,7 @@ export function ServicesSection() {
   if(!section) return null;
 
   return (
-    <section id="services" className="py-20 px-6">
+    <section id="services" aria-label="Services" className="py-20 px-6">
       <div className="max-w-7xl mx-auto">
         <PageHero {...section.hero as PageHeroProps}/>
         {/* Section Header */}

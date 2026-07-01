@@ -4,9 +4,9 @@ import { FAQSection } from "@/components/sections/faq-section";
 
 export function FAQPage() {
   return (
-    <section className="space-y-10">
+    <div className="space-y-10">
       <FAQSection/>
       <CTASection/>
-    </section>
+    </div>
   );
 }

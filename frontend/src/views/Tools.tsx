@@ -3,9 +3,9 @@ import { ToolSection } from "@/components/sections/tool-section";
 
 export function ToolsPage() {
   return(
-    <section className="space-y-10">
+    <div className="space-y-10">
       <ToolSection/>
       <CTASection/>
-    </section>
+    </div>
   )
 }

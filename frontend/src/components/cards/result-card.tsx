@@ -22,7 +22,7 @@ export function ResultCard({title, category, description, tags, badge, url, resu
           </DSBadge>
         )}
         { url && (
-          <a className="text-[#9CA3AF] hover:text-[#22C55E] transition-colors" href={url} target='_blank' rel='noopener noreferrer' aria-label={`Open ${title}`} >
+          <a className="text-[#9CA3AF] hover:text-[#22C55E] transition-colors" href={url} target='_blank' rel='noopener noreferrer' aria-label={`Open ${title || 'project site'} in a new tab`} >
             <ExternalLink className="w-5 h-5" />
           </a>
         )}

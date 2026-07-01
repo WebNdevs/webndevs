@@ -16,7 +16,7 @@ export function TestimonialsSection({variant = 'full'} : TestimonialSectionProps
   if(!section) return null;
 
   return (
-    <section id='testimonials' className="py-20 px-6 bg-[#0B0F14]">
+    <section id='testimonials' aria-label="Client Testimonials" className="py-20 px-6 bg-[#0B0F14]">
       <div className="max-w-7xl mx-auto">
         <PageHero variant={variant} {...section.hero as PageHeroProps}/>
         {/* Section Header */}

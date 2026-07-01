@@ -18,7 +18,15 @@ export function ContentCard({title, excerpt, image, tags, onClick,} : ContentCar
     <DSCard
       hoverable
       onClick={onClick}
-      className="cursor-pointer overflow-hidden"
+      className="cursor-pointer overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22C55E]"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       <Image
         width={300}

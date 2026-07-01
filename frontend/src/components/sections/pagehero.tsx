@@ -24,7 +24,7 @@ export function PageHero({ tag, title1, title2, description, variant = 'full'}: 
   if(variant === 'preview') return null;
 
   return (
-    <section
+    <div
       className="relative w-full overflow-hidden border-b border-white/[0.07] mb-10"
       style={{ backgroundColor: BG }}
     >
@@ -82,7 +82,7 @@ export function PageHero({ tag, title1, title2, description, variant = 'full'}: 
       {/* ── Top-right corner: diagonal ray + glowing node ────────────── */}
       <svg
         className="pointer-events-none absolute top-0 right-0 hidden sm:block"
-        width="440" height="200" viewBox="0 0 440 200" fill="none" aria-hidden
+        width="440" height="200" viewBox="0 0 440 200" fill="none" aria-hidden="true"
       >
         <defs>
           <filter id="ph-node-glow" x="-80%" y="-80%" width="260%" height="260%">
@@ -225,7 +225,7 @@ export function PageHero({ tag, title1, title2, description, variant = 'full'}: 
         <BottomArc />
       </div>
 
-    </section>
+    </div>
   );
 }
 
@@ -268,7 +268,7 @@ function CornerBracket({
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       fill="none"
-      aria-hidden
+      aria-hidden="true"
     >
       <path d={d[pos]} stroke={stroke} strokeWidth={sw} strokeOpacity="0.45" strokeLinecap="square" />
     </svg>
@@ -294,7 +294,7 @@ function ChevronRow({ count }: { count: number }) {
   const W = 11, GAP = 5, H = 10;
   const totalW = count * W + (count - 1) * GAP;
   return (
-    <svg width={totalW} height={H} viewBox={`0 0 ${totalW} ${H}`} fill="none" aria-hidden>
+    <svg width={totalW} height={H} viewBox={`0 0 ${totalW} ${H}`} fill="none" aria-hidden="true">
       {Array.from({ length: count }).map((_, i) => {
         const x = i * (W + GAP);
         return (
@@ -328,7 +328,7 @@ function PlusMark({
     <svg
       className={`pointer-events-none absolute ${hideCls}`}
       style={{ ...style, opacity: 0.2 }}
-      width={14} height={14} viewBox="0 0 14 14" fill="none" aria-hidden
+      width={14} height={14} viewBox="0 0 14 14" fill="none" aria-hidden="true"
     >
       <line x1="7" y1="0" x2="7" y2="14" stroke="white" strokeWidth="1.2" />
       <line x1="0" y1="7" x2="14" y2="7" stroke="white" strokeWidth="1.2" />
@@ -369,7 +369,7 @@ function BottomArc() {
       preserveAspectRatio="xMidYMax meet"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
+      aria-hidden="true"
     >
       <defs>
         <filter id="ph-arc-glow" x="-4%" y="-60%" width="108%" height="220%">

@@ -4,7 +4,7 @@ import { ArrowRight, Play } from 'lucide-react';
 export function HeroSection() {
 
   return (
-    <section className="relative overflow-hidden px-4 pb-14 pt-24 sm:px-6 sm:pb-16 sm:pt-28 lg:pb-20 lg:pt-32">
+    <section aria-label="Introduction Hero" className="relative overflow-hidden px-4 pb-14 pt-24 sm:px-6 sm:pb-16 sm:pt-28 lg:pb-20 lg:pt-32">
       {/* Background gradient effect */}
       <>
         <div className="absolute top-0 right-0 w-150 h-150 bg-[#22C55E]/5 rounded-full blur-3xl" />

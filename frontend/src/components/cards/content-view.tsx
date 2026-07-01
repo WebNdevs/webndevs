@@ -14,10 +14,21 @@ export function ContentModal({content, onClose} : ContentModalProps) {
     document.body.style.overflow =
       content ? "hidden" : "auto";
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    if (content) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
     return () => {
       document.body.style.overflow = "auto";
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [content]);
+  }, [content, onClose]);
 
   if (!content) return null;
 
@@ -28,11 +39,15 @@ export function ContentModal({content, onClose} : ContentModalProps) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-[#111827] rounded-2xl p-8"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-[#111827] rounded-2xl p-8 focus:outline-none"
       >
         <button
           onClick={onClose}
-          className="float-right text-[#9CA3AF]"
+          aria-label="Close modal"
+          className="float-right text-[#9CA3AF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22C55E] rounded-md p-1"
         >
           ✕
         </button>
@@ -45,7 +60,7 @@ export function ContentModal({content, onClose} : ContentModalProps) {
           className="w-full h-64 object-cover rounded-xl mb-6"
         />
 
-        <h2 className="text-4xl font-bold text-white mb-4">
+        <h2 id="modal-title" className="text-4xl font-bold text-white mb-4">
           {content.title}
         </h2>
 

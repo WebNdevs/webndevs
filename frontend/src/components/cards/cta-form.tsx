@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useId } from "react";
 import { DSButton, DSInput } from "./DScomponents";
 import { ArrowRight, Calendar } from "lucide-react";
 import { API_BASE_URL } from "@/config/api";
@@ -31,6 +31,9 @@ type Status = { state: "idle" } | { state: "loading" } | { state: "success" } | 
 
 export function CTAForm() {
   const [form, setForm] = useState(EMPTY_FORM);
+  const serviceSelectId = useId();
+  const projectBriefId = useId();
+  const honeypotId = useId();
 
   const [status, setStatus] = useState<Status>({
     state: "idle",
@@ -158,6 +161,7 @@ export function CTAForm() {
           {/* Honeypot field (hidden from users, will be filled by spam bots) */}
           <div className="hidden" aria-hidden="true">
             <input
+              id={honeypotId}
               type="text"
               name="address"
               value={form.address}
@@ -166,6 +170,7 @@ export function CTAForm() {
               }
               tabIndex={-1}
               autoComplete="off"
+              aria-label="Do not fill this field if you are a human"
             />
           </div>
           <DSInput
@@ -201,11 +206,12 @@ export function CTAForm() {
           />
 
           <div>
-            <label className="block text-[#F9FAFB] text-[14px] font-medium mb-2">
+            <label htmlFor={serviceSelectId} className="block text-[#F9FAFB] text-[14px] font-medium mb-2">
               What service are you interested in?
             </label>
 
             <select
+              id={serviceSelectId}
               value={form.service}
               onChange={(e) =>
                 handleChange("service", e.target.value)
@@ -224,11 +230,12 @@ export function CTAForm() {
           </div>
 
           <div>
-            <label className="block text-[#F9FAFB] text-[14px] font-medium mb-2">
+            <label htmlFor={projectBriefId} className="block text-[#F9FAFB] text-[14px] font-medium mb-2">
               Tell us about your project
             </label>
 
             <textarea
+              id={projectBriefId}
               rows={4}
               required
               minLength={10}

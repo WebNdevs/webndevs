@@ -60,13 +60,13 @@ class ServiceInquiryController extends Controller
         }
 
         // Compile mail content
-        $subject = "project WebNDevs - New Inquiry: " . $inquiry->name;
+        $subject = "WebNDevs - New Project Inquiry: " . $inquiry->name;
         $body = "You have received a new service inquiry from your website.\n\n"
               . "Name: " . $inquiry->name . "\n"
               . "Email: " . $inquiry->email . "\n"
               . "Phone: " . ($inquiry->phone ?? 'N/A') . "\n"
               . "Service: " . $inquiry->service_slug . "\n"
-              . "project WebNDevs: \n" . $inquiry->project_brief . "\n";
+              . "Project Brief: \n" . $inquiry->project_brief . "\n";
 
         $mailErrors = [];
 

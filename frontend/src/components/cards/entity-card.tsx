@@ -104,8 +104,8 @@ export function EntityCard({
 
         <div className="mt-8 pt-2 flex items-center justify-between border-t border-white/5">
 
-          <DSButton>
-            Learn More
+          <DSButton asChild>
+            <span>Learn More</span>
           </DSButton>
 
           <ArrowUpRight className="h-6 w-6 text-[#22C55E] transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />

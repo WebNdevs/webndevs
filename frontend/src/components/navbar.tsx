@@ -91,8 +91,8 @@ export function Navbar() {
   }, [mobileMenuOpen]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-60 bg-[#111827]/95 backdrop-blur-sm border-b border-[#374151]" aria-label="Primary navigation">
-      <div className="max-w-7xl mx-auto px-6">
+    <header className="fixed top-0 left-0 right-0 z-60 bg-[#111827]/95 backdrop-blur-sm border-b border-[#374151]" role="banner">
+      <nav className="max-w-7xl mx-auto px-6" aria-label="Primary navigation">
         <div className="flex items-center justify-between h-18">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
@@ -116,9 +116,9 @@ export function Navbar() {
                     </Link>
                   <div className="absolute left-5 top-full hidden group-hover:block w-64 rounded-xl border border-white/10 bg-[#111827] p-2 shadow-xl z-50">
                     {item.children?.map((child) =>(
-                    <Link key={child.label} href={child.href} className="block rounded-lg px-3 py-2 text-[#F9FAFB] hover:text-[#F9FAFB] hover:bg-white/5 transition-colors">
-                      {child.label}
-                    </Link>
+                     <Link key={child.label} href={child.href} className="block rounded-lg px-3 py-2 text-[#F9FAFB] hover:text-[#F9FAFB] hover:bg-white/5 transition-colors">
+                       {child.label}
+                     </Link>
                     ))}
                   </div>
                 </div>
@@ -197,6 +197,9 @@ export function Navbar() {
                         setOpenDropdown(openDropdown === item.label ? null : item.label)
                       }
                       className="p-1"
+                      aria-label={`Toggle ${item.label} submenu`}
+                      aria-expanded={openDropdown === item.label}
+                      aria-controls={`submenu-${item.label.toLowerCase()}`}
                     >
                       <ChevronDown
                         size={18}
@@ -210,7 +213,7 @@ export function Navbar() {
 
                   {/* Children */}
                   {openDropdown === item.label && (
-                    <div className="ml-5 flex flex-col border-2 rounded-2xl border-[#374151] pl-4 max-h-64 overflow-y-auto overscroll-contain">
+                    <div id={`submenu-${item.label.toLowerCase()}`} className="ml-5 flex flex-col border-2 rounded-2xl border-[#374151] pl-4 max-h-64 overflow-y-auto overscroll-contain">
 
                       {item.children?.map((child) => (
                         <Link
@@ -235,7 +238,7 @@ export function Navbar() {
 
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 }
