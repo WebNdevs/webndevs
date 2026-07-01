@@ -41,7 +41,7 @@ class SettingsController extends Controller
             'site_url' => 'http://localhost:5175',
             'timezone' => 'Asia/Kolkata',
             'default_language' => 'en',
-            'support_email' => 'support@webndevs.local',
+            'support_email' => 'sales@webndevs.com',
             'maintenance_mode' => false,
             'site_logo_url' => '',
             'favicon_url' => '',
@@ -55,7 +55,7 @@ class SettingsController extends Controller
             'password' => '',
             'encryption' => 'tls',
             'from_name' => 'WebNDevs CMS',
-            'from_email' => 'noreply@webndevs.local',
+            'from_email' => 'sales@webndevs.com',
             'reply_to_email' => '',
         ],
         'api-keys' => [
