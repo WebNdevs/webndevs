@@ -24,7 +24,7 @@ export function ContentCard({title, excerpt, image, tags, onClick,} : ContentCar
         width={300}
         height={48}
         src={image || "/logo.png"}
-        alt={title || "Card image"}
+        alt={title || "WebNDevs Project Showcase"}
         className="w-full h-48 object-cover rounded-lg mb-4"
       />
 

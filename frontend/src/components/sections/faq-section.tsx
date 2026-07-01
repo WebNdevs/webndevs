@@ -10,15 +10,33 @@ export function FAQSection() {
 
   if(!section) return null;
 
+  const faqItems = (section.items || []) as FAQItemProps[];
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map((item) => ({
+      "@type": "Question",
+      "name": item.question || "",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.answer || "",
+      },
+    })),
+  };
+
   return (
     <section id="faq" className="py-20 px-6 bg-[#0B0F14]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <div className="max-w-4xl mx-auto">
         <PageHero {...section.hero as PageHeroProps} />
         {/* Section Header */}
         <HeaderSection {...section} />
 
         {/* FAQ Accordion */}
-        <FAQCard items={section?.items as FAQItemProps[]} />
+        <FAQCard items={faqItems} />
 
         {/* Still Have Questions */}
         <ShortCTA {...section?.cta} />

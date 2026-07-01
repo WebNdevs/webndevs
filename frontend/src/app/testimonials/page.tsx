@@ -3,10 +3,11 @@ import { TestimonialsPage } from "@/views/Testimonial";
 import { Metadata } from "next";
 
 export const metadata: Metadata = generateSEO({
-  title: "Testimonials",
+  title: "Client Testimonials & Reviews | WebNDevs Success Stories",
   description:
-    "Success stories of many clients that found the results as expected.",
-    path: "/testimonials",
+    "See what our clients say about us. Read verified reviews and success stories regarding our web portals, automation engineering, and custom software systems.",
+  path: "/testimonials",
+  keywords: ["client reviews", "web development testimonials", "software design ratings", "WebNDevs reviews", "verified client feedback"],
 });
 
 export default function Page() {

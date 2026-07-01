@@ -4,6 +4,12 @@ import { Metadata } from "next";
 import { DynamicService, DynamicServiceProps } from "@/components/sections/dynamic-service-section";
 import { generateSEO } from "@/data/seo";
 
+export async function generateStaticParams() {
+  return ServicePages.map((item) => ({
+    slug: item.slug,
+  }));
+}
+
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {

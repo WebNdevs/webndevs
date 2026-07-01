@@ -9,7 +9,7 @@ const FOOTER_LINKS = {
     { label: "Web Development", href: "/services/web-development" },
     { label: "Mobile App Development", href: "/services/mobile-app-development" },
     { label: "UI/UX Design", href: "/services/ui-ux-design" },
-    { label: "AI & Automation", href: "/services/automation" },
+    { label: "AI & Automation", href: "/services/ai-automation" },
     { label: "Digital Marketing", href: "/services/digital-marketing" },
   ],
 

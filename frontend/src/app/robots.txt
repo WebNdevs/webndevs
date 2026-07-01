@@ -1,14 +1,14 @@
 # Robots.txt for WebNDevs
-# Strict crawling rules - site is not ready for indexing
+# Production crawler rules
 
-# Block all crawlers
 User-agent: *
-Disallow: /
-
-# Internal paths (blocked anyway by Disallow: /)
-Disallow: /api/
+Allow: /
+Disallow: /*?*
 Disallow: /_next/
+Disallow: /api/
 Disallow: /admin/
+Disallow: /404
+Disallow: /500
 
-# Allow sitemap (but crawlers are already blocked above)
+# Allow sitemap
 Sitemap: https://webndevs.com/sitemap.xml

@@ -3,10 +3,11 @@ import { PrivacyPolicyPage } from "@/views/Privacy";
 import { Metadata } from "next";
 
 export const metadata: Metadata = generateSEO({
-  title: "Privacy Policy",
+  title: "Privacy Policy | WebNDevs Data Protection Commitment",
   description:
-    "Privacy is needed to be guaranteed and given by default.",
-    path: "/privacy-policy",
+    "Review the WebNDevs Privacy Policy. Understand how we collect, process, secure, and manage your data in compliance with general data protection guidelines.",
+  path: "/privacy-policy",
+  keywords: ["privacy policy", "data protection", "GDPR compliance", "privacy policy webndevs"],
 });
 
 export default function Page() {

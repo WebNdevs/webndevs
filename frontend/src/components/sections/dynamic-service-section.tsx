@@ -80,8 +80,45 @@ export type DynamicServiceProps = {
 export function DynamicService({section}:DynamicServiceProps) {  
   if(!section) return null;
 
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": `${section.hero?.title1 || ""} ${section.hero?.title2 || ""}`.trim() || section.tag || "Service",
+    "description": section.seo?.description || section.hero?.description || "",
+    "provider": {
+      "@type": "Organization",
+      "name": "WebNDevs",
+      "url": "https://webndevs.com"
+    },
+    "serviceType": section.tag || "Web & Software Services",
+    "areaServed": "Worldwide"
+  };
+
+  const faqItems = section.faq?.items || [];
+  const faqSchema = faqItems.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map((item) => ({
+      "@type": "Question",
+      "name": item.question || "",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.answer || "",
+      },
+    })),
+  } : null;
+
+  const schemas: object[] = [serviceSchema];
+  if (faqSchema) {
+    schemas.push(faqSchema);
+  }
+
   return (
     <section id='blogs' className="py-20 px-6 bg-[#0B0F14]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemas) }}
+      />
       <div className="max-w-7xl mx-auto">
         {section?.hero && (
           <PageHero {...section?.hero as PageHeroProps}/>

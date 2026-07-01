@@ -41,7 +41,7 @@ export function ContentModal({content, onClose} : ContentModalProps) {
           width={300}
           height={48}
           src={content.image || "/logo.png"}
-          alt={content.title || "Card image"}
+          alt={content.title || "WebNDevs Project Showcase"}
           className="w-full h-64 object-cover rounded-xl mb-6"
         />
 

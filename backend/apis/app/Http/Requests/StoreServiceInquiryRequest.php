@@ -23,6 +23,7 @@ class StoreServiceInquiryRequest extends FormRequest
             'company' => ['nullable', 'string', 'max:120'],
             'budget' => ['nullable', 'string', 'max:120'],
             'project_brief' => ['required', 'string', 'min:10', 'max:5000'],
+            'address' => ['nullable', 'string'],
         ];
     }
 }

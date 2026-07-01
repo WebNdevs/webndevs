@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { DSButton, DSInput } from "./DScomponents";
 import { ArrowRight, Calendar } from "lucide-react";
+import { API_BASE_URL } from "@/config/api";
 
 const SERVICES = [
   "Web Development",
@@ -21,6 +22,7 @@ const EMPTY_FORM = {
   phone: "",
   service: SERVICES[0],
   message: "",
+  address: "", // Honeypot field for spam prevention
 };
 
 type ContactFormData = typeof EMPTY_FORM;
@@ -38,9 +40,14 @@ export function CTAForm() {
     field: keyof ContactFormData,
     value: string
   ) => {
+    let processedValue = value;
+    if (field === "phone") {
+      // Allow only numbers, plus, minus, parentheses and spaces for phone number
+      processedValue = value.replace(/[^0-9+\-\(\)\s]/g, "");
+    }
     setForm((prev) => ({
       ...prev,
-      [field]: value,
+      [field]: processedValue,
     }));
   };
 
@@ -53,13 +60,41 @@ export function CTAForm() {
 
     setStatus({ state: "loading" });
 
-    try {
-      // TODO: Replace with backend API
-      console.log("CTA Form Submitted", form);
+    // Honeypot check: If the hidden honeypot field is filled, silently discard the request (acting as success)
+    if (form.address) {
+      setForm({ ...EMPTY_FORM });
+      setStatus({ state: "success" });
+      return;
+    }
 
-      await new Promise((resolve) =>
-        setTimeout(resolve, 1000)
-      );
+    try {
+      const serviceSlug = form.service
+        .toLowerCase()
+        .replace(/ & /g, "-")
+        .replace(/ \/ /g, "-")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+
+      const response = await fetch(`${API_BASE_URL}/service-inquiries`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          service_slug: serviceSlug,
+          name: form.name,
+          email: form.email,
+          phone: form.phone || null,
+          project_brief: form.message,
+          address: form.address || null, // send honeypot field
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to submit request.");
+      }
 
       setForm({ ...EMPTY_FORM });
 
@@ -120,6 +155,19 @@ export function CTAForm() {
           onSubmit={handleSubmit}
           className="space-y-5"
         >
+          {/* Honeypot field (hidden from users, will be filled by spam bots) */}
+          <div className="hidden" aria-hidden="true">
+            <input
+              type="text"
+              name="address"
+              value={form.address}
+              onChange={(e) =>
+                handleChange("address", e.target.value)
+              }
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </div>
           <DSInput
             label="Full Name"
             type="text"
@@ -183,6 +231,7 @@ export function CTAForm() {
             <textarea
               rows={4}
               required
+              minLength={10}
               value={form.message}
               onChange={(e) =>
                 handleChange("message", e.target.value)

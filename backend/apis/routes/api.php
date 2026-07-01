@@ -131,7 +131,7 @@ Route::prefix('v1')->group(function () {
     ));
     Route::get('/media/assets', [MediaLibraryController::class, 'assets']);
     Route::get('/media/folders/tree', [MediaLibraryController::class, 'foldersTree']);
-    Route::post('/service-inquiries', [ServiceInquiryController::class, 'store']);
+    Route::post('/service-inquiries', [ServiceInquiryController::class, 'store'])->middleware('throttle:3,1');
 
     Route::get('/content-pages', [ContentPageController::class, 'index']);
     Route::get('/content-pages/{contentPage:slug}', [ContentPageController::class, 'show']);

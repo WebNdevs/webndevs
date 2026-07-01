@@ -20,6 +20,10 @@ export function generateSEO({
   keywords = [],
   noIndex = false,
 }: SEOProps): Metadata {
+  // Enforce clean absolute URL for canonicals
+  const cleanPath = path.split("?")[0].replace(/\/+$/, "").replace(/\/+/g, "/");
+  const absoluteUrl = `https://webndevs.com${cleanPath.startsWith("/") ? cleanPath : "/" + cleanPath}`;
+
   return {
     title,
 
@@ -33,13 +37,13 @@ export function generateSEO({
     },
 
     alternates: {
-      canonical: path,
+      canonical: absoluteUrl,
     },
 
     openGraph: {
       title,
       description,
-      url: path,
+      url: absoluteUrl,
       images: [
         {
           url: image,

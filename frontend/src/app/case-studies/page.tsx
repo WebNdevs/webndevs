@@ -3,10 +3,11 @@ import { CaseStudyPage } from "@/views/CaseStudy";
 import { Metadata } from "next";
 
 export const metadata: Metadata = generateSEO({
-  title: "CaseStudies",
+  title: "Case Studies: Client Success & Technical Results | WebNDevs",
   description:
-    "Our case studies on some important and helpful researches",
-    path: "/case-studies",
+    "Explore our deep-dive case studies. Discover how we helped enterprise companies and startups scale using Next.js web portals, robust APIs, and custom database engineering.",
+  path: "/case-studies",
+  keywords: ["software case studies", "business success stories", "web development results", "custom programming case studies", "client ROI cases"],
 });
 
 export default function Page() {

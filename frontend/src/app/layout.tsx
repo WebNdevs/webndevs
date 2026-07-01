@@ -1,6 +1,7 @@
 import Shell from "../components/seo&maintainance/shell";
 import "./globals.css"
 import GlobalOrganizationSchema from "../components/seo&maintainance/globalschema";
+import BreadcrumbSchema from "../components/seo&maintainance/breadcrumbschema";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -97,6 +98,7 @@ export default function RootLayout({
     <html lang="en" data-scroll-behaviour="smooth">
       <body>
         <GlobalOrganizationSchema />
+        <BreadcrumbSchema />
         <Shell>{children}</Shell>
       </body>
     </html>

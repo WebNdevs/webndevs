@@ -116,7 +116,7 @@ export function Navbar() {
                     </Link>
                   <div className="absolute left-5 top-full hidden group-hover:block w-64 rounded-xl border border-white/10 bg-[#111827] p-2 shadow-xl z-50">
                     {item.children?.map((child) =>(
-                    <Link key={child.label} href={child.href} className="block rounded-lg px-3 py-2 hover:bg-white/5">
+                    <Link key={child.label} href={child.href} className="block rounded-lg px-3 py-2 text-[#F9FAFB] hover:text-[#F9FAFB] hover:bg-white/5 transition-colors">
                       {child.label}
                     </Link>
                     ))}

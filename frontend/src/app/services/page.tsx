@@ -3,10 +3,11 @@ import { ServicesPage } from "@/views/Services";
 import { Metadata } from "next";
 
 export const metadata: Metadata = generateSEO({
-  title: "Services",
+  title: "Professional Web Development & Custom Software Services | WebNDevs",
   description:
-    "Explore the services that we provide for our clients.",
-    path: "/services",
+    "Explore our complete range of digital services including high-performance web development, custom software development, mobile apps, database integrations, and AI automation.",
+  path: "/services",
+  keywords: ["custom software services", "professional web development", "AI workflow automation", "mobile app developers", "database solutions"],
 });
 
 export default function Page() {

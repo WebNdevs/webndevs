@@ -4,6 +4,12 @@ import { IndustryPages } from "@/data/industry";
 import { Metadata } from "next";
 import { generateSEO } from "@/data/seo";
 
+export async function generateStaticParams() {
+  return IndustryPages.map((item) => ({
+    slug: item.slug,
+  }));
+}
+
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {

@@ -191,7 +191,7 @@ export const ServicePages: DynamicServiceData[] = [
           icon: 'ShoppingBag',
           title: 'E-commerce Brands',
           description: 'Sell products online with a secure, high-converting online store.',
-          href: '/solutions/ecommerce'
+          href: '/industries/retail-ecommerce'
         },
         {
           icon: 'Cpu',
@@ -486,7 +486,7 @@ export const ServicePages: DynamicServiceData[] = [
           icon: 'ShoppingBag',
           title: 'E-commerce Businesses',
           description: 'Give customers a seamless mobile shopping experience.',
-          href: '/solutions/ecommerce'
+          href: '/industries/retail-ecommerce'
         },
         {
           icon: 'Calendar',
@@ -764,7 +764,7 @@ export const ServicePages: DynamicServiceData[] = [
           icon: 'ShoppingBag',
           title: 'E-commerce Brands',
           description: 'Create shopping experiences that increase conversions.',
-          href: '/solutions/ecommerce'
+          href: '/industries/retail-ecommerce'
         }
       ]
     },
@@ -979,7 +979,7 @@ export const ServicePages: DynamicServiceData[] = [
           icon: 'ShoppingBag',
           title: 'E-commerce Brands',
           description: 'Scale online sales through paid ads and SEO.',
-          href: '/solutions/ecommerce'
+          href: '/industries/retail-ecommerce'
         }
       ]
     },
@@ -1235,7 +1235,7 @@ export const ServicePages: DynamicServiceData[] = [
         icon: 'ShoppingBag',
         title: 'E-commerce Brands',
         description: 'Analyze product sales, customer trends, inventory, and marketing ROI.',
-        href: '/solutions/ecommerce'
+        href: '/industries/retail-ecommerce'
       },
       {
         icon: 'Rocket',
@@ -1535,7 +1535,7 @@ export const ServicePages: DynamicServiceData[] = [
           icon: 'ShoppingBag',
           title: 'E-commerce Brands',
           description: 'Build product-focused branding for social media and online store presence.',
-          href: '/solutions/ecommerce'
+          href: '/industries/retail-ecommerce'
         },
         {
           icon: 'Building2',
@@ -1798,7 +1798,7 @@ export const ServicePages: DynamicServiceData[] = [
           icon: 'ShoppingBag',
           title: 'E-commerce Businesses',
           description: 'Automate orders, customer communication, and inventory workflows.',
-          href: '/solutions/ecommerce'
+          href: '/industries/retail-ecommerce'
         },
         {
           icon: 'TrendingUp',

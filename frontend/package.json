@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && (if exist dist rmdir /s /q dist) && mkdir dist && xcopy /e /i /y .next\\standalone dist && xcopy /e /i /y .next\\static dist\\.next\\static && (if exist public xcopy /e /i /y public dist\\public)",
-      "start": "next start",
+    "build": "next build",
+    "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {

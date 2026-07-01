@@ -26,7 +26,7 @@ export function ReviewCard({name, company, content, rating, photo_url, role} : R
 
       {/* Quote/Image */}
       { photo_url ? (
-        <Image src={photo_url} alt="Client" className="w-15 h-15 rounded mb-4 object-contain object-center" />
+        <Image src={photo_url} alt={name ? `Client Review by ${name}` : "Client review testimonial"} className="w-15 h-15 rounded mb-4 object-contain object-center" />
       ) : (
         <Quote className="w-10 h-10 text-[#22C55E]/20 mb-4" />
       )}

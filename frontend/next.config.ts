@@ -2,9 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  output: 'standalone',
+  output: 'export',
   reactCompiler: true,
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',

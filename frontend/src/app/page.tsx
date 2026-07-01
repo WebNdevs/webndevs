@@ -3,10 +3,11 @@ import { HomePage } from "../views/Home";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = generateSEO({
-  title: "WebNDevs",
+  title: "WebNDevs | Custom Software, Web Development & AI Automation Agency",
   description:
-  "WebNDevs helps businesses build modern websites, AI automation, custom software, mobile apps, analytics dashboards, and digital solutions that drive growth.",
+    "Partner with WebNDevs to build modern websites, mobile apps, custom business software, and AI automation workflows designed to drive growth and efficiency.",
   path: "/",
+  keywords: ["custom software development", "web development agency", "AI automation agency", "Next.js websites", "mobile app development", "software solutions"],
 });
 
 export default function Page() {

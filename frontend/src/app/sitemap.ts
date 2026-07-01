@@ -1,4 +1,9 @@
 import { MetadataRoute } from "next";
+import { IndustryPages } from "@/data/industry";
+import { ServicePages } from "@/data/services";
+import { solutionPages } from "@/data/solution";
+
+export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://webndevs.com";
@@ -23,11 +28,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/tools`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
   ];
 
-  // Dynamic routes - these should be populated from your database/content
-  // Update these arrays with actual slugs from your content
-  const industrySlugs: string[] = []; // e.g., ['healthcare', 'finance', 'retail']
-  const serviceSlugs: string[] = []; // e.g., ['web-development', 'mobile-apps', 'cloud-solutions']
-  const solutionSlugs: string[] = []; // e.g., ['enterprise', 'startup', 'saas']
+  // Dynamic routes populated from data sources
+  const industrySlugs = IndustryPages.map((item) => item.slug);
+  const serviceSlugs = ServicePages.map((item) => item.slug);
+  const solutionSlugs = solutionPages.map((item) => item.slug);
 
   const dynamicRoutes: MetadataRoute.Sitemap = [
     ...industrySlugs.map((slug) => ({
