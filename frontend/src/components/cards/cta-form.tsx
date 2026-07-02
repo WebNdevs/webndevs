@@ -116,7 +116,7 @@ export function CTAForm() {
   };
 
   return (
-    <div className="bg-[#1F2937] rounded-2xl p-8 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.5)] border border-[#374151]">
+    <div className="bg-[#1F2937] rounded-2xl p-5 sm:p-8 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.5)] border border-[#374151]">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[#22C55E] to-[#06B6D4] flex items-center justify-center">
           <Calendar className="w-6 h-6 text-white" />

@@ -13,7 +13,7 @@ const Benefits = [
 
 export function CTASection() {
   return (
-    <section id="get-started" aria-label="Contact and consultation request" className="py-20 px-6 bg-[#111827] relative overflow-hidden">
+    <section id="get-started" aria-label="Contact and consultation request" className="py-16 px-4 sm:px-6 bg-[#111827] relative overflow-hidden">
       <div className="absolute top-0 right-0 w-125 h-125 bg-[#22C55E]/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-100 h-100 bg-[#06B6D4]/5 rounded-full blur-3xl" />
 
@@ -68,7 +68,9 @@ export function CTASection() {
             </div>
           </div>  
           {/* Right Content */}
-          <CTAForm/>
+          <div className="w-full max-w-xl mx-auto lg:max-w-none">
+            <CTAForm/>
+          </div>
         </div>
       </div>
     </section>
