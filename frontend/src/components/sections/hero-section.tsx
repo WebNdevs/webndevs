@@ -41,18 +41,18 @@ export function HeroSection() {
 
             {/* CTAs */}
             <div className="flex flex-wrap gap-4 mb-8">
-              <a href="#get-started">
-                <DSButton size="lg">
+              <DSButton asChild size="lg">
+                <a href="#get-started">
                   Start Your Project
                   <ArrowRight className="ml-2 w-5 h-5" />
-                </DSButton>
-              </a>
-              <a href="#portfolio">
-                <DSButton variant="secondary" size="lg">
+                </a>
+              </DSButton>
+              <DSButton asChild variant="secondary" size="lg">
+                <a href="#portfolio">
                   <Play className="mr-2 w-5 h-5" />
                   See Our Work
-                </DSButton>
-              </a>
+                </a>
+              </DSButton>
             </div>
 
             {/* Trust Indicators */}

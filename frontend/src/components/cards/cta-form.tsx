@@ -269,7 +269,7 @@ export function CTAForm() {
             )}
           </DSButton>
 
-          <p className="text-[12px] text-[#6B7280] text-center">
+          <p className="text-[12px] text-[#9CA3AF] text-center">
             By submitting, you agree to our privacy
             policy. We never share your information.
           </p>

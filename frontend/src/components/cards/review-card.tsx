@@ -17,7 +17,7 @@ export function ReviewCard({name, company, content, rating, photo_url, role} : R
     <DSCard hoverable className="flex flex-col">
       {/* Stars */}
       {rating && (
-        <div className="flex gap-1 mb-4" aria-label={`Rating: ${rating} out of 5 stars`}>
+        <div role="img" className="flex gap-1 mb-4" aria-label={`Rating: ${rating} out of 5 stars`}>
           {Array.from({ length: rating ?? 0 }, (_, i) => (
             <Star key={i} className="w-4 h-4 fill-[#F59E0B] text-[#F59E0B]" />
           ))}

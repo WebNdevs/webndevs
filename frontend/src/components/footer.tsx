@@ -168,7 +168,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-[#374151] flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[14px] text-[#6B7280] hover:text-[#22C55E] transition-colors">
+          <p className="text-[14px] text-[#9CA3AF] hover:text-[#22C55E] transition-colors">
             © 2026 WebNDevs. All rights reserved.
           </p>
           <div className="flex gap-6">

@@ -28,13 +28,13 @@ export function LadderCard({icon, title, number, description, text, align} : Lad
                 <h3 style={{ fontSize: '24px' }} className="font-bold text-[#F9FAFB]">
                   {title}
                 </h3>
-                <span className="text-[32px] font-bold text-[#22C55E]/20">
+                <span className="text-[32px] font-bold text-[#22C55E]/70">
                   {number}
                 </span>
               </>
             ) : (
               <>
-              <span className="text-[32px] font-bold text-[#22C55E]/20">
+              <span className="text-[32px] font-bold text-[#22C55E]/70">
                 {number}
               </span>
               <h3 style={{ fontSize: '24px' }} className="font-bold text-[#F9FAFB]">
