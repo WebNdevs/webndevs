@@ -127,20 +127,19 @@ export function Navbar() {
                 Get Started
               </DSButton>
           </div>
-        </div>
-
-        {/* Mobile Menu Button */}
-        <div className='max-w-full flex justify-between'>
-          <button
-            className="md:hidden text-[#F9FAFB]"
-            onClick={() => setMobileMenuOpen((open) => !open)}
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-          <DSButton size="sm" onClick={scrollToCta} className='md:hidden'>
-            Get Started
-          </DSButton>
+          {/* Mobile Navigation Controls */}
+          <div className="flex md:hidden items-center gap-4">
+            <DSButton size="sm" onClick={scrollToCta}>
+              Get Started
+            </DSButton>
+            <button
+              className="text-[#F9FAFB] p-1 focus:outline-none"
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>    
         {/* Overlay */}
         {mobileMenuOpen && (
