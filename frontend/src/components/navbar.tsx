@@ -128,10 +128,7 @@ export function Navbar() {
               </DSButton>
           </div>
           {/* Mobile Navigation Controls */}
-          <div className="flex md:hidden items-center gap-4">
-            <DSButton size="sm" onClick={scrollToCta}>
-              Get Started
-            </DSButton>
+          <div className="flex md:hidden items-center">
             <button
               className="text-[#F9FAFB] p-1 focus:outline-none"
               onClick={() => setMobileMenuOpen((open) => !open)}
@@ -234,6 +231,13 @@ export function Navbar() {
                 </div>
               );
             })}
+
+            {/* Get Started button inside sidebar */}
+            <div className="mt-6 pt-6 border-t border-[#374151]">
+              <DSButton className="w-full" onClick={scrollToCta}>
+                Get Started
+              </DSButton>
+            </div>
 
           </div>
         </div>
