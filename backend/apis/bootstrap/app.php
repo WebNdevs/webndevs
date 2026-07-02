@@ -7,6 +7,7 @@ use App\Http\Middleware\CachePublicApiResponse;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\GzipApiResponse;
+use App\Http\Middleware\NoIndexHeaders;
 use App\Http\Middleware\ResolveRedirects;
 use App\Http\Middleware\SanitizeRichTextInput;
 use Illuminate\Auth\AuthenticationException;
@@ -25,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(NoIndexHeaders::class);
+
         $middleware->alias([
             'admin' => EnsureAdmin::class,
             'permission' => CheckPermission::class,
