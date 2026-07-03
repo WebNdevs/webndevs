@@ -5,7 +5,7 @@ import {
   Smartphone, Trash2, Type, GripVertical, Star, CheckCircle, XCircle,
   ChevronDown, ChevronRight, ExternalLink, MessageSquare, Image, Link2,
   Download, Search, RotateCcw, History, Trash, Users, Briefcase, Heart,
-  Table, Columns, Copy, Clipboard, Check
+  Table, Columns, Copy, Clipboard, Check, Upload
 } from "lucide-react";
 import { API_BASE_URL } from "../../config/api.config";
 import { clearStoredAuth, getStoredToken, setStoredToken } from "../auth";
@@ -238,6 +238,7 @@ type ProjectItemForm = {
   pro_results: string;
   pro_tag: string;
   pro_badge: string;
+  avatar: string;
   [key: string]: string;
 };
 
@@ -336,6 +337,7 @@ const emptyProjectItemForm: ProjectItemForm = {
   pro_results: "",
   pro_tag: "",
   pro_badge: "",
+  avatar: "",
 };
 
 const emptyTestimonialItemForm: TestimonialItemForm = {
@@ -602,6 +604,7 @@ function itemToForm(item: ContentItem, itemType: ItemType): ItemForm {
               ? customFields.pro_tag.join(', ')
               : (customFields.pro_tag as string) ?? "",
         pro_badge: item.pro_badge ?? (customFields.pro_badge as string) ?? "",
+        avatar: item.avatar ?? (customFields.avatar as string) ?? "",
       };
     case "testimonial":
       return {
@@ -684,7 +687,7 @@ function buildPayload(form: ItemForm, itemType: ItemType): Record<string, unknow
 
   switch (itemType) {
     case "project":
-      return { ...base, pro_name: form.pro_name, pro_category: form.pro_category, pro_url: form.pro_url, pro_description: form.pro_description, pro_results: form.pro_results, pro_tag: form.pro_tag, pro_badge: form.pro_badge };
+      return { ...base, pro_name: form.pro_name, pro_category: form.pro_category, pro_url: form.pro_url, pro_description: form.pro_description, pro_results: form.pro_results, pro_tag: form.pro_tag, pro_badge: form.pro_badge, avatar: (form as ProjectItemForm).avatar || undefined };
     case "testimonial":
       return { ...base, test_name: form.test_name, test_company: form.test_company, test_role: form.test_role, test_description: form.test_description, test_url: form.test_url, test_rate: Number(form.test_rate) || 5 };
     case "datatile":
@@ -905,31 +908,208 @@ function DefaultItemFields({ form, updateForm, isGenerating }: { form: QaItemFor
 }
 
 // Project (Pro) Item Fields Component - remaining fields (Pro Name is in common fields)
-function ProjectItemFields({ form, updateForm, isGenerating }: { form: ProjectItemForm; updateForm: (key: string, value: string) => void; isGenerating: (key: string) => boolean }) {
-  // Ensure pro_results and pro_tag are always strings for display
-  const proResultsValue = ensureString(form.pro_results);
-  const proTagsValue = ensureString(form.pro_tag);
+function ProjectItemFields({ 
+  form, 
+  updateForm, 
+  isGenerating,
+  token
+}: { 
+  form: ProjectItemForm; 
+  updateForm: (key: string, value: string) => void; 
+  isGenerating: (key: string) => boolean;
+  token: string;
+}) {
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  async function handleFileUpload(e: any) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadError("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/upload`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Failed to upload image.");
+      }
+
+      updateForm("avatar", result.url);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  const [categoriesList, setCategoriesList] = useState<string[]>(() => {
+    const defaults = ["Web Development", "Mobile Development", "Data Analytics", "AI & Automation", "Branding"];
+    const currentCat = form.pro_category || "";
+    const parsed = currentCat.split(",").map(c => c.trim()).filter(Boolean);
+    const combined = new Set([...defaults, ...parsed]);
+    return Array.from(combined);
+  });
+
+  const [newCatInput, setNewCatInput] = useState("");
+
+  const checkedCategories = useMemo(() => {
+    return (form.pro_category || "").split(",").map(c => c.trim()).filter(Boolean);
+  }, [form.pro_category]);
+
+  function handleCategoryToggle(cat: string, isChecked: boolean) {
+    let nextChecked = [...checkedCategories];
+    if (isChecked) {
+      if (!nextChecked.includes(cat)) nextChecked.push(cat);
+    } else {
+      nextChecked = nextChecked.filter(c => c !== cat);
+    }
+    updateForm("pro_category", nextChecked.join(", "));
+  }
+
+  function handleAddCustomCategory() {
+    const trimmed = newCatInput.trim();
+    if (!trimmed) return;
+    if (!categoriesList.includes(trimmed)) {
+      setCategoriesList(prev => [...prev, trimmed]);
+    }
+    if (!checkedCategories.includes(trimmed)) {
+      const nextChecked = [...checkedCategories, trimmed];
+      updateForm("pro_category", nextChecked.join(", "));
+    }
+    setNewCatInput("");
+  }
   
   return (
     <>
       <div className="grid grid-cols-2 gap-lg">
-        <InputField label="Pro Category" placeholder="e.g. Web Development" value={form.pro_category} onChange={(v) => updateForm("pro_category", v)} />
+        <div className="flex flex-col gap-sm">
+          <label className="text-label-sm font-semibold text-text-primary font-sans">Pro Category</label>
+          <div className="grid grid-cols-2 gap-sm p-md border border-border-primary rounded-corner-md bg-surface-bg/50 max-h-40 overflow-y-auto">
+            {categoriesList.map(cat => {
+              const isChecked = checkedCategories.includes(cat);
+              return (
+                <label key={cat} className="flex items-center gap-sm text-label-sm text-text-primary cursor-pointer hover:text-brand-primary transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={(e) => handleCategoryToggle(cat, e.target.checked)}
+                    className="rounded border-border-primary text-brand-primary focus:ring-brand-primary cursor-pointer"
+                  />
+                  {cat}
+                </label>
+              );
+            })}
+          </div>
+          <div className="flex gap-sm items-center">
+            <input
+              type="text"
+              placeholder="Add new custom category..."
+              value={newCatInput}
+              onChange={(e) => setNewCatInput(e.target.value)}
+              className="flex-1 bg-surface-bg border border-border-primary rounded-corner-md px-md py-xs text-label-sm focus:outline-none focus:border-brand-primary"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddCustomCategory();
+                }
+              }}
+            />
+            <Button 
+              type="button" 
+              variant="neutral" 
+              size="small" 
+              onClick={handleAddCustomCategory}
+            >
+              + Add
+            </Button>
+          </div>
+        </div>
         <InputField label="Pro URL" placeholder="https://webndevs.com" value={form.pro_url} onChange={(v) => updateForm("pro_url", v)} />
       </div>
+      
+      {/* Project Image File Uploader */}
+      <div className="flex flex-col gap-sm">
+        <label className="text-label-sm font-semibold text-text-primary font-sans">Project Image</label>
+        <div className="flex items-center gap-lg p-md border border-border-primary rounded-corner-md bg-surface-bg/50">
+          {form.avatar ? (
+            <div className="relative w-24 h-24 rounded-corner-md overflow-hidden bg-bg-faint border border-border-secondary">
+              <img src={form.avatar} alt="Project Preview" className="w-full h-full object-cover" />
+              <button
+                type="button"
+                onClick={() => updateForm("avatar", "")}
+                className="absolute top-xs right-xs bg-danger/80 hover:bg-danger text-white rounded-full p-xs transition-colors cursor-pointer"
+                title="Remove image"
+              >
+                <Trash2 size={12} />
+              </button>
+            </div>
+          ) : (
+            <div className="w-24 h-24 rounded-corner-md border border-dashed border-border-primary flex items-center justify-center bg-bg-faint text-text-tertiary">
+              <Image size={24} />
+            </div>
+          )}
+          
+          <div className="flex-1 flex flex-col gap-xs">
+            <input
+              type="file"
+              accept="image/*"
+              id="project-image-upload"
+              className="hidden"
+              onChange={handleFileUpload}
+              disabled={isUploading}
+            />
+            <label
+              htmlFor="project-image-upload"
+              className={`inline-flex items-center justify-center gap-xs px-md py-sm bg-brand-primary text-on-brand hover:bg-brand-primary/95 text-label-sm font-semibold rounded-corner-md cursor-pointer transition-colors w-fit ${
+                isUploading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {isUploading ? (
+                <>
+                  <RefreshCw size={14} className="animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload size={14} />
+                  Upload Screenshot
+                </>
+              )}
+            </label>
+            <p className="text-video-title text-text-tertiary font-sans">
+              Supports JPEG, PNG, JPG, GIF, WebP up to 10MB
+            </p>
+            {uploadError && <p className="text-video-title text-danger">{uploadError}</p>}
+          </div>
+        </div>
+        
+        <InputField 
+          label="Project Image URL" 
+          placeholder="Upload an image using the button above" 
+          value={form.avatar || ""} 
+          onChange={(v) => updateForm("avatar", v)}
+          readOnly
+        />
+      </div>
+
       <div className="flex items-center gap-sm">
         <div className="flex-1">
           <TextareaField label="Pro Description" rows={4} placeholder="Brief project description..." value={form.pro_description} onChange={(v) => updateForm("pro_description", v)} />
         </div>
         <FloatingAiButton onGenerate={() => updateForm("pro_description", "Built a complete financial management platform with real-time analytics and automated reporting for enterprise clients.")} isLoading={isGenerating("pro_description")} className="mt-6" />
       </div>
-      <div className="flex items-center gap-sm">
-        <div className="flex-1">
-          <TextareaField label="Pro Results (one per line)" rows={3} placeholder={"Result 1\nResult 2\nResult 3"} value={proResultsValue} onChange={(v) => updateForm("pro_results", v)} />
-        </div>
-        <FloatingAiButton onGenerate={() => updateForm("pro_results", "50% increase in conversions\n99.9% uptime\n3x faster load times")} isLoading={isGenerating("pro_results")} className="mt-6" />
-      </div>
-      <InputField label="Pro Tags (comma separated)" placeholder="React, Node.js, PostgreSQL" value={proTagsValue} onChange={(v) => updateForm("pro_tag", v)} />
-      <InputField label="Pro Badge" placeholder="e.g. 'success','error','warning','info','default','premium','featured','enterprise','ai','new','hot','growth','dark'" value={form.pro_badge} onChange={(v) => updateForm("pro_badge", v)} />
     </>
   );
 }
@@ -1070,6 +1250,12 @@ function ItemEditor({
     setError("");
     setMessage("");
 
+    // Automatically generate item_key for project if it is empty
+    if (!form.item_key && itemType === "project") {
+      const generatedKey = slugify((form as ProjectItemForm).pro_name || "project") + "-" + Date.now();
+      form.item_key = generatedKey;
+    }
+
     const payload = buildPayload(form, itemType);
 
     try {
@@ -1173,60 +1359,65 @@ function ItemEditor({
         />
 
         {/* Common Fields */}
-        <div className="grid grid-cols-2 gap-lg">
+        {itemType === "project" ? (
           <InputField 
-            label="Item Key" 
-            placeholder="unique-key"
-            value={form.item_key}
-            onChange={(v) => updateForm("item_key", v)}
+            label="Pro Name *" 
+            placeholder="Project name"
+            value={(form as ProjectItemForm).pro_name}
+            onChange={(v) => updateForm("pro_name", v)}
           />
-          <InputField 
-            label={
-              itemType === "qa" ? "Question *" : 
-              itemType === "project" ? "Pro Name *" :
-              itemType === "testimonial" ? "Test Name *" :
-              itemType === "datatile" ? "Tile Name *" :
-              itemType === "servicecard" ? "Ser Name *" :
-              itemType === "choosecard" ? "Cc Name *" :
-              itemType === "processcard" ? "Pc Name *" :
-              "Title *"
-            } 
-            placeholder={
-              itemType === "qa" ? "e.g. What services do you offer?" : 
-              itemType === "project" ? "Project name" :
-              itemType === "testimonial" ? "Client name" :
-              itemType === "datatile" ? "Tile name" :
-              itemType === "servicecard" ? "Service name" :
-              itemType === "choosecard" ? "Choose card name" :
-              itemType === "processcard" ? "Process name" :
-              "Item title"
-            }
-            value={
-              itemType === "qa" ? form.question :
-              itemType === "project" ? (form as ProjectItemForm).pro_name :
-              itemType === "testimonial" ? (form as TestimonialItemForm).test_name :
-              itemType === "datatile" ? (form as DataTileItemForm).tile_name :
-              itemType === "servicecard" ? (form as ServiceCardItemForm).ser_name :
-              itemType === "choosecard" ? (form as ChooseCardItemForm).cc_name :
-              itemType === "processcard" ? (form as ProcessCardItemForm).pc_name :
-              form.question
-            }
-            onChange={(v) => updateForm(
-              itemType === "qa" ? "question" :
-              itemType === "project" ? "pro_name" :
-              itemType === "testimonial" ? "test_name" :
-              itemType === "datatile" ? "tile_name" :
-              itemType === "servicecard" ? "ser_name" :
-              itemType === "choosecard" ? "cc_name" :
-              itemType === "processcard" ? "pc_name" :
-              "question", v
-            )}
-          />
-        </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-lg">
+            <InputField 
+              label="Item Key" 
+              placeholder="unique-key"
+              value={form.item_key}
+              onChange={(v) => updateForm("item_key", v)}
+            />
+            <InputField 
+              label={
+                itemType === "qa" ? "Question *" : 
+                itemType === "testimonial" ? "Test Name *" :
+                itemType === "datatile" ? "Tile Name *" :
+                itemType === "servicecard" ? "Ser Name *" :
+                itemType === "choosecard" ? "Cc Name *" :
+                itemType === "processcard" ? "Pc Name *" :
+                "Title *"
+              } 
+              placeholder={
+                itemType === "qa" ? "e.g. What services do you offer?" : 
+                itemType === "testimonial" ? "Client name" :
+                itemType === "datatile" ? "Tile name" :
+                itemType === "servicecard" ? "Service name" :
+                itemType === "choosecard" ? "Choose card name" :
+                itemType === "processcard" ? "Process name" :
+                "Item title"
+              }
+              value={
+                itemType === "qa" ? form.question :
+                itemType === "testimonial" ? (form as TestimonialItemForm).test_name :
+                itemType === "datatile" ? (form as DataTileItemForm).tile_name :
+                itemType === "servicecard" ? (form as ServiceCardItemForm).ser_name :
+                itemType === "choosecard" ? (form as ChooseCardItemForm).cc_name :
+                itemType === "processcard" ? (form as ProcessCardItemForm).pc_name :
+                form.question
+              }
+              onChange={(v) => updateForm(
+                itemType === "qa" ? "question" :
+                itemType === "testimonial" ? "test_name" :
+                itemType === "datatile" ? "tile_name" :
+                itemType === "servicecard" ? "ser_name" :
+                itemType === "choosecard" ? "cc_name" :
+                itemType === "processcard" ? "pc_name" :
+                "question", v
+              )}
+            />
+          </div>
+        )}
 
         {/* Dynamic Fields based on Item Type */}
         {itemType === "qa" && <QaItemFields form={form as QaItemForm} updateForm={updateForm} isGenerating={isGenerating} />}
-        {itemType === "project" && <ProjectItemFields form={form as ProjectItemForm} updateForm={updateForm} isGenerating={isGenerating} />}
+        {itemType === "project" && <ProjectItemFields form={form as ProjectItemForm} updateForm={updateForm} isGenerating={isGenerating} token={token} />}
         {itemType === "testimonial" && <TestimonialItemFields form={form as TestimonialItemForm} updateForm={updateForm} isGenerating={isGenerating} />}
         {itemType === "datatile" && <DataTileItemFields form={form as DataTileItemForm} updateForm={updateForm} isGenerating={isGenerating} />}
         {itemType === "servicecard" && <ServiceCardItemFields form={form as ServiceCardItemForm} updateForm={updateForm} isGenerating={isGenerating} />}

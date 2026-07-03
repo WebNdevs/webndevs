@@ -42,6 +42,7 @@ class ContentItemController extends Controller
             'custom_fields' => $validated['custom_fields'] ?? null,
             'external_id' => $validated['external_id'] ?? null,
             'updated_by' => $request->user()?->id,
+            'avatar' => $validated['avatar'] ?? null,
         ];
 
         // Q&A fields
@@ -266,6 +267,9 @@ class ContentItemController extends Controller
         }
 
         // Add common fields
+        if (array_key_exists('avatar', $validated)) {
+            $data['avatar'] = $validated['avatar'];
+        }
         if (isset($validated['item_key'])) {
             $data['item_key'] = $validated['item_key'];
         }

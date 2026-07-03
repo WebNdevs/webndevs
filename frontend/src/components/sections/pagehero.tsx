@@ -158,14 +158,7 @@ export function PageHero({ tag, title1, title2, description, variant = 'full'}: 
         lg      : px-16  | 2-column side-by-side
         xl      : px-24  |
       */}
-      <div
-        className="
-          relative z-10 w-full
-          px-5  sm:px-10 lg:px-16 xl:px-24
-          pt-20 sm:pt-24 lg:pt-32
-          pb-32 sm:pb-36 lg:pb-48
-        "
-      >
+      <div className="relative z-10 w-full px-5 sm:px-10 lg:px-16 xl:px-24 pt-20 sm:pt-24 lg:pt-32 pb-32 sm:pb-36 lg:pb-48">
         {/* Tag badge */}
         {tag && (
           <div className="mb-8 sm:mb-10">

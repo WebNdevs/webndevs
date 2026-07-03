@@ -314,6 +314,7 @@ Route::prefix('v1')->group(function () {
 
             // Content items - requires content.manage permission
             Route::middleware(['permission:content.manage'])->group(function () {
+                Route::post('/upload', [\App\Http\Controllers\Api\UploadController::class, 'upload']);
                 Route::get('/content-sections/{section}/items', [ContentItemController::class, 'index']);
                 Route::post('/content-sections/{section}/items', [ContentItemController::class, 'store']);
                 Route::get('/content-sections/{section}/items/{item}', [ContentItemController::class, 'show']);

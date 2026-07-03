@@ -169,7 +169,7 @@ class ContentPageController extends Controller
         // Add type-specific fields based on section_type
         $fields = $section->fields ?? [];
 
-        if ($section->section_type === 'heading-text') {
+        if ($section->section_type === 'heading-text' || $section->section_type === 'hero') {
             $data = array_merge($data, [
                 'description' => $fields['description'] ?? $section->description,
                 'tag' => $fields['tag'] ?? $section->tag,
@@ -205,6 +205,7 @@ class ContentPageController extends Controller
             'created_at' => $item->created_at?->toISOString(),
             'updated_at' => $item->updated_at?->toISOString(),
             'deleted_at' => $item->deleted_at?->toISOString(),
+            'avatar' => $item->avatar,
         ];
 
         // Determine item type and add type-specific fields with title/content mapping

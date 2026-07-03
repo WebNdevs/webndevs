@@ -97,6 +97,16 @@ class ContentPageSeeder extends Seeder
                 'tags' => $data['tags'] ?? null,
                 'badge' => $data['badge'] ?? null,
                 'avatar' => $data['avatar'] ?? null,
+                
+                // Map project specific fields
+                'pro_name' => $data['title'] ?? null,
+                'pro_category' => $data['category'] ?? null,
+                'pro_url' => $data['url'] ?? null,
+                'pro_description' => $data['description'] ?? null,
+                'pro_results' => $data['results'] ?? null,
+                'pro_tag' => $data['tags'] ?? null,
+                'pro_badge' => $data['badge'] ?? null,
+
                 'client_name' => $data['client_name'] ?? null,
                 'client_role' => $data['client_role'] ?? null,
                 'company' => $data['company'] ?? null,
@@ -236,6 +246,10 @@ class ContentPageSeeder extends Seeder
     {
         // Hero Section
         $this->createSection($pageId, 'hero', 'hero', 'Our Work', 'Portfolio Hero', 'Explore our successful projects across various industries and services.', [
+            'tag' => 'OUR WORK',
+            'subheading1' => 'Selected',
+            'subheading2' => 'Digital Legacies.',
+            'subtext' => 'Every project is built to solve real business problems, improve user experiences, and deliver measurable results that last beyond launch.',
             'show_view_all' => false,
         ], $adminId);
 
@@ -247,12 +261,12 @@ class ContentPageSeeder extends Seeder
         ], $adminId);
 
         $portfolioItems = [
-            ['item_key' => 'financeflow', 'title' => 'FinanceFlow SaaS Platform', 'category' => 'Web Development', 'url' => 'https://financeflow.com', 'description' => 'Built a complete financial management platform with real-time analytics and automated reporting.', 'results' => ['10,000+ active users in 6 months', '40% reduction in processing time', '98% uptime since launch'], 'tags' => ['React', 'Node.js', 'PostgreSQL'], 'badge' => 'success', 'is_featured' => true, 'is_active' => true],
-            ['item_key' => 'healthtrack', 'title' => 'HealthTrack Mobile App', 'category' => 'Mobile Development', 'url' => 'https://healthtrack.com', 'description' => 'Native iOS and Android fitness tracking app with AI-powered workout recommendations.', 'results' => ['50K+ downloads in first quarter', '4.8★ average rating', 'Featured on App Store'], 'tags' => ['React Native', 'Firebase', 'AI/ML'], 'badge' => 'info', 'is_featured' => true, 'is_active' => true],
-            ['item_key' => 'retailpro', 'title' => 'RetailPro Dashboard', 'category' => 'Data Analytics', 'url' => 'https://retailpro.com', 'description' => 'Custom Power BI dashboard integrating sales data from multiple sources for real-time insights.', 'results' => ['60% faster reporting', 'Saved 20 hours/week', 'Better decision making'], 'tags' => ['Power BI', 'SQL', 'Azure'], 'badge' => 'warning', 'is_featured' => true, 'is_active' => true],
-            ['item_key' => 'ecoshop', 'title' => 'EcoShop E-commerce', 'category' => 'Web Development', 'url' => 'https://ecoshop.com', 'description' => 'High-converting online store with custom checkout flow and inventory management system.', 'results' => ['250% increase in sales', '35% cart abandonment reduction', '3x faster page loads'], 'tags' => ['WordPress', 'WooCommerce', 'Stripe'], 'badge' => 'success', 'is_featured' => true, 'is_active' => true],
-            ['item_key' => 'autoflow', 'title' => 'AutoFlow Automation Suite', 'category' => 'AI & Automation', 'url' => 'https://autoflow.com', 'description' => 'Custom automation workflows connecting CRM, email, and project management tools.', 'results' => ['15 hours saved per week', '90% fewer manual errors', 'ROI achieved in 2 months'], 'tags' => ['Zapier', 'APIs', 'Python'], 'badge' => 'info', 'is_featured' => true, 'is_active' => true],
-            ['item_key' => 'brandhub', 'title' => 'BrandHub Identity System', 'category' => 'Branding', 'url' => 'https://brandhub.com', 'description' => 'Complete brand identity including logo, guidelines, website, and marketing materials.', 'results' => ['3x brand recognition', '45% increase in leads', 'Consistent brand presence'], 'tags' => ['Brand Design', 'Marketing', 'UI/UX'], 'badge' => 'default', 'is_featured' => false, 'is_active' => true],
+            ['item_key' => 'financeflow', 'title' => 'FinanceFlow SaaS Platform', 'category' => 'Web Development', 'url' => 'https://financeflow.com', 'description' => 'Built a complete financial management platform with real-time analytics and automated reporting.', 'results' => ['10,000+ active users in 6 months', '40% reduction in processing time', '98% uptime since launch'], 'tags' => ['React', 'Node.js', 'PostgreSQL'], 'badge' => 'success', 'is_featured' => true, 'is_active' => true, 'avatar' => 'https://webndevs.com/image.jpg'],
+            ['item_key' => 'healthtrack', 'title' => 'HealthTrack Mobile App', 'category' => 'Mobile Development', 'url' => 'https://healthtrack.com', 'description' => 'Native iOS and Android fitness tracking app with AI-powered workout recommendations.', 'results' => ['50K+ downloads in first quarter', '4.8★ average rating', 'Featured on App Store'], 'tags' => ['React Native', 'Firebase', 'AI/ML'], 'badge' => 'info', 'is_featured' => true, 'is_active' => true, 'avatar' => 'https://webndevs.com/industry-hero.jpg'],
+            ['item_key' => 'retailpro', 'title' => 'RetailPro Dashboard', 'category' => 'Data Analytics', 'url' => 'https://retailpro.com', 'description' => 'Custom Power BI dashboard integrating sales data from multiple sources for real-time insights.', 'results' => ['60% faster reporting', 'Saved 20 hours/week', 'Better decision making'], 'tags' => ['Power BI', 'SQL', 'Azure'], 'badge' => 'warning', 'is_featured' => true, 'is_active' => true, 'avatar' => 'https://webndevs.com/og-image.jpg'],
+            ['item_key' => 'ecoshop', 'title' => 'EcoShop E-commerce', 'category' => 'Web Development', 'url' => 'https://ecoshop.com', 'description' => 'High-converting online store with custom checkout flow and inventory management system.', 'results' => ['250% increase in sales', '35% cart abandonment reduction', '3x faster page loads'], 'tags' => ['WordPress', 'WooCommerce', 'Stripe'], 'badge' => 'success', 'is_featured' => true, 'is_active' => true, 'avatar' => 'https://webndevs.com/image.jpg'],
+            ['item_key' => 'autoflow', 'title' => 'AutoFlow Automation Suite', 'category' => 'AI & Automation', 'url' => 'https://autoflow.com', 'description' => 'Custom automation workflows connecting CRM, email, and project management tools.', 'results' => ['15 hours saved per week', '90% fewer manual errors', 'ROI achieved in 2 months'], 'tags' => ['Zapier', 'APIs', 'Python'], 'badge' => 'info', 'is_featured' => true, 'is_active' => true, 'avatar' => 'https://webndevs.com/industry-hero.jpg'],
+            ['item_key' => 'brandhub', 'title' => 'BrandHub Identity System', 'category' => 'Branding', 'url' => 'https://brandhub.com', 'description' => 'Complete brand identity including logo, guidelines, website, and marketing materials.', 'results' => ['3x brand recognition', '45% increase in leads', 'Consistent brand presence'], 'tags' => ['Brand Design', 'Marketing', 'UI/UX'], 'badge' => 'default', 'is_featured' => false, 'is_active' => true, 'avatar' => 'https://webndevs.com/og-image.jpg'],
         ];
 
         foreach ($portfolioItems as $index => $item) {
@@ -270,7 +284,12 @@ class ContentPageSeeder extends Seeder
     private function createTestimonialsPageSections(int $pageId, ?int $adminId): void
     {
         // Hero Section
-        $this->createSection($pageId, 'hero', 'hero', 'Client Success Stories', 'Testimonials Hero', 'Hear from the founders and business owners who trusted us with their digital growth.', [], $adminId);
+        $this->createSection($pageId, 'hero', 'hero', 'Client Success Stories', 'Testimonials Hero', 'Hear from the founders and business owners who trusted us with their digital growth.', [
+            'tag' => 'TESTIMONIALS',
+            'subheading1' => 'Client Success',
+            'subheading2' => 'Stories.',
+            'subtext' => 'Hear from the founders and business owners who trusted us with their digital growth.',
+        ], $adminId);
 
         // Trust Badges Section
         $trustSection = $this->createSection($pageId, 'trust-badges', 'items-list', 'Why Clients Choose Us', 'Trust Metrics', 'Our commitment to excellence is reflected in our track record.', [

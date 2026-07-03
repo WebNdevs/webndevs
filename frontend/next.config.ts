@@ -24,4 +24,15 @@ const nextConfig: NextConfig = {
   },
 };
 
+if (process.env.NODE_ENV === "development") {
+  nextConfig.rewrites = async () => {
+    return [
+      {
+        source: "/storage/:path*",
+        destination: "http://localhost:8000/storage/:path*",
+      },
+    ];
+  };
+}
+
 export default nextConfig;
