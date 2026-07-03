@@ -17,9 +17,8 @@ class UploadController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             
-            // Native Laravel Storage upload on the public disk
             $path = Storage::disk('public')->putFile('uploads', $file);
-            $url = Storage::disk('public')->url($path);
+            $url = '/storage/' . $path;
             
             return response()->json([
                 'success' => true,

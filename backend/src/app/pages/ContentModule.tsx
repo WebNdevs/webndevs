@@ -963,6 +963,8 @@ function ProjectItemFields({
   });
 
   const [newCatInput, setNewCatInput] = useState("");
+  const [editingCatIndex, setEditingCatIndex] = useState<number | null>(null);
+  const [editingCatValue, setEditingCatValue] = useState("");
 
   const checkedCategories = useMemo(() => {
     return (form.pro_category || "").split(",").map(c => c.trim()).filter(Boolean);
@@ -990,6 +992,41 @@ function ProjectItemFields({
     }
     setNewCatInput("");
   }
+
+  function handleStartRenameCategory(index: number, currentName: string) {
+    setEditingCatIndex(index);
+    setEditingCatValue(currentName);
+  }
+
+  function handleSaveRenameCategory(index: number, oldName: string) {
+    const newName = editingCatValue.trim();
+    if (!newName || newName === oldName) {
+      setEditingCatIndex(null);
+      return;
+    }
+
+    setCategoriesList(prev => {
+      const next = [...prev];
+      next[index] = newName;
+      return next;
+    });
+
+    if (checkedCategories.includes(oldName)) {
+      const nextChecked = checkedCategories.map(c => c === oldName ? newName : c);
+      updateForm("pro_category", nextChecked.join(", "));
+    }
+
+    setEditingCatIndex(null);
+  }
+
+  const getPreviewUrl = (avatarUrl: string) => {
+    if (!avatarUrl) return "";
+    if (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://")) {
+      return avatarUrl;
+    }
+    const apiHost = API_BASE_URL.replace("/api", "");
+    return `${apiHost}${avatarUrl}`;
+  };
   
   return (
     <>
@@ -997,18 +1034,64 @@ function ProjectItemFields({
         <div className="flex flex-col gap-sm">
           <label className="text-label-sm font-semibold text-text-primary font-sans">Pro Category</label>
           <div className="grid grid-cols-2 gap-sm p-md border border-border-primary rounded-corner-md bg-surface-bg/50 max-h-40 overflow-y-auto">
-            {categoriesList.map(cat => {
+            {categoriesList.map((cat, idx) => {
               const isChecked = checkedCategories.includes(cat);
+              const isEditing = editingCatIndex === idx;
+
               return (
-                <label key={cat} className="flex items-center gap-sm text-label-sm text-text-primary cursor-pointer hover:text-brand-primary transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={(e) => handleCategoryToggle(cat, e.target.checked)}
-                    className="rounded border-border-primary text-brand-primary focus:ring-brand-primary cursor-pointer"
-                  />
-                  {cat}
-                </label>
+                <div key={cat} className="flex items-center justify-between col-span-1 group min-h-8">
+                  {isEditing ? (
+                    <div className="flex gap-xs items-center col-span-2 w-full">
+                      <input
+                        type="text"
+                        value={editingCatValue}
+                        onChange={(e) => setEditingCatValue(e.target.value)}
+                        className="bg-surface-bg border border-brand-primary rounded-corner-sm px-xs py-0.5 text-label-sm focus:outline-none flex-1 min-w-0"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleSaveRenameCategory(idx, cat);
+                          }
+                        }}
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSaveRenameCategory(idx, cat)}
+                        className="text-brand-primary text-label-sm font-semibold hover:underline shrink-0"
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingCatIndex(null)}
+                        className="text-text-tertiary text-label-sm hover:underline shrink-0"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <label className="flex items-center gap-sm text-label-sm text-text-primary cursor-pointer hover:text-brand-primary transition-colors flex-1 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => handleCategoryToggle(cat, e.target.checked)}
+                          className="rounded border-border-primary text-brand-primary focus:ring-brand-primary cursor-pointer"
+                        />
+                        <span className="truncate">{cat}</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => handleStartRenameCategory(idx, cat)}
+                        className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-brand-primary transition-opacity text-text-tertiary shrink-0"
+                        title="Rename category"
+                      >
+                        <Pencil size={12} />
+                      </button>
+                    </>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -1045,7 +1128,7 @@ function ProjectItemFields({
         <div className="flex items-center gap-lg p-md border border-border-primary rounded-corner-md bg-surface-bg/50">
           {form.avatar ? (
             <div className="relative w-24 h-24 rounded-corner-md overflow-hidden bg-bg-faint border border-border-secondary">
-              <img src={form.avatar} alt="Project Preview" className="w-full h-full object-cover" />
+              <img src={getPreviewUrl(form.avatar)} alt="Project Preview" className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => updateForm("avatar", "")}
@@ -1279,6 +1362,20 @@ function ItemEditor({
         throw new Error(payload2.message || "Failed to save item");
       }
       
+      // Clear the public API cache so that the saved item appears on the frontend immediately
+      try {
+        await fetch(`${API_BASE_URL}/settings/cache/clear`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ type: "content" }),
+        });
+      } catch (cacheErr) {
+        console.warn("Could not clear cache", cacheErr);
+      }
+
       // Update form with returned item data so UI reflects saved values
       const returnedItem = payload2.data.item;
       const detectedType = detectItemType(returnedItem);
@@ -1305,6 +1402,21 @@ function ItemEditor({
       if (!response.ok || !payload.success) {
         throw new Error(payload.message || "Failed to delete item");
       }
+
+      // Clear cache on delete too
+      try {
+        await fetch(`${API_BASE_URL}/settings/cache/clear`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ type: "content" }),
+        });
+      } catch (cacheErr) {
+        console.warn("Could not clear cache", cacheErr);
+      }
+
       onDeleted();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete item");
