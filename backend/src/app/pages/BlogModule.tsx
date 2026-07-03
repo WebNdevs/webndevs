@@ -430,7 +430,7 @@ export function BlogModule() {
           </div>
           <InputField
             label="Featured Image URL"
-            placeholder="https://example.com/image.jpg"
+            placeholder="https://webndevs.com/image.jpg"
             value={formData.featured_image}
             onChange={(v) => updateForm("featured_image", v)}
           />

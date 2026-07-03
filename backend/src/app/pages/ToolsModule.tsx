@@ -623,7 +623,7 @@ export function ToolsModule() {
 
           <div className="flex gap-xl">
             <div className="flex-1">
-              <InputField label="Website URL" placeholder="https://example.com" value={formData.website_url} onChange={(v) => updateForm("website_url", v)} />
+              <InputField label="Website URL" placeholder="https://webndevs.com" value={formData.website_url} onChange={(v) => updateForm("website_url", v)} />
             </div>
             <div className="flex-1">
               <InputField label="Docs URL" placeholder="https://docs.example.com" value={formData.docs_url} onChange={(v) => updateForm("docs_url", v)} />

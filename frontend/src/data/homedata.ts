@@ -85,7 +85,7 @@ export const homeData = {
             "98% patient satisfaction rate"
           ],
           tags: ["Next.js", "Laravel", "AWS"],
-          url: "https://example.com"
+          url: "https://webndevs.com"
         },
         {
           title: "AI Lead Qualification System",
@@ -98,7 +98,7 @@ export const homeData = {
             "75% reduction in manual tasks"
           ],
           tags: ["OpenAI", "n8n", "HubSpot"],
-          url: "https://example.com"
+          url: "https://webndevs.com"
         },
         {
           title: "E-Commerce Growth Platform",
@@ -111,7 +111,7 @@ export const homeData = {
             "2.1s average page load time"
           ],
           tags: ["Next.js", "Stripe", "PostgreSQL"],
-          url: "https://example.com"
+          url: "https://webndevs.com"
         },
         {
           title: "Real Estate CRM Dashboard",
@@ -124,7 +124,7 @@ export const homeData = {
             "100% centralized data visibility"
           ],
           tags: ["React", "Node.js", "Power BI"],
-          url: "https://example.com"
+          url: "https://webndevs.com"
         },
         {
           title: "Restaurant Mobile Ordering App",
@@ -137,7 +137,7 @@ export const homeData = {
             "30% higher average order value"
           ],
           tags: ["React Native", "Firebase", "Stripe"],
-          url: "https://example.com"
+          url: "https://webndevs.com"
         },
         {
           title: "Manufacturing Workflow Automation",
@@ -150,7 +150,7 @@ export const homeData = {
             "99.9% process accuracy"
           ],
           tags: ["n8n", "ERP Integration", "APIs"],
-          url: "https://example.com"
+          url: "https://webndevs.com"
         }
       ],
       hero: {

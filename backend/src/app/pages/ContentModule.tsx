@@ -914,7 +914,7 @@ function ProjectItemFields({ form, updateForm, isGenerating }: { form: ProjectIt
     <>
       <div className="grid grid-cols-2 gap-lg">
         <InputField label="Pro Category" placeholder="e.g. Web Development" value={form.pro_category} onChange={(v) => updateForm("pro_category", v)} />
-        <InputField label="Pro URL" placeholder="https://example.com" value={form.pro_url} onChange={(v) => updateForm("pro_url", v)} />
+        <InputField label="Pro URL" placeholder="https://webndevs.com" value={form.pro_url} onChange={(v) => updateForm("pro_url", v)} />
       </div>
       <div className="flex items-center gap-sm">
         <div className="flex-1">
@@ -942,7 +942,7 @@ function TestimonialItemFields({ form, updateForm, isGenerating }: { form: Testi
         <InputField label="Test Company" placeholder="Company Name" value={form.test_company} onChange={(v) => updateForm("test_company", v)} />
         <InputField label="Test Role" placeholder="CEO at Company" value={form.test_role} onChange={(v) => updateForm("test_role", v)} />
       </div>
-      <InputField label="Test URL" placeholder="https://example.com" value={form.test_url} onChange={(v) => updateForm("test_url", v)} />
+      <InputField label="Test URL" placeholder="https://webndevs.com" value={form.test_url} onChange={(v) => updateForm("test_url", v)} />
       <SelectField
         label="Test Rate"
         options={[
@@ -969,7 +969,7 @@ function TestimonialItemFields({ form, updateForm, isGenerating }: { form: Testi
 function DataTileItemFields({ form, updateForm, isGenerating }: { form: DataTileItemForm; updateForm: (key: string, value: string) => void; isGenerating: (key: string) => boolean }) {
   return (
     <>
-      <InputField label="Tile URL" placeholder="https://example.com" value={form.tile_url} onChange={(v) => updateForm("tile_url", v)} />
+      <InputField label="Tile URL" placeholder="https://webndevs.com" value={form.tile_url} onChange={(v) => updateForm("tile_url", v)} />
       <TextareaField label="Tile Description" rows={4} placeholder="Tile description..." value={form.tile_description} onChange={(v) => updateForm("tile_description", v)} />
     </>
   );

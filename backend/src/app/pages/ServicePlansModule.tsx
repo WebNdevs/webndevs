@@ -2840,7 +2840,7 @@ export function ServicePlansModule() {
       <div className="bg-surface-bg rounded-corner-lg p-lg border border-border-primary">
         <div className="grid grid-cols-2 gap-lg">
           <InputField label="Hero Image URL" placeholder="https://cdn.example.com/hero.jpg" value={serviceHeroImageUrl} onChange={setServiceHeroImageUrl} />
-          <InputField label="Canonical URL" placeholder="https://example.com/service" value={serviceCanonicalUrl} onChange={setServiceCanonicalUrl} />
+          <InputField label="Canonical URL" placeholder="https://webndevs.com/service" value={serviceCanonicalUrl} onChange={setServiceCanonicalUrl} />
           <InputField label="Meta Title" placeholder="Service Meta Title" value={serviceMetaTitle} onChange={setServiceMetaTitle} />
           <InputField label="Meta Keywords (comma separated)" placeholder="design, seo, website" value={serviceMetaKeywords} onChange={setServiceMetaKeywords} />
           <div className="col-span-2">
@@ -3155,7 +3155,7 @@ export function ServicePlansModule() {
 
                     <InputField
                       label="Project URL"
-                      placeholder="https://example.com/project"
+                      placeholder="https://webndevs.com/project"
                       value={item.project_url}
                       onChange={(value) =>
                         updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "project_url", value)

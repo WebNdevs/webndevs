@@ -425,7 +425,7 @@ export function IndustriesModule() {
 
           <InputField
             label="Hero Image URL"
-            placeholder="https://example.com/industry-hero.jpg"
+            placeholder="https://webndevs.com/industry-hero.jpg"
             value={formData.hero_image_url}
             onChange={(v) => updateForm("hero_image_url", v)}
           />

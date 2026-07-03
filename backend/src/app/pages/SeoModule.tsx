@@ -253,7 +253,7 @@ function SeoEditor({ entry, onSave, onBack }: {
         <TextareaField label="OG Description" placeholder="Description for social sharing" value={form.og_description} rows={2} onChange={(v) => update("og_description", v)} />
         <div className="flex gap-lg items-end">
           <div className="flex-1">
-            <InputField label="OG Image URL" placeholder="https://example.com/og-image.jpg" value={form.og_image_url} onChange={(v) => update("og_image_url", v)} />
+            <InputField label="OG Image URL" placeholder="https://webndevs.com/og-image.jpg" value={form.og_image_url} onChange={(v) => update("og_image_url", v)} />
           </div>
           {form.og_image_url && (
             <div className="w-24 h-16 rounded-corner-md overflow-hidden border border-border-primary bg-bg-subtle flex-shrink-0">

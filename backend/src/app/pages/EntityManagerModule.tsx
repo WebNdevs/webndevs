@@ -448,7 +448,7 @@ export function EntityManagerModule() {
                   value={formData.logo} onChange={(v) => updateForm("logo", v)} />
               </div>
               <div className="flex-1">
-                <InputField label="Website URL" placeholder="https://example.com"
+                <InputField label="Website URL" placeholder="https://webndevs.com"
                   value={formData.websiteUrl} onChange={(v) => updateForm("websiteUrl", v)} />
               </div>
             </div>

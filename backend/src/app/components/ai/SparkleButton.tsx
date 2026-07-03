@@ -106,7 +106,7 @@ Output only the slug, nothing else.`;
           break;
         case "url":
           prompt = `The ${context.entityName} is an entity. Suggest a placeholder URL for testing purposes.
-Format: https://example.com (use a realistic domain).
+Format: https://webndevs.com (use a realistic domain).
 Output only the URL.`;
           break;
         default:
