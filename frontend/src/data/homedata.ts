@@ -75,82 +75,303 @@ export const homeData = {
       subtext: "See how we've helped companies grow through design, development, automation, and data-driven solutions.",
       items: [
         {
-          title: "Healthcare Patient Portal",
-          category: "Web Development",
+          title: "Physician",
+          category: "Healthcare",
           badge: "premium",
-          description: "Built a secure healthcare platform that streamlined patient appointments, records management, and communication.",
+          description: "Designed and developed a professional healthcare website for a physician, highlighting medical expertise, patient care, appointment details, and healthcare services through a clean and trustworthy digital experience.",
           results: [
-            "42% increase in online bookings",
-            "65% reduction in admin workload",
-            "98% patient satisfaction rate"
+            "Professional online presence for healthcare practice",
+            "Responsive patient-friendly website experience",
+            "Clear service presentation with appointment information"
           ],
-          tags: ["Next.js", "Laravel", "AWS"],
-          url: "https://webndevs.com"
+          tags: ["WordPress", "Healthcare", "Responsive Design"],
+          url: "https://drabhishekshuklaphysician.com"
         },
         {
-          title: "AI Lead Qualification System",
-          category: "AI & Automation",
+          title: "Dr. Gurmeet Kaur",
+          category: "Healthcare",
+          badge: "premium",
+          description: "Created a modern fertility clinic website focused on patient education, fertility treatments, appointment bookings, and building trust through a compassionate user experience.",
+          results: [
+            "Improved accessibility to fertility treatment information",
+            "Professional clinic branding and credibility",
+            "Optimized experience across desktop and mobile devices"
+          ],
+          tags: ["WordPress", "Healthcare", "UI/UX"],
+          url: "https://drgurmeetkaur.in"
+        },
+        {
+          title: "Rentigo",
+          category: "Web Application",
           badge: "featured",
-          description: "Implemented AI-powered lead scoring and automated follow-up workflows for a B2B company.",
+          description: "Developed an online vehicle rental platform enabling customers to search, reserve, and manage transport bookings through a streamlined and user-friendly interface.",
           results: [
-            "3x faster lead response time",
-            "28% increase in qualified leads",
-            "75% reduction in manual tasks"
+            "Simplified online vehicle reservation process",
+            "Responsive booking experience for all devices",
+            "User-focused rental management interface"
           ],
-          tags: ["OpenAI", "n8n", "HubSpot"],
-          url: "https://webndevs.com"
+          tags: ["WordPress", "Booking System", "Vehicle Rental"],
+          url: "https://rentigo.ch"
         },
         {
-          title: "E-Commerce Growth Platform",
-          category: "Web Development",
-          badge: "premium",
-          description: "Developed a custom e-commerce solution focused on performance, conversions, and customer retention.",
+          title: "ContactKloud",
+          category: "CRM Software",
+          badge: "featured",
+          description: "Built a SaaS landing website for a CRM platform focused on call center operations, lead management, and sales workflow optimization.",
           results: [
-            "58% increase in sales",
-            "34% higher conversion rate",
-            "2.1s average page load time"
+            "Professional SaaS product presentation",
+            "Clear feature-focused landing experience",
+            "Optimized lead generation and user onboarding"
           ],
-          tags: ["Next.js", "Stripe", "PostgreSQL"],
-          url: "https://webndevs.com"
+          tags: ["CRM", "SaaS", "UI/UX"],
+          url: "https://contactkloud.com"
         },
         {
-          title: "Real Estate CRM Dashboard",
-          category: "Data Analytics",
+          title: "Party In The City Photo Booth",
+          category: "Business Website",
           badge: "growth",
-          description: "Created a centralized dashboard for property management, lead tracking, and reporting.",
+          description: "Designed an engaging promotional website for a 360 photo booth rental business, helping customers discover services, view event offerings, and book online.",
           results: [
-            "50% faster reporting process",
-            "22% increase in agent productivity",
-            "100% centralized data visibility"
+            "Enhanced event service presentation",
+            "Streamlined online booking journey",
+            "Mobile-friendly customer experience"
           ],
-          tags: ["React", "Node.js", "Power BI"],
-          url: "https://webndevs.com"
+          tags: ["WordPress", "Booking", "Business Website"],
+          url: "https://partyinthecityphotobooth.com"
         },
         {
-          title: "Restaurant Mobile Ordering App",
-          category: "Mobile Development",
+          title: "Gem Experience",
+          category: "E-Commerce",
           badge: "enterprise",
-          description: "Designed and launched a mobile app that simplified ordering, loyalty rewards, and customer engagement.",
+          description: "Crafted a premium luxury jewelry website showcasing exclusive collections, fine craftsmanship, and an elegant online shopping experience.",
           results: [
-            "70% increase in repeat orders",
-            "45% growth in app users",
-            "30% higher average order value"
+            "Luxury-focused digital brand experience",
+            "Elegant product presentation",
+            "Responsive premium shopping interface"
           ],
-          tags: ["React Native", "Firebase", "Stripe"],
-          url: "https://webndevs.com"
+          tags: ["E-Commerce", "Luxury", "WordPress"],
+          url: "https://gem-experience.com"
         },
         {
-          title: "Manufacturing Workflow Automation",
-          category: "AI & Automation",
-          badge: "featured",
-          description: "Automated internal approval workflows, reporting, and inventory notifications across departments.",
+          title: "Reactive Air",
+          category: "Business Website",
+          badge: "premium",
+          description: "Developed a modern corporate website for an air conditioning and refrigeration company, highlighting residential and commercial services with a clean conversion-focused layout.",
           results: [
-            "80% reduction in manual approvals",
-            "35 hours saved per week",
-            "99.9% process accuracy"
+            "Professional service-based website",
+            "Improved customer engagement",
+            "Responsive service enquiry experience"
           ],
-          tags: ["n8n", "ERP Integration", "APIs"],
-          url: "https://webndevs.com"
+          tags: ["WordPress", "Business Website", "Responsive Design"],
+          url: "https://reactiveair.com.au"
+        },
+        {
+          title: "Simplicity Ink",
+          category: "Beauty & Wellness",
+          badge: "premium",
+          description: "Designed a visually appealing beauty salon website showcasing permanent makeup services, treatment portfolio, pricing, and appointment information.",
+          results: [
+            "Elegant online brand identity",
+            "Improved service presentation",
+            "Optimized customer booking experience"
+          ],
+          tags: ["Beauty", "WordPress", "UI/UX"],
+          url: "https://simplicityink.com"
+        },
+        {
+          title: "Jeetam Saini",
+          category: "Personal Branding",
+          badge: "featured",
+          description: "Created a professional personal branding website highlighting consulting services, media presence, achievements, and business expertise.",
+          results: [
+            "Strengthened personal brand visibility",
+            "Professional presentation of services",
+            "Responsive user experience across devices"
+          ],
+          tags: ["Personal Branding", "WordPress", "Corporate"],
+          url: "https://jeetamsaini.com"
+        },
+        {
+          title: "Hemant Services",
+          category: "Business Website",
+          badge: "featured",
+          description: "Designed and developed a modern website for a water purifier sales and service company, showcasing RO solutions, maintenance services, and customer support through a clean and conversion-focused interface.",
+          results: [
+            "Professional online presence for water purification business",
+            "Improved service visibility and customer enquiries",
+            "Responsive experience across desktop and mobile devices"
+          ],
+          tags: ["WordPress", "Business Website", "Responsive Design"],
+          url: "https://hemantservices.com"
+        },
+        {
+          title: "Vakildekho",
+          category: "Legal Services",
+          badge: "enterprise",
+          description: "Built a legal services platform that enables businesses and individuals to access trademark registration, compliance, and legal consultation services through an intuitive digital experience.",
+          results: [
+            "Professional legal service presentation",
+            "Lead generation through enquiry forms",
+            "Improved accessibility to legal solutions"
+          ],
+          tags: ["WordPress", "Legal", "Lead Generation"],
+          url: "https://vakildekho.com"
+        },
+        {
+          title: "Austin Ozone",
+          category: "Healthcare",
+          badge: "premium",
+          description: "Developed a healthcare website promoting ozone therapy services, patient education, wellness treatments, and appointment scheduling with a trustworthy and professional design.",
+          results: [
+            "Professional healthcare website experience",
+            "Clear presentation of treatment information",
+            "Responsive patient-focused interface"
+          ],
+          tags: ["Healthcare", "WordPress", "Responsive Design"],
+          url: "https://austinozone.com"
+        },
+        {
+          title: "ChamaCloud",
+          category: "SaaS Platform",
+          badge: "featured",
+          description: "Created a modern SaaS website for an AI-powered change management platform, highlighting product features, organizational transformation, and customer engagement through a clean user experience.",
+          results: [
+            "Strong SaaS product presentation",
+            "Improved product communication",
+            "Modern responsive landing experience"
+          ],
+          tags: ["SaaS", "AI", "UI/UX"],
+          url: "https://chamacloud.com"
+        },
+        {
+          title: "Zen Travels",
+          category: "Travel & Tourism",
+          badge: "growth",
+          description: "Designed and developed a travel booking website allowing users to search flights, request travel services, and connect with travel consultants through a streamlined booking experience.",
+          results: [
+            "Simplified flight booking journey",
+            "Professional travel service presentation",
+            "Responsive booking experience across devices"
+          ],
+          tags: ["Travel", "Booking System", "WordPress"],
+          url: "https://zentravels.com"
+        },
+        {
+          title: "Inled Technologies",
+          category: "Manufacturing",
+          badge: "enterprise",
+          description: "Built a corporate manufacturing website showcasing industrial products, engineering capabilities, company divisions, and innovations through a professional business-focused design.",
+          results: [
+            "Enhanced industrial brand presence",
+            "Clear product and division presentation",
+            "Responsive corporate website experience"
+          ],
+          tags: ["Manufacturing", "Corporate", "WordPress"],
+          url: "https://inledtechnologies.com"
+        },
+        {
+          title: "Jordan & Skala Engineers",
+          category: "Engineering",
+          badge: "enterprise",
+          description: "Developed a professional engineering firm website highlighting MEP engineering services, sustainability expertise, project portfolio, and company achievements with a polished corporate design.",
+          results: [
+            "Professional engineering brand presentation",
+            "Improved service and project visibility",
+            "Responsive experience for business clients"
+          ],
+          tags: ["Engineering", "Corporate", "Responsive Design"],
+          url: "https://jordanskala.com"
+        },
+        {
+          title: "ReportCard",
+          category: "SEO Platform",
+          badge: "premium",
+          description: "Created a high-converting website for an SEO and link-building platform focused on showcasing services, case studies, and business growth solutions through a modern SaaS-inspired interface.",
+          results: [
+            "Improved online product presentation",
+            "Conversion-focused landing pages",
+            "Professional SEO service branding"
+          ],
+          tags: ["SEO", "SaaS", "WordPress"],
+          url: "https://reportcard.com"
+        },
+        {
+          title: "Totan Studio",
+          category: "Photography Studio",
+          badge: "premium",
+          description: "Designed and developed a visually engaging photography studio website showcasing professional photo shoots, cinematic videography, event coverage, and creative portfolio through a modern and elegant user experience.",
+          results: [
+            "Premium online portfolio presentation",
+            "Improved customer enquiries and bookings",
+            "Responsive gallery experience across all devices"
+          ],
+          tags: ["WordPress", "Photography", "Portfolio"],
+          url: "https://totanstudio.com"
+        },
+        {
+          title: "Prime Lawyers",
+          category: "Legal Services",
+          badge: "enterprise",
+          description: "Built a professional law firm website for a Sydney-based legal practice, presenting legal expertise, practice areas, lawyer profiles, and consultation services with a modern and trustworthy design.",
+          results: [
+            "Enhanced legal brand credibility",
+            "Clear presentation of legal services",
+            "Responsive client-focused experience"
+          ],
+          tags: ["WordPress", "Legal", "Corporate"],
+          url: "https://primelawyers.com.au"
+        },
+        {
+          title: "Office Innovations",
+          category: "Interior Design",
+          badge: "featured",
+          description: "Created a corporate website for an office furniture and interior design company, highlighting workspace solutions, commercial interiors, custom furniture, and project showcases.",
+          results: [
+            "Professional business presentation",
+            "Improved product and service visibility",
+            "Responsive experience for commercial clients"
+          ],
+          tags: ["Interior Design", "Furniture", "WordPress"],
+          url: "https://officeinnovations.co.uk"
+        },
+        {
+          title: "Dr. Lauryn",
+          category: "Healthcare",
+          badge: "premium",
+          description: "Developed a modern healthcare website for a gut health specialist, providing educational resources, treatment information, wellness programs, and patient consultation details through a clean and trusted experience.",
+          results: [
+            "Professional medical brand presence",
+            "Improved patient education and engagement",
+            "Responsive healthcare website experience"
+          ],
+          tags: ["Healthcare", "WordPress", "Medical"],
+          url: "https://drlauryn.com"
+        },
+        {
+          title: "DFR Commercials",
+          category: "Real Estate",
+          badge: "enterprise",
+          description: "Designed and developed a commercial real estate website focused on industrial and commercial property sales, leasing opportunities, property listings, and investment solutions through a professional digital platform.",
+          results: [
+            "Professional commercial property showcase",
+            "Improved property enquiry experience",
+            "Responsive real estate platform for investors and businesses"
+          ],
+          tags: ["Real Estate", "Commercial", "WordPress"],
+          url: "https://dfrcommercial.com.au"
+        },
+        {
+          title: "Sabzithela",
+          category: "E-Commerce",
+          badge: "featured",
+          description: "Designed and developed an online grocery platform for fresh vegetables, fruits, and daily essentials, enabling customers to conveniently order farm-fresh produce with a seamless shopping experience.",
+          results: [
+            "Simplified online grocery ordering process",
+            "Responsive shopping experience across all devices",
+            "Enhanced customer convenience with home delivery"
+          ],
+          tags: ["E-Commerce", "WordPress", "Online Grocery"],
+          url: "https://sabzithela.com"
         }
       ],
       hero: {
@@ -185,42 +406,42 @@ export const homeData = {
       subheading2: "5 Simple Steps",
       subtext:
         "Our proven process ensures your project is delivered on time, on budget, and exceeds expectations.",
-      items:[
-          {
-            number: '01',
-            icon: 'Search',
-            title: 'Discover',
-            description: 'We start by understanding your business, goals, and challenges. A quick call helps us map out exactly what you need.',
-            duration: '1-2 days'
-          },
-          {
-            number: '02',
-            icon: 'FileText',
-            title: 'Plan',
-            description: 'We create a detailed project roadmap with timelines, milestones, and deliverables. You know exactly what to expect.',
-            duration: '3-5 days'
-          },
-          {
-            number: '03',
-            icon: 'Hammer',
-            title: 'Build',
-            description: 'Our team gets to work designing, developing, and testing. You get regular updates and can provide feedback along the way.',
-            duration: '2-8 weeks'
-          },
-          {
-            number: '04',
-            icon: 'Rocket',
-            title: 'Launch',
-            description: 'We handle deployment, testing, and ensure everything runs smoothly. Your project goes live without a hitch.',
-            duration: '1-3 days'
-          },
-          {
-            number: '05',
-            icon: 'HeadphonesIcon',
-            title: 'Support',
-            description: 'We don\'t disappear after launch. Ongoing support, updates, and improvements keep your solution running at its best.',
-            duration: 'Ongoing'
-          }
+      items: [
+        {
+          number: '01',
+          icon: 'Search',
+          title: 'Discover',
+          description: 'We start by understanding your business, goals, and challenges. A quick call helps us map out exactly what you need.',
+          duration: '1-2 days'
+        },
+        {
+          number: '02',
+          icon: 'FileText',
+          title: 'Plan',
+          description: 'We create a detailed project roadmap with timelines, milestones, and deliverables. You know exactly what to expect.',
+          duration: '3-5 days'
+        },
+        {
+          number: '03',
+          icon: 'Hammer',
+          title: 'Build',
+          description: 'Our team gets to work designing, developing, and testing. You get regular updates and can provide feedback along the way.',
+          duration: '2-8 weeks'
+        },
+        {
+          number: '04',
+          icon: 'Rocket',
+          title: 'Launch',
+          description: 'We handle deployment, testing, and ensure everything runs smoothly. Your project goes live without a hitch.',
+          duration: '1-3 days'
+        },
+        {
+          number: '05',
+          icon: 'HeadphonesIcon',
+          title: 'Support',
+          description: 'We don\'t disappear after launch. Ongoing support, updates, and improvements keep your solution running at its best.',
+          duration: 'Ongoing'
+        }
       ],
       cta: {
         preview: {
@@ -241,7 +462,7 @@ export const homeData = {
       subheading2: "Our Word for It",
       subtext:
         "Hear from the founders and business owners who trusted us with their digital growth.",
-      items:[
+      items: [
         {
           id: 1,
           name: 'Sarah Mitchell',
@@ -304,7 +525,7 @@ export const homeData = {
         description:
           "The strongest proof of our work comes from the businesses we've helped grow. Hear directly from our clients about their experience with WebNDevs."
       },
-      stats:[
+      stats: [
         {
           icon: "Star",
           value: "4.9/5",
@@ -340,7 +561,7 @@ export const homeData = {
       subheading2: "Let Us Reassure You",
       subtext:
         "Your privacy is important to us. This policy explains how we handle your data.",
-      items:[
+      items: [
         {
           title: "Introduction",
           description: "This Privacy Policy describes how WebNDevs (\"we,\" \"us,\" or \"our\") collects, uses, and discloses your personal information when you visit our website webndevs.com (the \"Site\") and use our services."
@@ -373,7 +594,7 @@ export const homeData = {
       subheading2: "Terms of Use",
       subtext:
         "By using our services, you agree to the following terms and conditions.",
-      items:[
+      items: [
         {
           title: "Agreement to Terms",
           description: "By accessing or using our website and services, you agree to be bound by these Terms of Service and all terms incorporated by reference. If you do not agree to these terms, you may not access or use our services."
@@ -406,7 +627,7 @@ export const homeData = {
       subheading2: "We Are Here For You",
       subtext:
         "Ready to build something great together? Contact us to discuss your project, get a quote, or just say hello.",
-      items:[
+      items: [
         {
           title: "Don't Hesitate To Reach Out to Us",
           description: "Thank you for expressing your interest in webndevs.com. Whether you're looking for web development projects, graphic design, digital marketing, or other technology solutions, we're here to assist you. Our team is eager to share its expertise and help bring your ideas to life. Let's collaborate and create something amazing together."
@@ -439,7 +660,7 @@ export const homeData = {
       subheading2: "We Might Have Answers",
       subtext:
         "Everything you need to know about working with WebNDevs. Can't find your answer? Just reach out",
-      items:[
+      items: [
         {
           question: 'What services does WebNDevs offer?',
           answer: 'We offer complete digital solutions including web development (WordPress, React, Next.js, Laravel), UI/UX design, mobile app development (iOS & Android), AI & automation, Power BI data analytics dashboards, digital marketing & SEO, social media management, and branding & graphic design. Think of us as your all-in-one digital team.'
@@ -770,7 +991,7 @@ export type Section = {
 
 export function getHome(
   key: string
-) : Section | undefined {
+): Section | undefined {
   return homeData.sections.find(
     (section) => section.section_key === key
   );
