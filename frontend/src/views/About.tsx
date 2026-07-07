@@ -1,7 +1,5 @@
 import { AboutSection } from "@/components/sections/about-section";
-import dynamic from "next/dynamic";
-
-const CTASection = dynamic(() => import("@/components/sections/cta-section").then(mod => mod.CTASection));
+import { CTASection } from "@/components/sections/cta-section";
 
 export function AboutPage() {
   return (

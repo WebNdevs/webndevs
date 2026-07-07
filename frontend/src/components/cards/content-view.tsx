@@ -9,7 +9,7 @@ type ContentModalProps = {
   onClose: () => void;
 };
 
-export function ContentModal({content, onClose} : ContentModalProps) {
+export function ContentModal({ content, onClose }: ContentModalProps) {
   useEffect(() => {
     document.body.style.overflow =
       content ? "hidden" : "auto";
@@ -53,8 +53,8 @@ export function ContentModal({content, onClose} : ContentModalProps) {
         </button>
 
         <Image
-          width={800}
-          height={450}
+          width={300}
+          height={48}
           src={content.image || "/logo.png"}
           alt={content.title || "WebNDevs Project Showcase"}
           className="w-full h-64 object-cover rounded-xl mb-6"
@@ -89,7 +89,7 @@ type ContentViewerProps = {
   items?: ContentCardProps[];
 };
 
-export function ContentViewer({items = []} : ContentViewerProps) {
+export function ContentViewer({ items = [] }: ContentViewerProps) {
   const [selectedContent, setSelectedContent] = useState<ContentCardProps | null>(null);
 
   const [filter, setFilter] = useState<"latest" | "featured">("latest");

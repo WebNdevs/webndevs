@@ -14,7 +14,7 @@ export type ContentCardProps = {
   onClick?: () => void;
 };
 
-export function ContentCard({title, excerpt, image, tags, onClick,} : ContentCardProps) {
+export function ContentCard({ title, excerpt, image, tags, onClick, }: ContentCardProps) {
   return (
     <DSCard
       hoverable
@@ -30,8 +30,8 @@ export function ContentCard({title, excerpt, image, tags, onClick,} : ContentCar
       }}
     >
       <Image
-        width={400}
-        height={225}
+        width={300}
+        height={48}
         src={image || "/logo.png"}
         alt={title || "WebNDevs Project Showcase"}
         className="w-full h-48 object-cover rounded-lg mb-4"
@@ -66,7 +66,7 @@ type ContentCardGridProps = {
   onSelect?: (content: ContentCardProps) => void;
 };
 
-export function ContentCardGrid({items = [], onSelect} : ContentCardGridProps) {
+export function ContentCardGrid({ items = [], onSelect }: ContentCardGridProps) {
   if (!items) return null;
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
