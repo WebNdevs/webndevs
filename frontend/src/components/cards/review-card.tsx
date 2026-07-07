@@ -13,8 +13,8 @@ export type ReviewCardProps = {
   role?: string;
 }
 
-export function ReviewCard({name, company, content, rating, photo_url, role} : ReviewCardProps) {
-  return(
+export function ReviewCard({ name, company, content, rating, photo_url, role }: ReviewCardProps) {
+  return (
     <DSCard hoverable className="flex flex-col bg-transparent bg-linear-to-r from-[#22C55E]/5 to-[#06B6D4]/5">
       {/* Stars */}
       {rating && (
@@ -26,7 +26,7 @@ export function ReviewCard({name, company, content, rating, photo_url, role} : R
       )}
 
       {/* Quote/Image */}
-      { photo_url ? (
+      {photo_url ? (
         <Image src={photo_url} alt={name ? `Client Review by ${name}` : "Client review testimonial"} className="w-15 h-15 rounded mb-4 object-contain object-center" />
       ) : (
         <Quote className="w-10 h-10 text-[#22C55E]/20 mb-4" />
@@ -61,15 +61,15 @@ export function ReviewCard({name, company, content, rating, photo_url, role} : R
   )
 }
 
-export function ReviewCardGrid({items} : {items: ReviewCardProps[]}) {
+export function ReviewCardGrid({ items }: { items: ReviewCardProps[] }) {
   if (!items) return null;
-  return(
+  return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
       {items.map((item, index) => (
-        <ScrollReveal 
-          key={index} 
-          direction="up" 
-          delay={(index % 3) * 0.1} 
+        <ScrollReveal
+          key={index}
+          direction="up"
+          delay={(index % 3) * 0.1}
           duration={0.6}
         >
           <ReviewCard {...item} />

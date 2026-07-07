@@ -9,7 +9,7 @@ type ContentModalProps = {
   onClose: () => void;
 };
 
-export function ContentModal({content, onClose} : ContentModalProps) {
+export function ContentModal({ content, onClose }: ContentModalProps) {
   useEffect(() => {
     document.body.style.overflow =
       content ? "hidden" : "auto";
@@ -89,7 +89,7 @@ type ContentViewerProps = {
   items?: ContentCardProps[];
 };
 
-export function ContentViewer({items = []} : ContentViewerProps) {
+export function ContentViewer({ items = [] }: ContentViewerProps) {
   const [selectedContent, setSelectedContent] = useState<ContentCardProps | null>(null);
 
   const [filter, setFilter] = useState<"latest" | "featured">("latest");
