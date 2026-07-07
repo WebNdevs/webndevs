@@ -1,7 +1,11 @@
 import { ReactNode } from "react";
 import { Footer } from "../footer";
 import { Navbar } from "../navbar";
-import { InteractiveBackground } from "../animations/interactive-background";
+import dynamic from "next/dynamic";
+
+const InteractiveBackground = dynamic(
+  () => import("../animations/interactive-background").then((mod) => mod.InteractiveBackground)
+);
 
 
 export default function Shell({ children }: { children: ReactNode }) {

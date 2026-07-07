@@ -30,8 +30,8 @@ export function ContentCard({title, excerpt, image, tags, onClick,} : ContentCar
       }}
     >
       <Image
-        width={300}
-        height={48}
+        width={400}
+        height={225}
         src={image || "/logo.png"}
         alt={title || "WebNDevs Project Showcase"}
         className="w-full h-48 object-cover rounded-lg mb-4"

@@ -76,7 +76,29 @@ export function InteractiveBackground() {
     let lastY = 0;
     const spawnThreshold = 12; // px distance to spawn particles
     
+    let isActivated = false;
+    let time = 0;
+
+    const startAnimation = () => {
+      if (isActivated) return;
+      isActivated = true;
+      animate();
+      
+      // Remove activation listeners once rendering has started
+      window.removeEventListener("scroll", activateOnInteraction);
+      window.removeEventListener("touchstart", activateOnInteraction);
+      window.removeEventListener("pointerdown", activateOnInteraction);
+    };
+
+    const activateOnInteraction = () => {
+      startAnimation();
+    };
+
     const handleMouseMove = (e: MouseEvent) => {
+      if (!isActivated) {
+        startAnimation();
+      }
+
       const x = e.clientX;
       const y = e.clientY;
       const dist = Math.hypot(x - lastX, y - lastY);
@@ -119,11 +141,15 @@ export function InteractiveBackground() {
       }
     };
     
-    window.addEventListener("mousemove", handleMouseMove);
-    
-    let time = 0;
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     
     const animate = () => {
+      // Pause animation if the document is hidden
+      if (document.hidden) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
+      
       time += 0.015;
       ctx.clearRect(0, 0, width, height);
       
@@ -214,12 +240,18 @@ export function InteractiveBackground() {
       animationFrameId = requestAnimationFrame(animate);
     };
     
-    animate();
+    // Set up activation listeners for page scroll, touch, or click
+    window.addEventListener("scroll", activateOnInteraction, { passive: true });
+    window.addEventListener("touchstart", activateOnInteraction, { passive: true });
+    window.addEventListener("pointerdown", activateOnInteraction, { passive: true });
     
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("scroll", activateOnInteraction);
+      window.removeEventListener("touchstart", activateOnInteraction);
+      window.removeEventListener("pointerdown", activateOnInteraction);
     };
   }, []);
   

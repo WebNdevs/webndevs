@@ -1,8 +1,10 @@
 import { HeaderSection } from '../components/cards/header-card';
 import { getHome } from '@/data/homedata';
 import { ContentTile, DSTiles } from '../components/cards/DScomponents';
-import { CTASection } from '@/components/sections/cta-section';
 import { PageHero, PageHeroProps } from '@/components/sections/pagehero';
+import dynamic from 'next/dynamic';
+
+const CTASection = dynamic(() => import('@/components/sections/cta-section').then(mod => mod.CTASection));
 
 export function ContactPage() {
   const section = getHome("contact-us");

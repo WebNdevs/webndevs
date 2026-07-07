@@ -53,8 +53,8 @@ export function ContentModal({content, onClose} : ContentModalProps) {
         </button>
 
         <Image
-          width={300}
-          height={48}
+          width={800}
+          height={450}
           src={content.image || "/logo.png"}
           alt={content.title || "WebNDevs Project Showcase"}
           className="w-full h-64 object-cover rounded-xl mb-6"
