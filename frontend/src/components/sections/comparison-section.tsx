@@ -16,7 +16,7 @@ export function ComparisonSection() {
         {/* Section Header */}
         <HeaderSection {...section}/>
 
-        <div className="rounded-xl border border-white/10 bg-white/5 p-6 prose prose-invert max-w-none text-slate-300">
+        <div className="rounded-xl border border-white/10 p-6 prose prose-invert max-w-none text-slate-300">
           {(section?.items as ComparisonItem[])?.map((item, i) => (
             <div key={i}>
           <DSTiles items={[item as ContentTile]} />

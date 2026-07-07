@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { apiFetch } from "@/config/api";
 
 type ApiState<T> = {
@@ -34,7 +34,10 @@ export function useApi<T>(endpoint: string | null, init?: RequestInit): ApiState
   }, [endpoint, init]);
 
   useEffect(() => {
-    void fetchData();
+    const timer = setTimeout(() => {
+      void fetchData();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [fetchData]);
 
   return { data, loading, error, refetch: fetchData };

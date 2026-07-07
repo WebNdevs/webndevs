@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 
 import { DSCard } from "./DScomponents";
+import { ScrollReveal } from "../animations/scroll-reveal";
 
 export type PlanCardProps = {
   badge?: string;
@@ -124,13 +125,20 @@ type PlanGridProps = {
 export function PlanGrid({
   items,
 }: PlanGridProps) {
+  if (!items) return null;
   return (
     <div className="grid gap-8 lg:grid-cols-3">
       {items.map((item, index) => (
-        <PlanCard
+        <ScrollReveal
           key={index}
-          {...item}
-        />
+          direction="up"
+          delay={index * 0.1}
+          duration={0.6}
+        >
+          <PlanCard
+            {...item}
+          />
+        </ScrollReveal>
       ))}
     </div>
   );

@@ -75,7 +75,7 @@ const FOOTER_LINKS = {
 
 export function Footer() {
   return (
-    <footer className="bg-[#0B0F14] border-t border-[#374151]" aria-label="Site footer">
+    <footer className="bg-transparent border-t border-[#374151]" aria-label="Site footer">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-20 mb-8">
           {/* Company Info */}

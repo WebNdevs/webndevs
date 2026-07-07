@@ -75,20 +75,20 @@ export const homeData = {
       subtext: "See how we've helped companies grow through design, development, automation, and data-driven solutions.",
       items: [
         {
-          title: "Physician",
-          category: "Healthcare",
-          badge: "premium",
-          description: "Designed and developed a professional healthcare website for a physician, highlighting medical expertise, patient care, appointment details, and healthcare services through a clean and trustworthy digital experience.",
+          title: "Sabzithela",
+          category: "E-Commerce",
+          badge: "featured",
+          description: "Designed and developed an online grocery platform for fresh vegetables, fruits, and daily essentials, enabling customers to conveniently order farm-fresh produce with a seamless shopping experience.",
           results: [
-            "Professional online presence for healthcare practice",
-            "Responsive patient-friendly website experience",
-            "Clear service presentation with appointment information"
+            "Simplified online grocery ordering process",
+            "Responsive shopping experience across all devices",
+            "Enhanced customer convenience with home delivery"
           ],
-          tags: ["WordPress", "Healthcare", "Responsive Design"],
-          url: "https://drabhishekshuklaphysician.com"
+          tags: ["E-Commerce", "WordPress", "Online Grocery"],
+          url: "https://sabzithela.com"
         },
         {
-          title: "Dr. Gurmeet Kaur",
+          title: "Nidaan Clinic",
           category: "Healthcare",
           badge: "premium",
           description: "Created a modern fertility clinic website focused on patient education, fertility treatments, appointment bookings, and building trust through a compassionate user experience.",
@@ -99,6 +99,19 @@ export const homeData = {
           ],
           tags: ["WordPress", "Healthcare", "UI/UX"],
           url: "https://drgurmeetkaur.in"
+        },
+        {
+          title: "DFR Commercials",
+          category: "Real Estate",
+          badge: "enterprise",
+          description: "Designed and developed a commercial real estate website focused on industrial and commercial property sales, leasing opportunities, property listings, and investment solutions through a professional digital platform.",
+          results: [
+            "Professional commercial property showcase",
+            "Improved property enquiry experience",
+            "Responsive real estate platform for investors and businesses"
+          ],
+          tags: ["Real Estate", "Commercial", "WordPress"],
+          url: "https://dfrcommercial.com.au"
         },
         {
           title: "Rentigo",
@@ -112,32 +125,6 @@ export const homeData = {
           ],
           tags: ["WordPress", "Booking System", "Vehicle Rental"],
           url: "https://rentigo.ch"
-        },
-        {
-          title: "ContactKloud",
-          category: "CRM Software",
-          badge: "featured",
-          description: "Built a SaaS landing website for a CRM platform focused on call center operations, lead management, and sales workflow optimization.",
-          results: [
-            "Professional SaaS product presentation",
-            "Clear feature-focused landing experience",
-            "Optimized lead generation and user onboarding"
-          ],
-          tags: ["CRM", "SaaS", "UI/UX"],
-          url: "https://contactkloud.com"
-        },
-        {
-          title: "Party In The City Photo Booth",
-          category: "Business Website",
-          badge: "growth",
-          description: "Designed an engaging promotional website for a 360 photo booth rental business, helping customers discover services, view event offerings, and book online.",
-          results: [
-            "Enhanced event service presentation",
-            "Streamlined online booking journey",
-            "Mobile-friendly customer experience"
-          ],
-          tags: ["WordPress", "Booking", "Business Website"],
-          url: "https://partyinthecityphotobooth.com"
         },
         {
           title: "Gem Experience",
@@ -179,32 +166,6 @@ export const homeData = {
           url: "https://simplicityink.com"
         },
         {
-          title: "Jeetam Saini",
-          category: "Personal Branding",
-          badge: "featured",
-          description: "Created a professional personal branding website highlighting consulting services, media presence, achievements, and business expertise.",
-          results: [
-            "Strengthened personal brand visibility",
-            "Professional presentation of services",
-            "Responsive user experience across devices"
-          ],
-          tags: ["Personal Branding", "WordPress", "Corporate"],
-          url: "https://jeetamsaini.com"
-        },
-        {
-          title: "Hemant Services",
-          category: "Business Website",
-          badge: "featured",
-          description: "Designed and developed a modern website for a water purifier sales and service company, showcasing RO solutions, maintenance services, and customer support through a clean and conversion-focused interface.",
-          results: [
-            "Professional online presence for water purification business",
-            "Improved service visibility and customer enquiries",
-            "Responsive experience across desktop and mobile devices"
-          ],
-          tags: ["WordPress", "Business Website", "Responsive Design"],
-          url: "https://hemantservices.com"
-        },
-        {
           title: "Vakildekho",
           category: "Legal Services",
           badge: "enterprise",
@@ -216,6 +177,19 @@ export const homeData = {
           ],
           tags: ["WordPress", "Legal", "Lead Generation"],
           url: "https://vakildekho.com"
+        },
+        {
+          title: "ContactKloud",
+          category: "CRM Software",
+          badge: "featured",
+          description: "Built a SaaS landing website for a CRM platform focused on call center operations, lead management, and sales workflow optimization.",
+          results: [
+            "Professional SaaS product presentation",
+            "Clear feature-focused landing experience",
+            "Optimized lead generation and user onboarding"
+          ],
+          tags: ["CRM", "SaaS", "UI/UX"],
+          url: "https://contactkloud.com"
         },
         {
           title: "Austin Ozone",
@@ -296,19 +270,6 @@ export const homeData = {
           url: "https://reportcard.com"
         },
         {
-          title: "Totan Studio",
-          category: "Photography Studio",
-          badge: "premium",
-          description: "Designed and developed a visually engaging photography studio website showcasing professional photo shoots, cinematic videography, event coverage, and creative portfolio through a modern and elegant user experience.",
-          results: [
-            "Premium online portfolio presentation",
-            "Improved customer enquiries and bookings",
-            "Responsive gallery experience across all devices"
-          ],
-          tags: ["WordPress", "Photography", "Portfolio"],
-          url: "https://totanstudio.com"
-        },
-        {
           title: "Prime Lawyers",
           category: "Legal Services",
           badge: "enterprise",
@@ -347,32 +308,72 @@ export const homeData = {
           tags: ["Healthcare", "WordPress", "Medical"],
           url: "https://drlauryn.com"
         },
+        // NOt working links
         {
-          title: "DFR Commercials",
-          category: "Real Estate",
-          badge: "enterprise",
-          description: "Designed and developed a commercial real estate website focused on industrial and commercial property sales, leasing opportunities, property listings, and investment solutions through a professional digital platform.",
+          title: "Party In The City Photo Booth",
+          category: "Business Website",
+          badge: "growth",
+          description: "Designed an engaging promotional website for a 360 photo booth rental business, helping customers discover services, view event offerings, and book online.",
           results: [
-            "Professional commercial property showcase",
-            "Improved property enquiry experience",
-            "Responsive real estate platform for investors and businesses"
+            "Enhanced event service presentation",
+            "Streamlined online booking journey",
+            "Mobile-friendly customer experience"
           ],
-          tags: ["Real Estate", "Commercial", "WordPress"],
-          url: "https://dfrcommercial.com.au"
+          tags: ["WordPress", "Booking", "Business Website"],
+          url: "https://partyinthecityphotobooth.com"
         },
         {
-          title: "Sabzithela",
-          category: "E-Commerce",
-          badge: "featured",
-          description: "Designed and developed an online grocery platform for fresh vegetables, fruits, and daily essentials, enabling customers to conveniently order farm-fresh produce with a seamless shopping experience.",
+          title: "Healing Hands Clinic",
+          category: "Healthcare",
+          badge: "premium",
+          description: "Designed and developed a professional healthcare website for a physician, highlighting medical expertise, patient care, appointment details, and healthcare services through a clean and trustworthy digital experience.",
           results: [
-            "Simplified online grocery ordering process",
-            "Responsive shopping experience across all devices",
-            "Enhanced customer convenience with home delivery"
+            "Professional online presence for healthcare practice",
+            "Responsive patient-friendly website experience",
+            "Clear service presentation with appointment information"
           ],
-          tags: ["E-Commerce", "WordPress", "Online Grocery"],
-          url: "https://sabzithela.com"
-        }
+          tags: ["WordPress", "Healthcare", "Responsive Design"],
+          url: "https://drabhishekshuklaphysician.com"
+        },    
+        {
+          title: "Jeetam Saini",
+          category: "Personal Branding",
+          badge: "featured",
+          description: "Created a professional personal branding website highlighting consulting services, media presence, achievements, and business expertise.",
+          results: [
+            "Strengthened personal brand visibility",
+            "Professional presentation of services",
+            "Responsive user experience across devices"
+          ],
+          tags: ["Personal Branding", "WordPress", "Corporate"],
+          url: "https://jeetamsaini.com"
+        },
+        {
+          title: "Hemant Services",
+          category: "Business Website",
+          badge: "featured",
+          description: "Designed and developed a modern website for a water purifier sales and service company, showcasing RO solutions, maintenance services, and customer support through a clean and conversion-focused interface.",
+          results: [
+            "Professional online presence for water purification business",
+            "Improved service visibility and customer enquiries",
+            "Responsive experience across desktop and mobile devices"
+          ],
+          tags: ["WordPress", "Business Website", "Responsive Design"],
+          url: "https://hemantservices.com"
+        },
+        {
+          title: "Totan Studio",
+          category: "Photography Studio",
+          badge: "premium",
+          description: "Designed and developed a visually engaging photography studio website showcasing professional photo shoots, cinematic videography, event coverage, and creative portfolio through a modern and elegant user experience.",
+          results: [
+            "Premium online portfolio presentation",
+            "Improved customer enquiries and bookings",
+            "Responsive gallery experience across all devices"
+          ],
+          tags: ["WordPress", "Photography", "Portfolio"],
+          url: "https://totanstudio.com"
+        },         
       ],
       hero: {
         tag: "OUR WORK",
@@ -465,57 +466,210 @@ export const homeData = {
       items: [
         {
           id: 1,
-          name: 'Sarah Mitchell',
-          company: 'TechStart Inc.',
-          content: 'WebNDevs transformed our outdated website into a modern, high-converting platform. Within 3 months, we saw a 180% increase in qualified leads. They understood our business and delivered beyond expectations.',
+          name: "Ankit Sharma",
+          company: "Sabzithela",
+          content: "WebNDevs built a fast, user-friendly grocery platform that perfectly matches our business needs. The shopping experience is seamless, and customers appreciate how easy it is to browse and order fresh produce online.",
           rating: 5,
           photo_url: null,
-          role: 'CEO, TechStart Inc.',
+          role: "Founder, Sabzithela",
         },
         {
           id: 2,
-          name: 'James Rodriguez',
-          company: 'FitLife App',
-          content: 'I was juggling 4 different freelancers before finding WebNDevs. Now I have one team handling design, development, and marketing. The relief of having clear communication and consistent quality is priceless.',
+          name: "Daniel Foster",
+          company: "DFR Commercials",
+          content: "Our commercial real estate website now reflects the professionalism of our business. WebNDevs delivered a polished platform with excellent performance and a smooth property browsing experience.",
           rating: 5,
           photo_url: null,
-          role: 'Founder, FitLife App',
+          role: "Managing Director, DFR Commercials",
         },
         {
           id: 3,
-          name: 'Emily Chen',
-          company: 'RetailPro',
-          content: 'The Power BI dashboard they built saves our team 15+ hours every week. We can now make data-driven decisions in real-time instead of waiting days for reports. Best investment we\'ve made this year.',
+          name: "Dr. Gurmeet Kaur",
+          company: "Nidaan Clinic",
+          content: "The team created a compassionate, patient-focused website that reflects our clinic perfectly. Every aspect of the project was handled professionally, and the final product exceeded our expectations.",
           rating: 5,
           photo_url: null,
-          role: 'Marketing Director, RetailPro',
+          role: "Fertility Specialist",
         },
         {
           id: 4,
-          name: 'Michael Foster',
-          company: 'EcoShop',
-          content: 'Our e-commerce sales tripled after WebNDevs optimized our store. They didn\'t just make it look good—they focused on conversion rates, page speed, and user experience. The results speak for themselves.',
+          name: "Lukas Meier",
+          company: "Rentigo",
+          content: "The team created an intuitive booking platform that makes renting vehicles simple for our customers. Their attention to detail and communication throughout the project was outstanding.",
           rating: 5,
           photo_url: null,
-          role: 'Owner, EcoShop',
+          role: "Operations Manager, Rentigo",
         },
         {
           id: 5,
-          name: 'Lisa Thompson',
-          company: 'AutoCorp',
-          content: 'The automation workflows WebNDevs set up have been game-changing. Tasks that used to take hours now happen automatically. We\'ve reduced errors by 90% and our team can focus on what actually matters.',
+          name: "Olivia Bennett",
+          company: "Gem Experience",
+          content: "WebNDevs captured the elegance of our luxury jewelry brand perfectly. The final website is visually stunning, responsive, and provides the premium shopping experience we envisioned.",
           rating: 5,
           photo_url: null,
-          role: 'Operations Manager, AutoCorp',
+          role: "Creative Director, Gem Experience",
         },
         {
           id: 6,
-          name: 'David Park',
-          company: 'BrandHub',
-          content: 'From logo to website to marketing materials, WebNDevs nailed our brand identity. They took time to understand our vision and created something that truly represents who we are. Couldn\'t be happier.',
+          name: "Nathan Collins",
+          company: "Reactive Air",
+          content: "From planning to launch, the process was smooth and professional. Our new website clearly communicates our services and has made it much easier for customers to get in touch.",
           rating: 5,
           photo_url: null,
-          role: 'Founder, BrandHub',
+          role: "Director, Reactive Air",
+        },
+        {
+          id: 7,
+          name: "Rohit Bansal",
+          company: "Vakildekho",
+          content: "The WebNDevs team understood our legal services business immediately. They delivered a professional website with an excellent user experience and an effective lead generation process.",
+          rating: 5,
+          photo_url: null,
+          role: "Founder, Vakildekho",
+        },
+        {
+          id: 8,
+          name: "Jessica Morgan",
+          company: "Simplicity Ink",
+          content: "We wanted a modern, elegant website that reflected our brand, and WebNDevs exceeded every expectation. The design is beautiful, fast, and our clients love the experience.",
+          rating: 5,
+          photo_url: null,
+          role: "Owner, Simplicity Ink",
+        },
+        {
+          id: 9,
+          name: "Michael Reynolds",
+          company: "ContactKloud",
+          content: "Our SaaS platform now has a website that clearly communicates our product and its value. The team was responsive, detail-oriented, and delivered a high-quality result on schedule.",
+          rating: 5,
+          photo_url: null,
+          role: "Product Manager, ContactKloud",
+        },
+        {
+          id: 10,
+          name: "Emily Carter",
+          company: "Austin Ozone",
+          content: "WebNDevs created a professional healthcare website that inspires confidence and makes it easy for patients to find treatment information. Their communication and execution were excellent.",
+          rating: 5,
+          photo_url: null,
+          role: "Practice Manager, Austin Ozone",
+        },
+        {
+          id: 11,
+          name: "James Richardson",
+          company: "ChamaCloud",
+          content: "The team transformed our vision into a modern SaaS website with exceptional attention to detail. Performance, design, and usability were all delivered to a very high standard.",
+          rating: 5,
+          photo_url: null,
+          role: "Head of Product, ChamaCloud",
+        },
+        {
+          id: 12,
+          name: "Sophia Turner",
+          company: "Zen Travels",
+          content: "WebNDevs built a travel platform that is intuitive, responsive, and easy for our customers to navigate. The entire process was smooth from start to finish.",
+          rating: 5,
+          photo_url: null,
+          role: "Operations Director, Zen Travels",
+        },
+        {
+          id: 13,
+          name: "Arun Prakash",
+          company: "Inled Technologies",
+          content: "Our corporate website now reflects the quality and innovation of our manufacturing business. We were impressed with the team's professionalism and technical expertise.",
+          rating: 5,
+          photo_url: null,
+          role: "Marketing Manager, Inled Technologies",
+        },
+        {
+          id: 14,
+          name: "Christopher Hayes",
+          company: "Jordan & Skala Engineers",
+          content: "WebNDevs modernized our online presence while maintaining our established brand identity. Their technical knowledge and attention to detail were evident throughout the project.",
+          rating: 5,
+          photo_url: null,
+          role: "Marketing Director, Jordan & Skala Engineers",
+        },
+        {
+          id: 15,
+          name: "Benjamin Lewis",
+          company: "ReportCard",
+          content: "The final website exceeded our expectations in both design and performance. It presents our platform professionally and delivers a seamless experience for prospective customers.",
+          rating: 5,
+          photo_url: null,
+          role: "Growth Manager, ReportCard",
+        },
+        {
+          id: 16,
+          name: "Oliver Matthews",
+          company: "Prime Lawyers",
+          content: "Professional, reliable, and incredibly easy to work with. WebNDevs delivered a website that perfectly represents our legal practice and provides an outstanding experience for our clients.",
+          rating: 5,
+          photo_url: null,
+          role: "Managing Partner, Prime Lawyers",
+        },
+        {
+          id: 17,
+          name: "Charlotte Evans",
+          company: "Office Innovations",
+          content: "Our new website showcases our products beautifully and has significantly improved how customers explore our commercial interior solutions. The quality of work speaks for itself.",
+          rating: 5,
+          photo_url: null,
+          role: "Business Development Manager, Office Innovations",
+        },
+        {
+          id: 18,
+          name: "Dr. Lauryn Lax",
+          company: "Dr. Lauryn",
+          content: "WebNDevs created a clean, engaging website that communicates our healthcare services clearly while making educational content easily accessible for our patients.",
+          rating: 5,
+          photo_url: null,
+          role: "Founder, Dr. Lauryn",
+        },
+        {
+          id: 19,
+          name: "Ashley Brooks",
+          company: "Party In The City Photo Booth",
+          content: "The website perfectly captures the energy of our brand. It's visually engaging, mobile-friendly, and has made it easier for customers to learn about our services and book events.",
+          rating: 5,
+          photo_url: null,
+          role: "Owner, Party In The City Photo Booth",
+        },
+        {
+          id: 20,
+          name: "Dr. Abhishek Shukla",
+          company: "Healing Hands Clinic",
+          content: "WebNDevs developed a modern website that makes it simple for patients to access healthcare information and connect with our practice. The final result is clean, professional, and easy to manage.",
+          rating: 5,
+          photo_url: null,
+          role: "Consultant Physician",
+        },
+        {
+          id: 21,
+          name: "Jeetam Saini",
+          company: "Jeetam Saini",
+          content: "WebNDevs translated my personal brand into a professional online presence. Their attention to detail, responsiveness, and commitment to quality made the entire experience exceptional.",
+          rating: 5,
+          photo_url: null,
+          role: "Business Consultant",
+        },
+        {
+          id: 22,
+          name: "Hemant Saini",
+          company: "Hemant Services",
+          content: "Our website now reflects the professionalism of our business and has made it much easier for customers to discover our services online. WebNDevs delivered exactly what we needed.",
+          rating: 5,
+          photo_url: null,
+          role: "Founder, Hemant Services",
+        },
+        {
+          id: 23,
+          name: "Mahesh Saini",
+          company: "Totan Studio",
+          content: "The team built a visually stunning portfolio that showcases our photography and videography services beautifully. We've received countless compliments on the design and overall user experience.",
+          rating: 5,
+          photo_url: null,
+          role: "Creative Director, Totan Studio",
         }
       ],
       hero: {

@@ -17,7 +17,7 @@ export function ContactPage() {
           {/* Section Header */}
           <HeaderSection {...section}/>
 
-          <div className="rounded-xl border border-white/10 bg-white/5 p-4 sm:p-6 prose prose-invert max-w-none text-slate-300 mb-16">
+          <div className="rounded-xl bg-transparent bg-linear-to-r from-[#22C55E]/1 to-[#06B6D4]/1 border border-white/10 p-4 sm:p-6 prose prose-invert max-w-none text-slate-300 mb-16">
             <DSTiles items={section?.items as ContentTile[]} />
           </div>
         </div>

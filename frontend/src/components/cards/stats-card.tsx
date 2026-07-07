@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { DSCard } from "./DScomponents"
 import { ICONS } from "../../data/icons";
+import { ScrollReveal } from "../animations/scroll-reveal";
 
 
 export type StatsCardProps = {
@@ -14,7 +15,7 @@ export function StatsCard({icon, title, value, url}: StatsCardProps) {
   const Icon =
   ICONS[icon as keyof typeof ICONS];
   const card = (
-    <DSCard className="w-full md:w-[calc(33.333%-1rem)]">
+    <DSCard className="w-full bg-transparent bg-linear-to-r from-[#22C55E]/2 to-[#06B6D4]/2">
     <div className="flex flex-col items-center">
 
       {icon && (
@@ -50,10 +51,19 @@ export function StatsCard({icon, title, value, url}: StatsCardProps) {
 }
 
 export function StatsCardGrid({items} : {items: StatsCardProps[]}) {
+  if (!items) return null;
   return(
-    <div className="mt-16 flex flex-wrap justify-center gap-6 mb-16">
+    <div className="mt-16 flex flex-wrap justify-center gap-6 mb-16 w-full">
       {items.map((item, index) => (
-        <StatsCard key={index} {...item}/>
+        <ScrollReveal 
+          key={index} 
+          direction="up" 
+          delay={index * 0.1} 
+          duration={0.5}
+          className="w-full md:w-[calc(33.333%-1rem)]"
+        >
+          <StatsCard {...item}/>
+        </ScrollReveal>
       ))}
     </div>
   );

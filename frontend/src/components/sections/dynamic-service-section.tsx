@@ -114,7 +114,7 @@ export function DynamicService({section}:DynamicServiceProps) {
   }
 
   return (
-    <section id='blogs' className="py-20 px-6 bg-[#0B0F14]">
+    <section id='services' className="py-20 px-6 bg-[#0B0F14]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemas) }}
@@ -142,7 +142,7 @@ export function DynamicService({section}:DynamicServiceProps) {
           <TechCard {...section?.techspec as TechCardProps}/>
         )}
         {section?.process && (
-          <div className='py-20 px-6 mb-16 bg-[#111827]'>
+          <div className='py-20 px-6 mb-16 bg-linear-to-r from-[#22C55E]/1 to-[#06B6D4]/1'>
             <HeaderSection {...section?.process as HeaderSectionProps}/>
             <LadderSection items={section?.process?.items as LadderCardProps[]}/>
           </div>

@@ -35,14 +35,14 @@ export function ContentModal({content, onClose} : ContentModalProps) {
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 mt-10 bg-black/70 backdrop-blur-sm flex items-center justify-center p-6"
+      className="fixed inset-0 z-50 mt-10 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6"
     >
       <div
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-[#111827] rounded-2xl p-8 focus:outline-none"
+        className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-linear-to-r from-[#22C55E]/15 to-[#06B6D4]/15 rounded-2xl p-8 focus:outline-none"
       >
         <button
           onClick={onClose}

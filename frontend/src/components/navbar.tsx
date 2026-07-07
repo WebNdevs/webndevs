@@ -19,6 +19,11 @@ const NAV_ITEMS = [
     type: "link",
   },
   {
+    label: "About Us",
+    href: "/about",
+    type: "link",
+  },
+  {
     label: "Portfolio",
     href: "/portfolio",
     type: "link",

@@ -1,5 +1,8 @@
+"use client";
 import { ReactNode, useId } from "react";
 import { Slot } from "@radix-ui/react-slot";
+import { motion } from "framer-motion";
+import { ScrollReveal } from "../animations/scroll-reveal";
 
 
 // ----------------------
@@ -34,7 +37,7 @@ export function DSBadge({ children, variant = 'default', className = '' }: DSBad
 };
 
 // -----------------------
-interface DSButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface DSButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onAnimationStart' | 'onDrag' | 'onDragStart' | 'onDragEnd' | 'onDragOver' | 'style'> {
   variant?: 'primary' | 'secondary' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
@@ -71,7 +74,9 @@ export function DSButton({ variant = 'primary', size = 'md', loading = false, as
   }
   
   return (
-    <button 
+    <motion.button 
+      whileHover={isDisabled ? undefined : { scale: 1.02, y: -1 }}
+      whileTap={isDisabled ? undefined : { scale: 0.98 }}
       className={buttonClasses}
       disabled={isDisabled}
       aria-busy={loading}
@@ -79,25 +84,51 @@ export function DSButton({ variant = 'primary', size = 'md', loading = false, as
     >
       {loading ? <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" aria-hidden="true" /> : null}
       {children}
-    </button>
+    </motion.button>
   );
 };
 
 // -----------------------
-interface DSCardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface DSCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onAnimationStart' | 'onDrag' | 'onDragStart' | 'onDragEnd' | 'onDragOver' | 'style'> {
   children: ReactNode;
   className?: string;
   hoverable?: boolean;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
+  style?: React.CSSProperties;
 };
 
-const Card = 'bg-[#1F2937] rounded-xl p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4),0_2px_4px_-1px_rgba(0,0,0,0.3)]';
+const Card = 'bg-[#1F2937] rounded-xl p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.4),0_2px_4px_-1px_rgba(0,0,0,0.3)] border';
 
-const Card_hover = 'transition-all duration-200 hover:bg-[#273449] hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.5)]';
+export function DSCard({ children, className = '', hoverable = false, onClick, style, ...props }: DSCardProps) {
+  const initialBorderColor = "rgba(55, 65, 81, 0.3)";
 
-export function DSCard({ children, className = '', hoverable = false, onClick, ...props }: DSCardProps) {
+  if (hoverable) {
+    return (
+      <motion.div
+        onClick={onClick}
+        initial={{ borderColor: initialBorderColor }}
+        whileHover={{
+          y: -6,
+          borderColor: "rgba(34, 197, 94, 0.4)",
+          boxShadow: "0 20px 25px -5px rgba(34, 197, 94, 0.1), 0 10px 10px -5px rgba(6, 182, 212, 0.1)",
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        style={{ borderColor: initialBorderColor, ...style }}
+        className={`${Card} transition-colors duration-300 cursor-pointer ${className}`}
+        {...props}
+      >
+        {children}
+      </motion.div>
+    );
+  }
+
   return (
-    <div onClick={onClick} className={`${Card} ${hoverable ? Card_hover : ''} ${className}`} {...props}>
+    <div 
+      onClick={onClick} 
+      style={{ borderColor: initialBorderColor, ...style }} 
+      className={`${Card} ${className}`} 
+      {...props}
+    >
       {children}
     </div>
   );
@@ -153,30 +184,38 @@ type DSTilesProps = {
 };
 
 export function DSTiles({items = []}: DSTilesProps) {
+  if (!items) return null;
   return (
     <div className="space-y-6 mb-3">
       {items.map((item, index) => (
-        <DSCard key={index}>
-          {item.title && (
-            <h2
-              style={{ fontSize: "24px" }}
-              className="font-bold text-[#F9FAFB] mb-4"
-            >
-              {item.title}
-              {item.tag && (
-                <DSBadge variant="success" className="ml-2">
-                  {item.tag}
-                </DSBadge>
-              )}
-            </h2>
-          )}
+        <ScrollReveal
+          key={index}
+          direction="up"
+          delay={index * 0.08}
+          duration={0.5}
+        >
+          <DSCard className="bg-transparent bg-linear-to-r from-[#22C55E]/5 to-[#06B6D4]/5">
+            {item.title && (
+              <h2
+                style={{ fontSize: "24px" }}
+                className="font-bold text-[#F9FAFB] mb-4"
+              >
+                {item.title}
+                {item.tag && (
+                  <DSBadge variant="success" className="ml-2">
+                    {item.tag}
+                  </DSBadge>
+                )}
+              </h2>
+            )}
 
-          {item.description && (
-            <p className="text-[15px] leading-relaxed text-[#9CA3AF]">
-              {item.description}
-            </p>
-          )}
-        </DSCard>
+            {item.description && (
+              <p className="text-[15px] leading-relaxed text-[#9CA3AF]">
+                {item.description}
+              </p>
+            )}
+          </DSCard>
+        </ScrollReveal>
       ))}
     </div>
   );

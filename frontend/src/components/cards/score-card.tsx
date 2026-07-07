@@ -24,7 +24,7 @@ export function ScoreCard({
     icon && ICONS[icon as keyof typeof ICONS];
 
   return (
-    <DSCard hoverable className="h-full">
+    <DSCard hoverable className="h-full bg-linear-to-r from-[#22C55E]/5 to-[#06B6D4]/5">
       <div className="flex flex-col items-center text-center">
 
         {Icon && (

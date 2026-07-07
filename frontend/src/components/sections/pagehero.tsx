@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { ScrollReveal } from "../animations/scroll-reveal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type PageHeroProps = {
@@ -25,8 +26,7 @@ export function PageHero({ tag, title1, title2, description, variant = 'full'}: 
 
   return (
     <div
-      className="relative w-full overflow-hidden border-b border-white/[0.07] mb-10"
-      style={{ backgroundColor: BG }}
+      className="relative w-full bg-transparent overflow-hidden border-b border-white/[0.07] mb-10"
     >
 
       {/* ══════════════════ BACKGROUND LAYER ══════════════════ */}
@@ -183,32 +183,32 @@ export function PageHero({ tag, title1, title2, description, variant = 'full'}: 
           On mobile they stack naturally in source order.
         */}
         <div className="flex flex-col lg:flex-row lg:items-end gap-10 lg:gap-8 mb-5">
-
           {/* LEFT — display heading */}
-          <h1
-            className="lg:flex-1 font-bold leading-[0.87] tracking-[-0.03em]"
-            style={{ fontSize: "clamp(2rem, 4vw, 6rem)" }}
-          >
-            <span className="block text-white">{title1}</span>
-            <span
-              className="block italic bg-clip-text text-transparent"
-              style={{
-                backgroundImage: `linear-gradient(to right, ${G}, #06B6D4)`,
-              }}
+          <ScrollReveal direction="right" duration={0.8} className="lg:flex-1">
+            <h1
+              className="font-bold leading-[0.87] tracking-[-0.03em]"
+              style={{ fontSize: "clamp(2rem, 4vw, 6rem)" }}
             >
-              {title2}
-            </span>
-          </h1>
+              <span className="block text-white">{title1}</span>
+              <span
+                className="block italic bg-clip-text text-transparent"
+                style={{
+                  backgroundImage: `linear-gradient(to right, ${G}, #06B6D4)`,
+                }}
+              >
+                {title2}
+              </span>
+            </h1>
+          </ScrollReveal>
 
           {/* RIGHT — description, baseline-aligned on desktop */}
-          <div className="lg:w-75 xl:w-85 2xl:w-95 lg:shrink-0 lg:pb-3">
+          <ScrollReveal direction="left" duration={0.8} delay={0.15} className="lg:w-75 xl:w-85 2xl:w-95 lg:shrink-0 lg:pb-3">
             <p
               className="text-[0.95rem] sm:text-[1.05rem] leading-relaxed text-[#9CA3AF] max-w-130 lg:max-w-none"
             >
               {description}
             </p>
-          </div>
-
+          </ScrollReveal>
         </div>
       </div>
 

@@ -35,7 +35,7 @@ export const dataHubData = {
           title: "Comparisons",
           description:
             "Compare technologies, platforms, and business solutions.",
-          url: "/compare",
+          url: "/comparisons",
         },
         {
           icon: "FolderKanban",

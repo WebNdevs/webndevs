@@ -10,7 +10,7 @@ export function WhyChooseSection() {
   if (!section) return null;
 
   return (
-    <section aria-label="Why Choose Us" className="py-20 px-6 bg-[#0B0F14]">
+    <section aria-label="Why Choose Us" className="py-20 px-6 bg-transparent">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <HeaderSection {...section}/>

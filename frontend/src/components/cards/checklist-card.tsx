@@ -1,5 +1,6 @@
 import { DSCard } from "./DScomponents";
 import { ICONS } from "@/data/icons";
+import { ScrollReveal } from "../animations/scroll-reveal";
 
 export type ChecklistCardProps = {
   icon?: string;
@@ -115,13 +116,18 @@ type ChecklistGridProps = {
 export function ChecklistGrid({
   items,
 }: ChecklistGridProps) {
+  if (!items) return null;
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {items.map((item, index) => (
-        <ChecklistCard
+        <ScrollReveal
           key={index}
-          {...item}
-        />
+          direction="up"
+          delay={index * 0.1}
+          duration={0.5}
+        >
+          <ChecklistCard {...item} />
+        </ScrollReveal>
       ))}
     </div>
   );

@@ -1,6 +1,7 @@
 import { DSCard } from "./DScomponents"
 import { Star, Quote } from "lucide-react";
 import Image from "next/image";
+import { ScrollReveal } from "../animations/scroll-reveal";
 
 
 export type ReviewCardProps = {
@@ -14,7 +15,7 @@ export type ReviewCardProps = {
 
 export function ReviewCard({name, company, content, rating, photo_url, role} : ReviewCardProps) {
   return(
-    <DSCard hoverable className="flex flex-col">
+    <DSCard hoverable className="flex flex-col bg-transparent bg-linear-to-r from-[#22C55E]/5 to-[#06B6D4]/5">
       {/* Stars */}
       {rating && (
         <div role="img" className="flex gap-1 mb-4" aria-label={`Rating: ${rating} out of 5 stars`}>
@@ -61,10 +62,18 @@ export function ReviewCard({name, company, content, rating, photo_url, role} : R
 }
 
 export function ReviewCardGrid({items} : {items: ReviewCardProps[]}) {
+  if (!items) return null;
   return(
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
       {items.map((item, index) => (
-        <ReviewCard key={index} {...item} />
+        <ScrollReveal 
+          key={index} 
+          direction="up" 
+          delay={(index % 3) * 0.1} 
+          duration={0.6}
+        >
+          <ReviewCard {...item} />
+        </ScrollReveal>
       ))}
     </div>
   )

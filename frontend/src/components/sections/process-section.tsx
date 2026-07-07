@@ -10,7 +10,7 @@ export function ProcessSection() {
   if(!section) return null;
 
   return (
-    <section id="process" aria-label="Our Process" className="py-20 px-6 bg-[#111827]">
+    <section id="process" aria-label="Our Process" className="py-20 px-6 bg-linear-to-r from-[#22C55E]/1 to-[#06B6D4]/1">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <HeaderSection {...section}/>

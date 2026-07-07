@@ -1,4 +1,5 @@
 import { DSCard } from "./DScomponents"
+import { ScrollReveal } from "../animations/scroll-reveal"
 
 export type CompareTableProps = {
   leftHeading?: string;
@@ -18,8 +19,9 @@ export type ComparisonItem = {
 export function CompareTable({leftHeading, rightHeading, leftPoints, rightPoints} : CompareTableProps) {
   return(
     <div className="mb-10">
-      <DSCard className="overflow-hidden">
-        <div className="grid md:grid-cols-2 gap-0">
+      <ScrollReveal direction="up" duration={0.8}>
+        <DSCard className="overflow-hidden bg-transparent">
+          <div className="grid md:grid-cols-2 gap-0">
           {/* Left Side */}
           { leftHeading && (
             <div className="p-8 bg-linear-to-br from-[#EF4444]/5 to-[#F97316]/5">
@@ -68,8 +70,9 @@ export function CompareTable({leftHeading, rightHeading, leftPoints, rightPoints
               
             </div>
           )}
-        </div>
-      </DSCard>
+          </div>
+        </DSCard>
+      </ScrollReveal>
     </div>
   )
 }

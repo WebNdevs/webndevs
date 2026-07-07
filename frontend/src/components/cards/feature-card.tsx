@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 
 import { DSCard } from "./DScomponents";
 import { ICONS } from "@/data/icons";
+import { ScrollReveal } from "../animations/scroll-reveal";
 
 export type FeatureCardProps = {
   icon?: string;
@@ -85,13 +86,20 @@ type FeatureGridProps = {
 export function FeatureGrid({
   items,
 }: FeatureGridProps) {
+  if (!items) return null;
   return (
     <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
       {items.map((item, index) => (
-        <FeatureCard
+        <ScrollReveal
           key={index}
-          {...item}
-        />
+          direction="up"
+          delay={(index % 3) * 0.1}
+          duration={0.6}
+        >
+          <FeatureCard
+            {...item}
+          />
+        </ScrollReveal>
       ))}
     </div>
   );

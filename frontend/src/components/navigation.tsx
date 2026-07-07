@@ -72,7 +72,7 @@ export function MegaMenu({
   return (
     <nav
       aria-label="Site Navigation"
-      className="rounded-xl border border-white/10 bg-white/5 p-4"
+      className="rounded-xl border border-white/10 bg-transparent p-4"
     >
       <button
         type="button"
@@ -81,7 +81,7 @@ export function MegaMenu({
         }
         aria-expanded={open}
         aria-controls="mega-menu-panel"
-        className="w-full rounded-lg bg-white/10 px-4 py-3 text-left text-sm font-medium text-slate-100 hover:bg-white/15"
+        className="w-full rounded-lg border border-transparent bg-linear-to-r from-[#22C55E]/10 to-[#06B6D4]/10 px-4 py-3 text-left text-sm font-medium text-slate-100 hover:border-[#22C55E]"
       >
         Browse Sections
       </button>
@@ -111,7 +111,7 @@ export function MegaMenu({
                   node;
               }}
               aria-label={item.label}
-              className="rounded-lg bg-white/10 px-4 py-3 text-sm text-slate-100 hover:bg-white/15 focus-visible:bg-white/20"
+              className="rounded-lg border border-transparent bg-linear-to-r from-[#22C55E]/10 to-[#06B6D4]/10 px-4 py-3 text-sm text-slate-100 hover:border-[#22C55E] focus-visible:bg-white/20"
             >
               {item.label}
             </Link>

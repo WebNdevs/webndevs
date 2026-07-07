@@ -51,3 +51,13 @@ body {
 .portfolio-image-scroll-container:hover .portfolio-image-scroll-bg {
   background-position: bottom center;
 }
+
+/* Global utility overrides to make cursor canvas background show through all sections */
+.bg-\[\#0B0F14\],
+.bg-\[\#0b0f14\] {
+  background-color: transparent !important;
+}
+
+.bg-\[\#111827\] {
+  background-color: rgba(17, 24, 39, 0.4) !important;
+}

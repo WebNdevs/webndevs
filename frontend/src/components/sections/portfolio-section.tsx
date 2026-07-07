@@ -16,7 +16,7 @@ export function PortfolioSection({ variant = 'full' }: PortfolioSectionProps) {
   if (!section) return null;
 
   return (
-    <section id="portfolio" aria-label="Our Portfolio" className="py-20 px-6 bg-[#0B0F14] text-gray-100">
+    <section id="portfolio" aria-label="Our Portfolio" className="py-20 px-6 bg-transparent text-gray-100">
       <div className="max-w-7xl mx-auto">
         {/* Page Hero */}
         <PageHero variant={variant} {...section.hero as PageHeroProps} />

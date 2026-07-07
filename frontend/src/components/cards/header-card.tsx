@@ -1,4 +1,7 @@
 
+"use client";
+import { motion } from "framer-motion";
+
 export type HeaderSectionProps = {
   tag?: string;
   subheading1?: string;
@@ -9,7 +12,13 @@ export type HeaderSectionProps = {
 
 export function HeaderSection({tag, subheading1, subheading2, subtext} : HeaderSectionProps) {
   return(
-    <div className="text-center mb-16">
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="text-center mb-16"
+    >
       { tag && (
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#22C55E]/10 border border-[#22C55E]/20 rounded-full mb-6">
           <span className="text-[14px] font-medium text-[#22C55E]">
@@ -31,6 +40,6 @@ export function HeaderSection({tag, subheading1, subheading2, subtext} : HeaderS
           {subtext}
         </p>
       )}
-    </div>
+    </motion.div>
   );
 }

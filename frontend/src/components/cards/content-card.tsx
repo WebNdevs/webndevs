@@ -1,5 +1,6 @@
 import { DSCard } from "./DScomponents";
 import Image from "next/image";
+import { ScrollReveal } from "../animations/scroll-reveal";
 
 export type ContentCardProps = {
   title?: string;
@@ -18,7 +19,7 @@ export function ContentCard({title, excerpt, image, tags, onClick,} : ContentCar
     <DSCard
       hoverable
       onClick={onClick}
-      className="cursor-pointer overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22C55E]"
+      className="cursor-pointer bg-transparent bg-linear-to-r from-[#22C55E]/5 to-[#06B6D4]/5 overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22C55E]"
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -45,7 +46,7 @@ export function ContentCard({title, excerpt, image, tags, onClick,} : ContentCar
           {tags.map((tag) => (
             <span
               key={tag}
-              className="px-2 py-1 text-[11px] rounded-full bg-[#111827] border border-[#374151] text-[#22C55E]"
+              className="px-2 py-1 text-[11px] rounded-full border border-[#22C55E]/70 text-[#22C55E]"
             >
               {tag}
             </span>
@@ -66,14 +67,21 @@ type ContentCardGridProps = {
 };
 
 export function ContentCardGrid({items = [], onSelect} : ContentCardGridProps) {
+  if (!items) return null;
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {items.map((item) => (
-        <ContentCard
-          key={item.slug}
-          {...item}
-          onClick={() => onSelect?.(item)}
-        />
+      {items.map((item, index) => (
+        <ScrollReveal
+          key={item.slug || index}
+          direction="up"
+          delay={(index % 3) * 0.1}
+          duration={0.6}
+        >
+          <ContentCard
+            {...item}
+            onClick={() => onSelect?.(item)}
+          />
+        </ScrollReveal>
       ))}
     </div>
   );

@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 
 import { DSButton, DSCard } from "./DScomponents";
 import { ICONS } from "@/data/icons";
+import { ScrollReveal } from "../animations/scroll-reveal";
 
 export type EntityCardProps = {
   icon?: string;
@@ -31,7 +32,7 @@ export function EntityCard({
     icon && ICONS[icon as keyof typeof ICONS];
 
   const card = (
-    <DSCard hoverable className="group h-full transition-all duration-300">
+    <DSCard hoverable className="group h-full transition-all duration-300 bg-transparent bg-linear-to-r from-[#22C55E]/5 to-[#06B6D4]/5">
       <div className="flex h-full flex-col">
 
         {/* Top */}
@@ -91,7 +92,7 @@ export function EntityCard({
             {tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-[#9CA3AF]"
+                className="rounded-full border border-white/10 bg-linear-to-r from-[#22C55E]/30 to-[#06B6D4]/30 px-3 py-1 text-xs text-[#9CA3AF]"
               >
                 {tag}
               </span>
@@ -132,13 +133,20 @@ type EntityGridProps = {
 export function EntityGrid({
     items,
 }: EntityGridProps) {
+    if (!items) return null;
     return (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 mb-16">
             {items.map((item, index) => (
-                <EntityCard
+                <ScrollReveal
                     key={index}
-                    {...item}
-                />
+                    direction="up"
+                    delay={(index % 3) * 0.1}
+                    duration={0.6}
+                >
+                    <EntityCard
+                        {...item}
+                    />
+                </ScrollReveal>
             ))}
         </div>
     );

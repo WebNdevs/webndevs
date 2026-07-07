@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useRef, useReducer } from "react";
 import Link from "next/link";
-import { apiFetch } from "@/config/api";
+import { solutionPages } from "@/data/solution";
+import { ServicePages } from "@/data/services";
+import { IndustryPages } from "@/data/industry";
+import { getDataHub } from "@/data/datahub";
 
 const MIN_SEARCH_LENGTH = 2;
 
@@ -11,65 +14,10 @@ type SearchItem = {
   to: string;
 };
 
-type SearchResults = {
-  query: string;
-  results: {
-    tools?: { name: string; slug: string }[];
-    industries?: { name: string; slug: string }[];
-    solutions?: { name: string; slug: string }[];
-    comparisons?: { title: string; slug: string }[];
-    case_studies?: { title: string; slug: string }[];
-  };
-};
-
 type GlobalSearchProps = {
   placeholder?: string;
   limit?: number;
 };
-
-function flattenResults(
-  results: SearchResults["results"],
-  limit: number
-): SearchItem[] {
-  const flat: SearchItem[] = [];
-
-  (results.tools ?? []).forEach((item) =>
-    flat.push({
-      label: `Tool: ${item.name}`,
-      to: `/tools/${item.slug}`,
-    })
-  );
-
-  (results.industries ?? []).forEach((item) =>
-    flat.push({
-      label: `Industry: ${item.name}`,
-      to: `/industries/${item.slug}`,
-    })
-  );
-
-  (results.solutions ?? []).forEach((item) =>
-    flat.push({
-      label: `Solution: ${item.name}`,
-      to: `/solutions/${item.slug}`,
-    })
-  );
-
-  (results.comparisons ?? []).forEach((item) =>
-    flat.push({
-      label: `Compare: ${item.title}`,
-      to: `/compare/${item.slug}`,
-    })
-  );
-
-  (results.case_studies ?? []).forEach((item) =>
-    flat.push({
-      label: `Case Study: ${item.title}`,
-      to: `/case-studies/${item.slug}`,
-    })
-  );
-
-  return flat.slice(0, limit);
-}
 
 type SearchState = {
   results: SearchItem[];
@@ -106,38 +54,171 @@ export function GlobalSearch({
       return;
     }
 
-    const controller = new AbortController();
+    dispatchSearch({ loading: true, searchError: false });
 
-    const timer = setTimeout(async () => {
-      dispatchSearch({ loading: true, searchError: false });
-
+    const timer = setTimeout(() => {
       try {
-        const response = await apiFetch<SearchResults>(
-          `/search?q=${encodeURIComponent(term)}&limit=${limit}`,
-          {
-            signal: controller.signal,
+        const query = term.toLowerCase().trim();
+        const results: SearchItem[] = [];
+
+        // 1. Search Services
+        ServicePages.forEach((page) => {
+          const title = `${page.hero?.title1 || ""} ${page.hero?.title2 || ""}`;
+          const desc = page.hero?.description || "";
+          const seoTitle = page.seo?.title || "";
+          const seoDesc = page.seo?.description || "";
+
+          if (
+            seoTitle.toLowerCase().includes(query) ||
+            seoDesc.toLowerCase().includes(query) ||
+            title.toLowerCase().includes(query) ||
+            desc.toLowerCase().includes(query)
+          ) {
+            results.push({
+              label: `Service: ${page.seo?.title || title || page.slug}`,
+              to: `/services/${page.slug}`,
+            });
           }
-        );
+        });
 
-        const mapped = flattenResults(
-          response.results ?? {},
-          limit
-        );
+        // 2. Search Solutions
+        solutionPages.forEach((page) => {
+          const title = `${page.hero?.title1 || ""} ${page.hero?.title2 || ""}`;
+          const desc = page.hero?.description || "";
+          const seoTitle = page.seo?.title || "";
+          const seoDesc = page.seo?.description || "";
 
-        dispatchSearch({ results: mapped, selectedIndex: -1 });
-      } catch {
-        if (!controller.signal.aborted) {
-          dispatchSearch({ results: [], searchError: true });
+          if (
+            seoTitle.toLowerCase().includes(query) ||
+            seoDesc.toLowerCase().includes(query) ||
+            title.toLowerCase().includes(query) ||
+            desc.toLowerCase().includes(query)
+          ) {
+            results.push({
+              label: `Solution: ${page.seo?.title || title || page.slug}`,
+              to: `/solutions/${page.slug}`,
+            });
+          }
+        });
+
+        // 3. Search Industries
+        IndustryPages.forEach((page) => {
+          const title = `${page.hero?.title1 || ""} ${page.hero?.title2 || ""}`;
+          const desc = page.hero?.description || "";
+          const seoTitle = page.seo?.title || "";
+          const seoDesc = page.seo?.description || "";
+
+          if (
+            seoTitle.toLowerCase().includes(query) ||
+            seoDesc.toLowerCase().includes(query) ||
+            title.toLowerCase().includes(query) ||
+            desc.toLowerCase().includes(query)
+          ) {
+            results.push({
+              label: `Industry: ${page.seo?.title || title || page.slug}`,
+              to: `/industries/${page.slug}`,
+            });
+          }
+        });
+
+        // 4. Search Tools
+        const toolsSection = getDataHub("tools");
+        if (toolsSection) {
+          const toolsItems = [
+            ...(toolsSection.featured?.items || []),
+            ...(toolsSection.directory?.items || []),
+            ...(toolsSection.tools?.items || []),
+          ];
+          const uniqueTools = new Set<string>();
+          toolsItems.forEach((item) => {
+            const title = item.title || "";
+            const desc = (item as { description?: string }).description || "";
+            if (
+              (title.toLowerCase().includes(query) ||
+                desc.toLowerCase().includes(query)) &&
+              !uniqueTools.has(title)
+            ) {
+              uniqueTools.add(title);
+              results.push({
+                label: `Tool: ${title}`,
+                to: `/tools`,
+              });
+            }
+          });
         }
+
+        // 5. Search Comparisons
+        const compSection = getDataHub("comparisons");
+        if (compSection && compSection.items) {
+          (compSection.items as { title?: string; description?: string }[]).forEach((item) => {
+            const title = item.title || "";
+            const desc = item.description || "";
+            if (
+              title.toLowerCase().includes(query) ||
+              desc.toLowerCase().includes(query)
+            ) {
+              results.push({
+                label: `Compare: ${title}`,
+                to: `/comparisons`,
+              });
+            }
+          });
+        }
+
+        // 6. Search Case Studies
+        const caseSection = getDataHub("case-studies");
+        if (caseSection && caseSection.items) {
+          (
+            caseSection.items as {
+              title?: string;
+              excerpt?: string;
+              content?: string;
+            }[]
+          ).forEach((item) => {
+            const title = item.title || "";
+            const excerpt = item.excerpt || "";
+            const content = item.content || "";
+            if (
+              title.toLowerCase().includes(query) ||
+              excerpt.toLowerCase().includes(query) ||
+              content.toLowerCase().includes(query)
+            ) {
+              results.push({
+                label: `Case Study: ${title}`,
+                to: `/case-studies`,
+              });
+            }
+          });
+        }
+
+        // 7. Search Blogs
+        const blogsSection = getDataHub("blogs");
+        if (blogsSection && blogsSection.items) {
+          (blogsSection.items as { title?: string; description?: string }[]).forEach((item) => {
+            const title = item.title || "";
+            const desc = item.description || "";
+            if (
+              title.toLowerCase().includes(query) ||
+              desc.toLowerCase().includes(query)
+            ) {
+              results.push({
+                label: `Blog: ${title}`,
+                to: `/blogs`,
+              });
+            }
+          });
+        }
+
+        dispatchSearch({ results: results.slice(0, limit), selectedIndex: -1 });
+      } catch (err) {
+        console.error(err);
+        dispatchSearch({ results: [], searchError: true });
       } finally {
-        if (!controller.signal.aborted) {
-          dispatchSearch({ loading: false });
-        }
+        dispatchSearch({ loading: false });
       }
     }, 300);
 
     return () => {
-      controller.abort();
       clearTimeout(timer);
     };
   }, [term, limit]);
@@ -201,18 +282,18 @@ export function GlobalSearch({
   };
 
   return (
-    <div role="search" className="rounded-xl border border-white/10 bg-white/5 p-4 mb-16">
+    <div role="search" className="rounded-xl border border-white/10 p-4 mb-16">
       <input
         value={term}
         onChange={(e) => setTerm(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         aria-label="Global Search"
-        className="w-full rounded-lg bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#22C55E]"
+        className="w-full rounded-lg bg-linear-to-r from-[#22C55E]/10 to-[#06B6D4]/10 px-4 py-3 text-white placeholder:text-slate-400 border border-transparent hover:border-[#22C55E] focus:outline-none focus:ring-2 focus:ring-[#22C55E]"
       />
 
       {searchState.loading && (
-        <p className="mt-3 text-sm text-slate-400">
+        <p className="mt-3 text-sm text-slate-400 animate-pulse">
           Searching...
         </p>
       )}
@@ -220,7 +301,7 @@ export function GlobalSearch({
       {!searchState.loading && searchState.results.length > 0 && (
         <ul className="mt-3 space-y-1">
           {searchState.results.map((item, index) => (
-            <li key={item.to}>
+            <li key={item.to + index}>
               <Link
                 href={item.to}
                 ref={(node) => {
@@ -230,7 +311,7 @@ export function GlobalSearch({
                 className={`block rounded-lg px-3 py-2 transition-colors ${
                   searchState.selectedIndex === index
                     ? "bg-white/20 text-white"
-                    : "text-slate-200 hover:bg-white/10"
+                    : "text-slate-200 hover:bg-linear-to-r from-[#22C55E]/15 to-[#06B6D4]/15"
                 }`}
               >
                 {item.label}
@@ -251,7 +332,7 @@ export function GlobalSearch({
         term.length >= MIN_SEARCH_LENGTH &&
         searchState.results.length === 0 && (
           <p className="mt-3 text-sm text-slate-400">
-            No results found for `${term}`.
+            No results found for &ldquo;{term}&rdquo;.
           </p>
         )}
     </div>
