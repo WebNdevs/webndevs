@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Dflydev\DotAccessData\Data;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -29,9 +30,12 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ServiceSeeder::class,
             ContentPageSeeder::class,
-            BlogPostSeeder::class,
+            SinglePagePageSeeder::class,
+            DataHubPageSeeder::class,
+            ServicePageSeeder::class,
             ServicePlanSeeder::class,
             ProgrammaticContentSeeder::class,
+            ArticlePageSeeder::class,
         ]);
     }
 }

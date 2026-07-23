@@ -1,5 +1,5 @@
-import { HeaderSection } from '../cards/header-card';
-import { getHome } from '@/data/homedata';
+import { HeaderSection, HeaderSectionProps } from '../cards/header-card';
+import { getHome } from '@/data/content';
 import { IconCardGrid, IconCardProps } from '../cards/icon-card';
 import { CompareTable } from '../cards/compare-table';
 
@@ -13,7 +13,7 @@ export function WhyChooseSection() {
     <section aria-label="Why Choose Us" className="py-20 px-6 bg-transparent">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <HeaderSection {...section}/>
+        <HeaderSection {...section?.header as HeaderSectionProps}/>
 
         {/* Benefits Grid */}
         <IconCardGrid items={section?.items as IconCardProps[]}/>

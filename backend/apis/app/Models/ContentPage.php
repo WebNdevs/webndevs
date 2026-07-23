@@ -19,8 +19,8 @@ class ContentPage extends Model
         'seo_description',
         'meta_keywords',
         'sections',
-        'service_id',
         'updated_by',
+        'service_id',
     ];
 
     protected function casts(): array

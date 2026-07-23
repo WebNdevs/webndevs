@@ -1,115 +1,24 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
-import {
-  SidebarNavigation,
-  SidebarButton,
-  SecondaryNav,
-  SecondaryNavItem,
-  Avatar,
-  ThemeProvider,
-} from "@figma/astraui";
-import {
-  Home,
-  Settings,
-  BookOpen,
-  Users,
-  FileText,
-  Map,
-  ShieldCheck,
-  Layout,
-  Layers,
-  PanelLeftClose,
-  PanelLeftOpen,
-  LogOut,
-  Package,
-  Building2,
-  Link2,
-  Lightbulb,
-  BarChart2,
-  Sparkles,
-  Navigation,
-  Search,
-  Trophy,
-  UserCog,
-} from "lucide-react";
+import { ThemeProvider } from "@figma/astraui";
 import { clearStoredAuth, getStoredToken } from "./auth";
 import { API_BASE_URL } from "../config/api.config";
-
-interface NavItem {
-  path: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  label: string;
-  exact?: boolean;
-  permission?: string;
-}
-
-// Define navigation items with their required permissions
-const allNavItems: NavItem[] = [
-  { path: "/", icon: Home, label: "Dashboard", exact: true },
-  // Existing modules
-  { path: "/service-management", icon: Layers, label: "Services", permission: "services.manage" },
-  { path: "/blog", icon: BookOpen, label: "Blog", permission: "blog.manage" },
-  { path: "/customers", icon: Users, label: "Customers" },
-  { path: "/invoicing", icon: FileText, label: "Invoicing" },
-  { path: "/content", icon: Layout, label: "Content", permission: "content.manage" },
-  // Phase 3 — New modules
-  { path: "/tools", icon: Package, label: "Tools", permission: "tools.manage" },
-  { path: "/industries", icon: Building2, label: "Industries", permission: "industries.manage" },
-  { path: "/entities", icon: Layers, label: "CRM / Platforms" },
-  { path: "/cross-references", icon: Link2, label: "Cross-References" },
-  { path: "/solutions", icon: Lightbulb, label: "Solutions", permission: "solutions.manage" },
-  { path: "/comparisons", icon: BarChart2, label: "Comparisons", permission: "solutions.manage" },
-  { path: "/case-studies", icon: Trophy, label: "Case Studies", permission: "case_studies.manage" },
-  { path: "/ai-content", icon: Sparkles, label: "AI Content", permission: "ai.use" },
-  { path: "/navigation", icon: Navigation, label: "Navigation" },
-  { path: "/seo", icon: Search, label: "SEO Manager" },
-  // System modules (admin only)
-  { path: "/sitemap", icon: Map, label: "Sitemap" },
-  { path: "/policies", icon: ShieldCheck, label: "G. Policies" },
-  { path: "/settings", icon: Settings, label: "Settings", permission: "settings.manage" },
-];
-
-interface UserInfo {
-  id: number;
-  name: string;
-  email: string;
-  is_admin: boolean;
-  role: string;
-  permissions: string[];
-}
+import { Sidebar, UserInfo } from "./components/Sidebar";
 
 export function Root() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isCompactNav, setIsCompactNav] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
-  function isActive(path: string, exact?: boolean) {
-    if (exact) {
-      return location.pathname === path;
-    }
-    return location.pathname.startsWith(path);
-  }
-
-  // Filter nav items based on user permissions
-  function getFilteredNavItems(): NavItem[] {
-    if (!userInfo) return [];
-    
-    // Admins see everything
-    if (userInfo.is_admin) {
-      return allNavItems;
-    }
-    
-    // Filter by permissions
-    return allNavItems.filter(item => {
-      // No permission required = visible to all authenticated users
-      if (!item.permission) return true;
-      // Check if user has the permission
-      return userInfo.permissions.includes(item.permission);
-    });
-  }
+  // Session timeout states
+  const [showTimeoutModal, setShowTimeoutModal] = useState(false);
+  const [secondsRemaining, setSecondsRemaining] = useState(60);
+  const [reloginEmail, setReloginEmail] = useState("");
+  const [reloginPassword, setReloginPassword] = useState("");
+  const [reloginError, setReloginError] = useState("");
+  const [isReloggingIn, setIsReloggingIn] = useState(false);
 
   useEffect(() => {
     async function checkAuth() {
@@ -139,6 +48,10 @@ export function Root() {
         const data = await response.json();
         if (data.success && data.data?.user) {
           setUserInfo(data.data.user);
+          // Initialize session expiry if not present
+          if (!localStorage.getItem("wnd_session_expiry")) {
+            localStorage.setItem("wnd_session_expiry", String(Date.now() + 60 * 60 * 1000));
+          }
         }
       } catch {
         clearStoredAuth();
@@ -167,12 +80,126 @@ export function Root() {
         headers,
         credentials: "include",
       });
+    } catch {
+      // Ignore logout errors
     } finally {
       clearStoredAuth();
       document.cookie = "XSRF-TOKEN=; Max-Age=0; path=/";
       document.cookie = "laravel_session=; Max-Age=0; path=/";
-      navigate("/login", { replace: true });
+      window.location.href = "/login";
       setIsLoggingOut(false);
+    }
+  }
+
+  // Session timeout checking logic (periodically each hour, checking wnd_session_expiry)
+  useEffect(() => {
+    if (location.pathname === "/login") {
+      setShowTimeoutModal(false);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const storedToken = getStoredToken();
+      if (!storedToken) {
+        setShowTimeoutModal(false);
+        return;
+      }
+
+      const expiryStr = localStorage.getItem("wnd_session_expiry");
+      const expiry = expiryStr ? Number(expiryStr) : 0;
+
+      if (!expiry) {
+        localStorage.setItem("wnd_session_expiry", String(Date.now() + 60 * 60 * 1000));
+        return;
+      }
+
+      if (Date.now() >= expiry) {
+        if (!showTimeoutModal) {
+          setShowTimeoutModal(true);
+          let graceEndStr = localStorage.getItem("wnd_session_grace_end");
+          if (!graceEndStr) {
+            const graceEnd = Date.now() + 60 * 1000;
+            localStorage.setItem("wnd_session_grace_end", String(graceEnd));
+            graceEndStr = String(graceEnd);
+          }
+          const remaining = Math.max(0, Math.ceil((Number(graceEndStr) - Date.now()) / 1000));
+          setSecondsRemaining(remaining);
+        } else {
+          const graceEndStr = localStorage.getItem("wnd_session_grace_end");
+          if (graceEndStr) {
+            const remaining = Math.max(0, Math.ceil((Number(graceEndStr) - Date.now()) / 1000));
+            setSecondsRemaining(remaining);
+            if (remaining <= 0) {
+              localStorage.removeItem("wnd_session_grace_end");
+              setShowTimeoutModal(false);
+              void handleLogout();
+            }
+          }
+        }
+      } else {
+        if (showTimeoutModal) {
+          setShowTimeoutModal(false);
+          localStorage.removeItem("wnd_session_grace_end");
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [showTimeoutModal, location.pathname]);
+
+  function keepLoggedIn() {
+    localStorage.setItem("wnd_session_expiry", String(Date.now() + 60 * 60 * 1000));
+    localStorage.removeItem("wnd_session_grace_end");
+    setShowTimeoutModal(false);
+    setReloginEmail("");
+    setReloginPassword("");
+    setReloginError("");
+  }
+
+  async function handleRelogin(e: React.FormEvent) {
+    e.preventDefault();
+    if (!reloginEmail.trim() || !reloginPassword.trim()) {
+      setReloginError("Please enter both email and password.");
+      return;
+    }
+    setIsReloggingIn(true);
+    setReloginError("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: reloginEmail.trim(),
+          password: reloginPassword,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Invalid credentials.");
+      }
+
+      if (data.data?.token) {
+        localStorage.setItem("wnd_admin_token", data.data.token);
+        localStorage.setItem("wnd_session_expiry", String(Date.now() + 60 * 60 * 1000));
+        localStorage.removeItem("wnd_session_grace_end");
+        if (data.data.user) {
+          setUserInfo(data.data.user);
+        }
+        window.dispatchEvent(new CustomEvent("auth:change"));
+      }
+
+      setShowTimeoutModal(false);
+      setReloginEmail("");
+      setReloginPassword("");
+      setReloginError("");
+    } catch (err) {
+      setReloginError(err instanceof Error ? err.message : "Re-login failed.");
+    } finally {
+      setIsReloggingIn(false);
     }
   }
 
@@ -186,69 +213,101 @@ export function Root() {
     );
   }
 
-  const filteredNavItems = getFilteredNavItems();
-  const initials = userInfo?.name 
-    ? userInfo.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    : 'WN';
-  const userRole = userInfo?.is_admin ? 'Admin' : (userInfo?.role || 'User');
-
   return (
     <ThemeProvider>
       <div className="flex h-screen overflow-hidden">
-        {isCompactNav ? (
-          <SidebarNavigation
-            footer={
-              <>
-                <SidebarButton icon={<LogOut className="size-full" strokeWidth={1.5} />} onClick={handleLogout} />
-                <div className="flex flex-col items-center gap-xs">
-                  <Avatar type="initial" initials={initials} size="medium" shape="circle" />
-                  <span className="text-label-xs text-text-secondary">{userRole}</span>
-                </div>
-              </>
-            }
-          >
-            <SidebarButton
-              icon={<PanelLeftOpen className="size-full" strokeWidth={1.5} />}
-              onClick={() => setIsCompactNav(false)}
-            />
-            {filteredNavItems.map((item) => (
-              <SidebarButton
-                key={item.path}
-                icon={<item.icon className="size-full" strokeWidth={1.5} />}
-                active={isActive(item.path, item.exact)}
-                onClick={() => navigate(item.path)}
-              />
-            ))}
-          </SidebarNavigation>
-        ) : (
-          <SecondaryNav className="h-screen overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth" title="WebNDevs CMS">
-            <SecondaryNavItem icon={<PanelLeftClose className="size-full" strokeWidth={1.5} />} label="Collapse Menu" onClick={() => setIsCompactNav(true)} />
-            {filteredNavItems.map((item) => (
-              <SecondaryNavItem
-                key={item.path}
-                icon={<item.icon className="size-full" strokeWidth={1.5} />}
-                label={item.label}
-                active={isActive(item.path, item.exact)}
-                onClick={() => navigate(item.path)}
-              />
-            ))}
-            <SecondaryNavItem icon={<LogOut className="size-full" strokeWidth={1.5} />} label={isLoggingOut ? "Logging out..." : "Logout"} onClick={handleLogout} />
-            <div className="mt-auto pt-md px-md border-t border-border-primary">
-              <div className="flex items-center gap-sm">
-                <Avatar type="initial" initials={initials} size="small" shape="circle" />
-                <div className="flex flex-col">
-                  <span className="text-label-sm text-text-primary truncate max-w-[120px]">{userInfo?.name || 'User'}</span>
-                  <span className="text-label-xs text-text-secondary">{userRole}</span>
-                </div>
-              </div>
-            </div>
-          </SecondaryNav>
-        )}
-
+        <Sidebar
+          userInfo={userInfo}
+          isLoggingOut={isLoggingOut}
+          handleLogout={handleLogout}
+        />
         <main className="flex-1 bg-brand-tertiary overflow-y-auto">
           <Outlet />
         </main>
       </div>
+
+      {showTimeoutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="bg-surface-bg border border-border-primary rounded-xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4 animate-zoom-in text-text-primary">
+            {/* Modal Header */}
+            <div className="flex items-center gap-3 border-b border-border-secondary pb-3">
+              <div className="bg-danger/10 text-danger p-2 rounded-lg flex items-center justify-center">
+                <span className="text-xl">⚠️</span>
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-text-primary">Session Expiry Warning</h3>
+                <p className="text-xs text-text-tertiary">Remember to save your work!</p>
+              </div>
+            </div>
+
+            {/* Countdown Display */}
+            <div className="bg-danger/10 border border-danger/20 rounded-lg p-4 flex flex-col items-center justify-center gap-1 text-center">
+              <span className="text-xs text-danger font-semibold uppercase tracking-wider">Logging out in</span>
+              <span className="text-3xl font-mono font-bold text-danger">
+                00:{secondsRemaining < 10 ? `0${secondsRemaining}` : secondsRemaining}
+              </span>
+            </div>
+
+            {/* Warning Message */}
+            <p className="text-xs text-text-secondary leading-relaxed">
+              Your session is about to expire in 1 minute. Please save your progress in any active editors, then click <strong>Keep Logged In</strong> to extend your session by another hour, or re-authenticate below.
+            </p>
+
+            {/* Re-authenticate Form */}
+            <form onSubmit={handleRelogin} className="flex flex-col gap-3 mt-1 border-t border-border-secondary pt-4">
+              <span className="text-xs font-semibold text-text-secondary">Or Re-Authenticate Directly:</span>
+              
+              {reloginError && (
+                <div className="p-2.5 bg-danger/10 border border-danger/20 text-danger rounded-lg text-xs leading-relaxed">
+                  {reloginError}
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2">
+                <input
+                  type="email"
+                  placeholder="Admin Email"
+                  className="w-full h-9 rounded-lg border border-border-primary bg-bg-faint px-3 text-xs text-text-primary focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none"
+                  value={reloginEmail}
+                  onChange={(e) => setReloginEmail(e.target.value)}
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  className="w-full h-9 rounded-lg border border-border-primary bg-bg-faint px-3 text-xs text-text-primary focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none"
+                  value={reloginPassword}
+                  onChange={(e) => setReloginPassword(e.target.value)}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isReloggingIn || !reloginEmail.trim() || !reloginPassword.trim()}
+                className="w-full h-9 rounded-lg bg-brand-primary hover:bg-brand-primary/95 text-white font-medium text-xs transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+              >
+                {isReloggingIn ? "Verifying..." : "Verify & Re-authenticate"}
+              </button>
+            </form>
+
+            {/* Buttons Group */}
+            <div className="flex justify-between gap-3 mt-2 border-t border-border-secondary pt-4">
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="h-9 px-4 rounded-lg border border-border-primary hover:bg-bg-faint text-text-secondary text-xs transition-colors"
+              >
+                Sign Out
+              </button>
+              <button
+                type="button"
+                onClick={keepLoggedIn}
+                className="h-9 px-4 rounded-lg bg-brand-primary hover:bg-brand-primary/95 text-white font-semibold text-xs transition-colors"
+              >
+                Keep Logged In (+1 Hour)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </ThemeProvider>
   );
 }

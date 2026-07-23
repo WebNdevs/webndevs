@@ -1,4 +1,4 @@
-import { HeaderSection } from '../cards/header-card';
+import { HeaderSection, HeaderSectionProps } from '../cards/header-card';
 import { ShortCTA } from './cta-section';
 import { getDataHub } from '@/data/datahub';
 import { IconCardGrid, IconCardProps } from '../cards/icon-card';
@@ -14,7 +14,7 @@ export function HubSection() {
     <section id='blogs' className="py-20 px-6 bg-[#0B0F14]">
       <div className="max-w-7xl mx-auto">
         <PageHero {...section?.hero as PageHeroProps}/>
-        <HeaderSection {...section}/>
+        <HeaderSection {...section?.header as HeaderSectionProps}/>
         <GlobalSearch/>
 
         <IconCardGrid items={section?.items as IconCardProps[]}/>

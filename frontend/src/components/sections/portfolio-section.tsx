@@ -1,5 +1,5 @@
 import { HeaderSection, HeaderSectionProps } from '../cards/header-card';
-import { getHome } from '@/data/homedata';
+import { getHome } from '@/data/content';
 import { StatsCardGrid, StatsCardProps } from '../cards/stats-card';
 import { ShortCTA, ShortCTAProps } from './cta-section';
 import { PageHero, PageHeroProps } from './pagehero';
@@ -10,7 +10,7 @@ export type PortfolioSectionProps = {
 }
 
 export function PortfolioSection({ variant = 'full' }: PortfolioSectionProps) {
-  const section = getHome("portfolio");
+  const section = getHome("portfolio","/portfolio");
   const items = variant === "preview" ? section?.items?.slice(0, 6) : section?.items;
 
   if (!section) return null;
@@ -19,9 +19,9 @@ export function PortfolioSection({ variant = 'full' }: PortfolioSectionProps) {
     <section id="portfolio" aria-label="Our Portfolio" className="py-20 px-6 bg-transparent text-gray-100">
       <div className="max-w-7xl mx-auto">
         {/* Page Hero */}
-        <PageHero variant={variant} {...section.hero as PageHeroProps} />
+        <PageHero variant={variant} {...section?.hero as PageHeroProps} />
 
-        <HeaderSection {...section as HeaderSectionProps} />
+        <HeaderSection {...section?.header as HeaderSectionProps} />
 
         {/* Projects Grid */}
         <ResultCardGrid items={items as ResultCardProps[]} />

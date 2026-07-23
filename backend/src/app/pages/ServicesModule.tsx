@@ -1,118 +1,1083 @@
-import { useEffect, useState } from "react";
-import { Badge, Button } from "@figma/astraui";
-import { Download, RefreshCw, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Badge, InputField, SelectField, TextareaField } from "@figma/astraui";
+import {
+  Globe,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Save,
+  Trash2,
+  CheckCircle2,
+} from "lucide-react";
 import { API_BASE_URL } from "../../config/api.config";
 import { clearStoredAuth, fetchAuthenticatedUser, getStoredToken, setStoredToken, TOKEN_KEYS } from "../auth";
+import { Pill, Tabs, Card, Button as CustomButton, ConfirmModal } from "../components/blocks";
 
-type Service = {
+type PageStatus = "published" | "draft";
+
+type ServiceItemModel = {
   id: number;
-  name: string;
+  sort_order: number;
+  is_featured: boolean;
+  is_active: boolean;
+  data: Record<string, unknown>;
+  updated_at: string | null;
+};
+
+type ServiceSectionModel = {
+  id: number;
+  service_page_id: number;
+  section_key: string;
+  section_type: string;
+  is_visible: boolean;
+  sort_order: number;
+  data: Record<string, unknown>;
+  items?: ServiceItemModel[];
+  updated_at: string | null;
+};
+
+type ServicePageModel = {
+  id: number;
+  title: string;
   slug: string;
-  category: string;
-  base_price: number;
-  status: "active" | "inactive";
+  status: PageStatus;
+  seo_title: string | null;
+  seo_description: string | null;
+  meta_keywords: string | null;
+  service_id: number | null;
+  sync_token: string | null;
+  updated_at: string | null;
+  sections: ServiceSectionModel[];
+};
+
+type SectionKey =
+  | "hero"
+  | "header"
+  | "whyus"
+  | "comparison"
+  | "process"
+  | "stats"
+  | "result"
+  | "review"
+  | "techspec"
+  | "directory"
+  | "benefits"
+  | "faq"
+  | "data"
+  | "cta";
+
+type EditableSectionItem = {
+  row_id: string;
+  id?: number;
+  title?: string;
+  description?: string;
+  value?: string;
+  icon?: string;
+  href?: string;
+  number?: string;
+  question?: string;
+  answer?: string;
+  metric?: string;
+  name?: string;
+  role?: string;
+  company?: string;
+  quote?: string;
+  technologies?: string;
+  results?: string[];
+  resultsText?: string;
+  tags?: string[];
+  tagsText?: string;
+  badge?: string;
+  duration?: string;
+  text?: string;
+  rating?: number;
+  photo_url?: string;
+  url?: string;
+  category?: string;
+  service?: string;
+  is_active: boolean;
+  is_featured: boolean;
+  // Comparison
+  leftHeading?: string;
+  rightHeading?: string;
+  leftPointsText?: string;
+  rightPointsText?: string;
+};
+
+type EditableManagedSection = {
+  id?: number;
+  section_key: SectionKey;
+  label: string;
+  heading: string;
+  subheading: string;
+  title: string;
+  title1: string;
+  title2: string;
+  subheading1: string;
+  subheading2: string;
   description: string;
-  features: string[];
-  projects_completed: number;
+  tag: string;
+  subtext: string;
+  is_active: boolean;
+  items: EditableSectionItem[];
+  // CTA
+  ctaPreviewText?: string;
+  ctaPreviewUrl?: string;
+  ctaFullDescription?: string;
+  ctaFullText?: string;
+  ctaFullUrl?: string;
+  // Process CTA
+  processCtaPreviewText?: string;
+  processCtaPreviewUrl?: string;
+  processCtaFullDescription?: string;
+  processCtaFullText?: string;
+  processCtaFullUrl?: string;
+  // Techspec
+  techtag?: string;
+  techHeading1?: string;
+  techHeading2?: string;
+  techSubtext?: string;
+  techTagsText?: string;
 };
 
-type ApiResponse<T> = {
-  success: boolean;
-  message: string;
-  data: T;
-  errors: Record<string, string[]> | string[] | [];
+const SECTION_KEYS: SectionKey[] = [
+  "hero",
+  "header",
+  "whyus",
+  "comparison",
+  "process",
+  "stats",
+  "result",
+  "review",
+  "techspec",
+  "directory",
+  "benefits",
+  "faq",
+  "data",
+  "cta"
+];
+
+const SECTION_LABELS: Record<SectionKey, string> = {
+  hero: "Hero Section",
+  header: "Header Section",
+  whyus: "Why Choose Us Section",
+  comparison: "Comparison Section",
+  process: "Process Section",
+  stats: "Stats Section",
+  result: "Result Section",
+  review: "Review Section",
+  techspec: "Technologies Section",
+  directory: "Directory Section",
+  benefits: "Benefits Section",
+  faq: "FAQ Section",
+  data: "Data Section",
+  cta: "CTA Section",
 };
 
-const categoryIcons: Record<string, string> = {
-  "Web Development": "💻",
-  "UI/UX Design": "🎨",
-  "SEO & Marketing": "📊",
-  Cybersecurity: "🛡️",
-  "Mobile Apps": "📱",
-  "Domain & Hosting": "🌐",
-};
-
-const categoryList = ["Web Development", "UI/UX Design", "SEO & Marketing", "Cybersecurity", "Mobile Apps", "Domain & Hosting"];
-
-function ServiceCard({ service }: { service: Service }) {
-  return (
-    <div className="bg-surface-bg rounded-corner-lg p-xl flex flex-col gap-lg border border-border-primary">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-lg">
-          <div className="text-brand-primary bg-brand-muted p-md rounded-corner-md text-xl">
-            {categoryIcons[service.category] || "🌐"}
-          </div>
-          <div>
-            <p className="text-label text-text-primary font-semibold">{service.name}</p>
-            <p className="text-video-title text-text-tertiary">{`SVC-${String(service.id).padStart(3, "0")}`}</p>
-            <p className="text-label-sm text-brand-primary mt-xs">
-              <span className="font-mono">/services/{service.slug}</span>
-            </p>
-          </div>
-        </div>
-        <Badge label={service.status} variant={service.status === "active" ? "success" : "default"} />
-      </div>
-
-      <p className="text-label-sm text-text-secondary">{service.description}</p>
-
-      <div className="bg-bg-faint rounded-corner-md p-lg">
-        <p className="text-video-title text-text-secondary mb-sm">Features</p>
-        <div className="flex flex-wrap gap-sm">
-          {(service.features ?? []).map((feature) => (
-            <span key={feature} className="bg-surface-bg border border-border-secondary rounded-corner-md px-sm py-xs text-video-title text-text-primary">
-              {feature}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-label text-text-primary">{`Starting from $${Number(service.base_price ?? 0).toLocaleString()}`}</p>
-          <p className="text-video-title text-text-tertiary">{`${service.projects_completed ?? 0} projects completed`}</p>
-        </div>
-        <Badge label={service.category} variant="secondary" />
-      </div>
-    </div>
-  );
-}
-
-export function ServicesModule() {
-  const [services, setServices] = useState<Service[]>([]);
-  const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
+export function ServiceModule() {
+  const [pages, setPages] = useState<ServicePageModel[]>([]);
+  const [selectedPageSlug, setSelectedPageSlug] = useState<string>("");
+  const [selectedPage, setSelectedPage] = useState<ServicePageModel | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("publishing_workflow");
+  const [managedSections, setManagedSections] = useState<EditableManagedSection[]>([]);
+  const [deletedItemIds, setDeletedItemIds] = useState<number[]>([]);
+  
   const [isLoading, setIsLoading] = useState(false);
-  const [adminToken, setAdminToken] = useState(() => getStoredToken());
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorText, setErrorText] = useState("");
+  const [successText, setSuccessText] = useState("");
+  const [adminToken, setAdminToken] = useState(() => getStoredToken() ?? "");
   const [hasSessionAuth, setHasSessionAuth] = useState(false);
+
+  const [showPageModal, setShowPageModal] = useState(false);
+  const [isEditingPage, setIsEditingPage] = useState(false);
+  const [pageForm, setPageForm] = useState({
+    title: "",
+    slug: "",
+    status: "draft" as PageStatus,
+    seo_title: "",
+    seo_description: "",
+    meta_keywords: "",
+    hero_tag: "",
+    hero_title1: "",
+    hero_title2: "",
+    hero_description: "",
+  });
+
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   const hasToken = adminToken.trim().length > 0;
   const canManage = hasToken || hasSessionAuth;
 
-  const filteredServices = services.filter((service) => {
-    const matchSearch = service.name.toLowerCase().includes(search.toLowerCase());
-    const matchCategory = activeCategory === "All" || service.category === activeCategory;
-    return matchSearch && matchCategory;
-  });
+  const authHeaders = useMemo(() => {
+    return {
+      "Service-Type": "application/json",
+      ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
+    };
+  }, [adminToken]);
 
-  async function fetchServices() {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/services`);
-      const payload: ApiResponse<Service[]> = await response.json();
-      if (!response.ok || !payload.success) {
-        throw new Error(payload.message || "Failed to fetch services.");
+  const requestJson = async <T,>(path: string, options: RequestInit = {}): Promise<T> => {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers: {
+        ...authHeaders,
+        ...(options.headers || {}),
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      let message = `Request failed (${response.status})`;
+      try {
+        const payload = await response.json();
+        message = payload.message || message;
+      } catch {
+        // ignore
       }
-      setServices(payload.data ?? []);
-    } catch (error) {
-      console.error(error);
+      if (response.status === 401) {
+        clearStoredAuth();
+        setAdminToken("");
+      }
+      throw new Error(message);
+    }
+
+    const payload = await response.json();
+    if (payload?.success) {
+      return payload.data as T;
+    }
+    throw new Error(payload?.message || "Request failed");
+  };
+
+  function omitEmptyKeys(obj: any): any {
+    if (Array.isArray(obj)) {
+      const items = obj.map(omitEmptyKeys).filter((v) => v !== null && v !== undefined);
+      return items.length > 0 ? items : null;
+    }
+    if (obj !== null && typeof obj === "object") {
+      const result: Record<string, any> = {};
+      Object.keys(obj).forEach((key) => {
+        const value = omitEmptyKeys(obj[key]);
+        if (value !== null && value !== undefined && value !== "") {
+          result[key] = value;
+        }
+      });
+      return Object.keys(result).length > 0 ? result : null;
+    }
+    return obj;
+  }
+
+  // Pre-formatted JSON preview compiler based on sections.ts & homeData structures
+  const previewJson = useMemo(() => {
+    if (!selectedPage) return null;
+
+    const rawJson: Record<string, any> = {
+      section_key: selectedPage.slug,
+    };
+
+    managedSections.forEach((sec) => {
+      if (!sec.is_active) {
+        return;
+      }
+
+      const cleanedItems = sec.items
+        .map((item) => {
+          const itemData: Record<string, any> = {};
+          if (sec.section_key === "whyus") {
+            itemData.icon = item.icon?.trim() || null;
+            itemData.title = item.title?.trim() || null;
+            itemData.description = item.description?.trim() || null;
+            itemData.url = item.url?.trim() || null;
+          } else if (sec.section_key === "process") {
+            itemData.icon = item.icon?.trim() || null;
+            itemData.title = item.title?.trim() || null;
+            itemData.number = item.number?.trim() || null;
+            itemData.description = item.description?.trim() || null;
+            itemData.duration = item.duration?.trim() || null;
+          } else if (sec.section_key === "stats") {
+            itemData.icon = item.icon?.trim() || null;
+            itemData.title = item.title?.trim() || null;
+            itemData.value = item.value?.trim() || null;
+            itemData.url = item.url?.trim() || null;
+          } else if (sec.section_key === "result") {
+            itemData.title = item.title?.trim() || null;
+            itemData.category = item.category?.trim() || null;
+            itemData.description = item.description?.trim() || null;
+            itemData.results = item.resultsText ? item.resultsText.split("\n").map((s) => s.trim()).filter(Boolean) : (Array.isArray(item.results) ? item.results : null);
+            itemData.tags = item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : (Array.isArray(item.tags) ? item.tags : null);
+            itemData.badge = item.badge?.trim() || null;
+            itemData.url = item.url?.trim() || null;
+          } else if (sec.section_key === "review") {
+            itemData.name = item.name?.trim() || null;
+            itemData.company = item.company?.trim() || null;
+            itemData.service = item.service?.trim() || null;
+            itemData.rating = item.rating || 5;
+            itemData.photo_url = item.photo_url?.trim() || null;
+            itemData.role = item.role?.trim() || null;
+          } else if (sec.section_key === "comparison") {
+            rawJson.comparison = omitEmptyKeys({
+              title: sec.title?.trim() || null,
+              tag: sec.tag?.trim() || null,
+              description: sec.description?.trim() || null,
+            });
+          } else if (sec.section_key === "directory") {
+            rawJson.directory = omitEmptyKeys({
+              tag: sec.tag?.trim() || null,
+              subheading1: sec.subheading1?.trim() || null,
+              subheading2: sec.subheading2?.trim() || null,
+              subtext: sec.subtext?.trim() || null,
+              items: cleanedItems.length > 0 ? cleanedItems : null,
+            });
+          } else if (sec.section_key === "benefits") {
+              rawJson.benefits = omitEmptyKeys({
+              tag: sec.tag?.trim() || null,
+              subheading1: sec.subheading1?.trim() || null,
+              subheading2: sec.subheading2?.trim() || null,
+              subtext: sec.subtext?.trim() || null,
+              items: cleanedItems.length > 0 ? cleanedItems : null,
+            });
+          } else if (sec.section_key === "faq") {
+            itemData.question = item.question?.trim() || null;
+            itemData.answer = item.answer?.trim() || null;
+          } else if (sec.section_key === "data") {
+            itemData.title = item.title?.trim() || null;
+            itemData.description = item.description?.trim() || null;
+          } else {
+            itemData.title = item.title?.trim() || null;
+            itemData.description = item.description?.trim() || null;
+          }
+
+          return omitEmptyKeys(itemData);
+        })
+        .filter((item) => item !== null && Object.keys(item).length > 0);
+
+      if (sec.section_key === "hero") {
+        rawJson.hero = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          title1: sec.title1?.trim() || null,
+          title2: sec.title2?.trim() || null,
+          description: sec.description?.trim() || null,
+        });
+      } else if (sec.section_key === "header") {
+        rawJson.header = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+        });
+      } else if (sec.section_key === "whyus") {
+        rawJson.whyus = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+        });
+      } else if (sec.section_key === "comparison") {
+        rawJson.comparison = omitEmptyKeys({
+          title: sec.title?.trim() || null,
+          tag: sec.tag?.trim() || null,
+          description: sec.description?.trim() || null,
+        });
+      } else if (sec.section_key === "process") {
+        rawJson.process = omitEmptyKeys({
+          section_key: "process",
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+
+          cta: omitEmptyKeys({
+            preview: omitEmptyKeys({
+              text: sec.processCtaPreviewText?.trim() || null,
+              url: sec.processCtaPreviewUrl?.trim() || null,
+            }),
+            full: omitEmptyKeys({
+              description:
+                sec.processCtaFullDescription?.trim() || null,
+              text: sec.processCtaFullText?.trim() || null,
+              url: sec.processCtaFullUrl?.trim() || null,
+            }),
+          }),
+        });
+      } else if (sec.section_key === "stats") {
+        if (cleanedItems.length > 0) {
+          rawJson.stats = cleanedItems;
+        }
+      } else if (sec.section_key === "result") {
+        if (cleanedItems.length > 0) {
+          rawJson.result = cleanedItems;
+        }
+      } else if (sec.section_key === "review") {
+        if (cleanedItems.length > 0) {
+          rawJson.review = cleanedItems;
+        }
+      } else if (sec.section_key === "techspec") {
+        rawJson.techspec = omitEmptyKeys({
+          techtag: sec.techtag?.trim() || null,
+          techHeading1: sec.techHeading1?.trim() || null,
+          techHeading2: sec.techHeading2?.trim() || null,
+          techSubtext: sec.techSubtext?.trim() || null,
+          tags: sec.techTagsText ? sec.techTagsText.split(",").map((s) => s.trim()).filter(Boolean) : null,
+        });
+      } else if (sec.section_key === "directory") {
+        rawJson.directory = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+        });
+      } else if (sec.section_key === "benefits") {
+        rawJson.benefits = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+
+        });
+      } else if (sec.section_key === "faq") {
+        rawJson.faq = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+        });
+      } else if (sec.section_key === "data") {
+        if (cleanedItems.length > 0) {
+          rawJson.data = cleanedItems;
+        }
+      } else if (sec.section_key === "cta") {
+        rawJson.cta = omitEmptyKeys({
+          preview: omitEmptyKeys({
+            text: sec.ctaPreviewText?.trim() || null,
+            url: sec.ctaPreviewUrl?.trim() || null,
+          }),
+          full: omitEmptyKeys({
+            description: sec.ctaFullDescription?.trim() || null,
+            text: sec.ctaFullText?.trim() || null,
+            url: sec.ctaFullUrl?.trim() || null,
+          }),
+        });
+      }
+    });
+
+    return omitEmptyKeys(rawJson);
+  }, [managedSections, selectedPage]);
+
+  async function loadPages() {
+    setIsLoading(true);
+    setErrorText("");
+    try {
+      const data = await requestJson<ServicePageModel[]>("/service-pages");
+      setPages(data);
+      if (!selectedPageSlug && data.length > 0) {
+        setSelectedPageSlug(data[0].slug);
+      }
+    } catch (err) {
+      setErrorText(err instanceof Error ? err.message : "Failed to load pages");
     } finally {
       setIsLoading(false);
     }
   }
 
+  async function loadPage(slug: string) {
+    setIsLoading(true);
+    setErrorText("");
+    try {
+      const pageData = await requestJson<ServicePageModel>(`/service-pages/${encodeURIComponent(slug)}`);
+      setSelectedPage(pageData);
+
+      // Map dynamic database sections to frontend sections
+      const apiSections = pageData.sections || [];
+      const initialManagedSections = SECTION_KEYS.map((key) => {
+        const match = apiSections.find((s) => s.section_key === key);
+        const data = (match?.data || {}) as Record<string, any>;
+        
+        // Map database section items to local layout fields
+        const items = (match?.items || []).map((item) => {
+          const itemData = (item.data || {}) as Record<string, any>;
+          return {
+            row_id: `item-${item.id}`,
+            id: item.id,
+            is_active: item.is_active,
+            is_featured: item.is_featured,
+            ...itemData,
+            tagsText: Array.isArray(itemData.tags) ? itemData.tags.join(", ") : "",
+            resultsText: Array.isArray(itemData.results) ? itemData.results.join("\n") : "",
+            leftPointsText: Array.isArray(itemData.leftPoints) ? itemData.leftPoints.join("\n") : "",
+            rightPointsText: Array.isArray(itemData.rightPoints) ? itemData.rightPoints.join("\n") : "",
+          };
+        });
+
+        const cta = key === "cta" ? data : {};
+        const preview = cta.preview || {};
+        const full = cta.full || {};
+        const processCta = key === "process" && data.cta ? data.cta : {};
+        const processCtaPreview = processCta.preview || {};
+        const processCtaFull = processCta.full || {};
+        const techspec = key === "techspec" ? data : {};
+
+        return {
+          id: match?.id,
+          section_key: key,
+          label: SECTION_LABELS[key],
+          subheading1: data.subheading1 || "",
+          subheading2: data.subheading2 || "",
+          heading: data.heading || "",
+          title: data.title || "",
+          title1: data.title1 || "",
+          title2: data.title2 || "",
+          description: data.description || "",
+          subheading: data.subheading || "",
+          tag: data.tag || "",
+          subtext: data.subtext || "",
+          is_active: match ? Boolean(match.is_visible) : true,
+          items,
+
+          // cta
+          ctaPreviewText: preview.text || "",
+          ctaPreviewUrl: preview.url || "",
+          ctaFullDescription: full.description || "",
+          ctaFullText: full.text || "",
+          ctaFullUrl: full.url || "",
+          // process cta
+          processCtaPreviewText: processCtaPreview.text || "",
+          processCtaPreviewUrl: processCtaPreview.url || "",
+          processCtaFullDescription: processCtaFull.description || "",
+          processCtaFullText: processCtaFull.text || "",
+          processCtaFullUrl: processCtaFull.url || "",
+          // techspec (previously tech-specs)
+          techtag: techspec.techtag || "",
+          techHeading1: techspec.techHeading1 || "",
+          techHeading2: techspec.techHeading2 || "",
+          techSubtext: techspec.techSubtext || "",
+          techTagsText: Array.isArray(techspec.tags) ? techspec.tags.join(", ") : "",
+        };
+      });
+
+      setManagedSections(initialManagedSections);
+      setDeletedItemIds([]);
+    } catch (err) {
+      setErrorText(err instanceof Error ? err.message : "Failed to load page service.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const handlePageSelect = (slug: string) => {
+    setSelectedPageSlug(slug);
+    setActiveTab("publishing_workflow");
+  };
+
+  const openCreatePage = () => {
+    setPageForm({
+      title: "",
+      slug: "",
+      status: "draft",
+      seo_title: "",
+      seo_description: "",
+      meta_keywords: "",
+      hero_tag: "",
+      hero_title1: "",
+      hero_title2: "",
+      hero_description: "",
+    });
+    setIsEditingPage(false);
+    setShowPageModal(true);
+  };
+
+  const openEditPage = () => {
+    if (!selectedPage) return;
+    const heroSec = managedSections.find((s) => s.section_key === "hero");
+    setPageForm({
+      title: selectedPage.title,
+      slug: selectedPage.slug,
+      status: selectedPage.status,
+      seo_title: selectedPage.seo_title || "",
+      seo_description: selectedPage.seo_description || "",
+      meta_keywords: selectedPage.meta_keywords || "",
+      hero_tag: heroSec?.tag || "",
+      hero_title1: heroSec?.title1 || "",
+      hero_title2: heroSec?.title2 || "",
+      hero_description: heroSec?.description || "",
+    });
+    setIsEditingPage(true);
+    setShowPageModal(true);
+  };
+
+  const handleSavePage = async () => {
+    if (!canManage) {
+      setErrorText("Set admin API token first.");
+      return;
+    }
+    setIsSaving(true);
+    setErrorText("");
+    setSuccessText("");
+    try {
+      let savedSlug = pageForm.slug;
+      if (isEditingPage && selectedPage) {
+        await requestJson(`/service-pages/${encodeURIComponent(selectedPage.slug)}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            title: pageForm.title,
+            slug: pageForm.slug,
+            status: pageForm.status,
+            seo_title: pageForm.seo_title,
+            seo_description: pageForm.seo_description,
+            meta_keywords: pageForm.meta_keywords,
+          }),
+        });
+        setSuccessText("Page updated successfully.");
+      } else {
+        const created = await requestJson<ServicePageModel>("/service-pages", {
+          method: "POST",
+          body: JSON.stringify({
+            title: pageForm.title,
+            slug: pageForm.slug,
+            status: pageForm.status,
+            seo_title: pageForm.seo_title,
+            seo_description: pageForm.seo_description,
+            meta_keywords: pageForm.meta_keywords,
+          }),
+        });
+        savedSlug = created.slug;
+        setSuccessText("Page created successfully.");
+      }
+
+      // Synchronize Hero details to the "hero" section on the page
+      const updatedHeroSectionPayload = {
+        section_key: "hero",
+        section_type: "hero",
+        data: omitEmptyKeys({
+          tag: pageForm.hero_tag?.trim() || null,
+          title1: pageForm.hero_title1?.trim() || null,
+          title2: pageForm.hero_title2?.trim() || null,
+          description: pageForm.hero_description?.trim() || null,
+        }) || {},
+        is_visible: true,
+        sort_order: 0,
+      };
+
+      const currentHeroSec = managedSections.find((s) => s.section_key === "hero");
+      if (currentHeroSec?.id) {
+        await requestJson(`/service-pages/${encodeURIComponent(savedSlug)}/sections/${currentHeroSec.id}`, {
+          method: "PUT",
+          body: JSON.stringify(updatedHeroSectionPayload),
+        });
+      } else {
+        await requestJson(`/service-pages/${encodeURIComponent(savedSlug)}/sections`, {
+          method: "POST",
+          body: JSON.stringify(updatedHeroSectionPayload),
+        });
+      }
+
+      setShowPageModal(false);
+      setSelectedPageSlug(savedSlug);
+      await loadPages();
+      await loadPage(savedSlug);
+    } catch (err) {
+      setErrorText(err instanceof Error ? err.message : "Failed to save page");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const triggerDeletePage = () => {
+    if (!selectedPage) return;
+    setDeleteConfirm({
+      isOpen: true,
+      title: "Delete Page",
+      message: `Are you sure you want to delete page "${selectedPage.title}"? This will permanently delete the page and all its service sections.`,
+      onConfirm: async () => {
+        setDeleteConfirm((prev) => ({ ...prev, isOpen: false }));
+        setIsSaving(true);
+        setErrorText("");
+        setSuccessText("");
+        try {
+          await requestJson(`/service-pages/${encodeURIComponent(selectedPage.slug)}`, {
+            method: "DELETE",
+          });
+          setSuccessText(`Page "${selectedPage.title}" deleted.`);
+          
+          const data = await requestJson<ServicePageModel[]>("/service-pages");
+          setPages(data);
+          if (data.length > 0) {
+            setSelectedPageSlug(data[0].slug);
+          } else {
+            setSelectedPageSlug("");
+            setSelectedPage(null);
+            setManagedSections([]);
+          }
+        } catch (err) {
+          setErrorText(err instanceof Error ? err.message : "Failed to delete page");
+        } finally {
+          setIsSaving(false);
+        }
+      },
+    });
+  };
+
+  const handleClearCache = async () => {
+    setIsSaving(true);
+    setErrorText("");
+    setSuccessText("");
+    try {
+      await requestJson("/settings/cache/clear", { method: "POST" });
+      setSuccessText("Frontend cache cleared successfully. All changes are now live!");
+    } catch (err) {
+      setErrorText(err instanceof Error ? err.message : "Failed to clear cache");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Section Save handler
+  async function saveManagedSection(secKey: SectionKey) {
+    if (!canManage || !selectedPage) return;
+    const secIndex = managedSections.findIndex((s) => s.section_key === secKey);
+    if (secIndex === -1) return;
+    const sec = managedSections[secIndex];
+
+    setIsSaving(true);
+    setErrorText("");
+    setSuccessText("");
+
+    try {
+      const dataPayload: Record<string, any> = {};
+
+      if (sec.section_key === "hero") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.title1 = sec.title1?.trim() || null;
+        dataPayload.title2 = sec.title2?.trim() || null;
+        dataPayload.description = sec.description?.trim() || null;
+      } else if (sec.section_key === "header") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "whyus") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "directory" || sec.section_key === "benefits" ) {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "comparison") {
+        dataPayload.title = sec.title?.trim() || null;
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.description = sec.description?.trim() || null;
+      } else if (sec.section_key === "process") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+        dataPayload.cta = omitEmptyKeys({
+          preview: omitEmptyKeys({
+            text: sec.processCtaPreviewText?.trim() || null,
+            url: sec.processCtaPreviewUrl?.trim() || null,
+          }),
+          full: omitEmptyKeys({
+            description: sec.processCtaFullDescription?.trim() || null,
+            text: sec.processCtaFullText?.trim() || null,
+            url: sec.processCtaFullUrl?.trim() || null,
+          }),
+        });
+      } else if (sec.section_key === "techspec") {
+        dataPayload.techtag = sec.techtag?.trim() || null;
+        dataPayload.techHeading1 = sec.techHeading1?.trim() || null;
+        dataPayload.techHeading2 = sec.techHeading2?.trim() || null;
+        dataPayload.techSubtext = sec.techSubtext?.trim() || null;
+        dataPayload.tags = sec.techTagsText ? sec.techTagsText.split(",").map((s) => s.trim()).filter(Boolean) : null;
+      } else if (sec.section_key === "faq") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "cta") {
+        dataPayload.preview = omitEmptyKeys({
+          text: sec.ctaPreviewText?.trim() || null,
+          url: sec.ctaPreviewUrl?.trim() || null,
+        });
+        dataPayload.full = omitEmptyKeys({
+          description: sec.ctaFullDescription?.trim() || null,
+          text: sec.ctaFullText?.trim() || null,
+          url: sec.ctaFullUrl?.trim() || null,
+        });
+      }
+
+      const sectionPayload = {
+        section_key: sec.section_key,
+        section_type: ["hero", "cta", "header", "techspec"].includes(sec.section_key) ? sec.section_key : "items",
+        data: omitEmptyKeys(dataPayload) || {},
+        is_visible: sec.is_active,
+        sort_order: 0,
+      };
+
+      let sectionId = sec.id;
+      if (sectionId) {
+        await requestJson(`/service-pages/${encodeURIComponent(selectedPage.slug)}/sections/${sectionId}`, {
+          method: "PUT",
+          body: JSON.stringify(sectionPayload),
+        });
+      } else {
+        const createdSection = await requestJson<{ section: ServiceSectionModel }>(`/service-pages/${encodeURIComponent(selectedPage.slug)}/sections`, {
+          method: "POST",
+          body: JSON.stringify(sectionPayload),
+        });
+        sectionId = createdSection.section.id;
+        setManagedSections((current) => current.map((s) => s.section_key === secKey ? { ...s, id: sectionId } : s));
+      }
+
+      // Save list items
+      const savePromises = sec.items.map(async (item) => {
+        const itemData: Record<string, any> = {};
+
+        if (sec.section_key === "whyus") {
+          itemData.icon = item.icon?.trim() || null;
+          itemData.title = item.title?.trim() || null;
+          itemData.description = item.description?.trim() || null;
+          itemData.url = item.url?.trim() || null;
+        } else if (sec.section_key === "process") {
+          itemData.icon = item.icon?.trim() || null;
+          itemData.title = item.title?.trim() || null;
+          itemData.number = item.number?.trim() || null;
+          itemData.description = item.description?.trim() || null;
+          itemData.duration = item.duration?.trim() || null;
+        } else if (sec.section_key === "stats") {
+          itemData.icon = item.icon?.trim() || null;
+          itemData.title = item.title?.trim() || null;
+          itemData.value = item.value?.trim() || null;
+          itemData.url = item.url?.trim() || null;
+        } else if (sec.section_key === "result") {
+          itemData.title = item.title?.trim() || null;
+          itemData.category = item.category?.trim() || null;
+          itemData.description = item.description?.trim() || null;
+          itemData.results = item.resultsText ? item.resultsText.split("\n").map((s) => s.trim()).filter(Boolean) : null;
+          itemData.tags = item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null;
+          itemData.badge = item.badge?.trim() || null;
+          itemData.url = item.url?.trim() || null;
+        } else if (sec.section_key === "review") {
+          itemData.name = item.name?.trim() || null;
+          itemData.company = item.company?.trim() || null;
+          itemData.service = item.service?.trim() || null;
+          itemData.rating = item.rating || 5;
+          itemData.photo_url = item.photo_url?.trim() || null;
+          itemData.role = item.role?.trim() || null;
+        } else if (sec.section_key === "faq") {
+          itemData.question = item.question?.trim() || null;
+          itemData.answer = item.answer?.trim() || null;
+        } else if (sec.section_key === "data") {
+          itemData.title = item.title?.trim() || null;
+          itemData.description = item.description?.trim() || null;
+        } else {
+          itemData.title = item.title?.trim() || null;
+          itemData.description = item.description?.trim() || null;
+        }
+
+        const itemPayload = {
+          data: omitEmptyKeys(itemData) || {},
+          sort_order: 0,
+          is_featured: item.is_featured,
+          is_active: item.is_active,
+        };
+
+        if (item.id && item.id > 0) {
+          await requestJson(`/service-sections/${sectionId}/items/${item.id}`, {
+            method: "PUT",
+            body: JSON.stringify(itemPayload),
+          });
+        } else {
+          await requestJson(`/service-sections/${sectionId}/items`, {
+            method: "POST",
+            body: JSON.stringify(itemPayload),
+          });
+        }
+      });
+
+      // Handle deleted items
+      const deletedPromises = deletedItemIds.map(async (id) => {
+        if (id > 0) {
+          await requestJson(`/service-sections/${sectionId}/items/${id}`, {
+            method: "DELETE",
+          });
+        }
+      });
+
+      await Promise.all([...savePromises, ...deletedPromises]);
+      setDeletedItemIds([]);
+
+      setSuccessText(`Section "${sec.label}" saved successfully.`);
+      await loadPage(selectedPage.slug);
+    } catch (e) {
+      setErrorText(e instanceof Error ? e.message : "Failed to save section data.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  // Clear Active Section Controls
+  function clearActiveSection() {
+    if (activeTab === "publishing_workflow") return;
+    
+    const activeSectionIndex = managedSections.findIndex((s) => s.section_key === activeTab);
+    if (activeSectionIndex === -1) return;
+    
+    const sec = managedSections[activeSectionIndex];
+    const itemIds = sec.items.map((item) => item.id).filter((id): id is number => !!id && id > 0);
+    setDeletedItemIds((prev) => [...prev, ...itemIds]);
+
+    setManagedSections((current) =>
+      current.map((s, idx) => {
+        if (idx === activeSectionIndex) {
+          return {
+            ...s,
+            heading: "",
+            subheading1: "",
+            subheading2: "",
+            title: "",
+            title1: "",
+            title2: "",
+            description: "",
+            subheading: "",
+            tag: "",
+            subtext: "",
+            leftHeading: "",
+            rightHeading: "",
+            leftPointsText: "",
+            rightPointsText: "",
+            ctaPreviewText: "",
+            ctaPreviewUrl: "",
+            ctaFullDescription: "",
+            ctaFullText: "",
+            ctaFullUrl: "",
+            processCtaPreviewText: "",
+            processCtaPreviewUrl: "",
+            processCtaFullDescription: "",
+            processCtaFullText: "",
+            processCtaFullUrl: "",
+            techtag: "",
+            techHeading1: "",
+            techHeading2: "",
+            techSubtext: "",
+            techTagsText: "",
+            items: [],
+          };
+        }
+        return s;
+      })
+    );
+    setSuccessText(`Active section "${sec.label}" inputs cleared.`);
+  }
+
+  function updateSectionHeader(field: keyof Omit<EditableManagedSection, "items" | "id" | "section_key" | "label">, value: any) {
+    const activeSectionIndex = managedSections.findIndex((s) => s.section_key === activeTab);
+    if (activeSectionIndex === -1) return;
+
+    setManagedSections((current) =>
+      current.map((s, idx) => {
+        if (idx === activeSectionIndex) {
+          return {
+            ...s,
+            [field]: value,
+          };
+        }
+        return s;
+      })
+    );
+  }
+
+  function addManagedSectionItem() {
+    const activeSectionIndex = managedSections.findIndex((s) => s.section_key === activeTab);
+    if (activeSectionIndex === -1) return;
+
+    const newItem: EditableSectionItem = {
+      row_id: `temp-${Date.now()}`,
+      is_active: true,
+      is_featured: false,
+    };
+
+    setManagedSections((current) =>
+      current.map((s, idx) => {
+        if (idx === activeSectionIndex) {
+          return {
+            ...s,
+            items: [...s.items, newItem],
+          };
+        }
+        return s;
+      })
+    );
+  }
+
+  function updateManagedSectionItem(itemIndex: number, field: keyof EditableSectionItem, value: any) {
+    const activeSectionIndex = managedSections.findIndex((s) => s.section_key === activeTab);
+    if (activeSectionIndex === -1) return;
+
+    setManagedSections((current) =>
+      current.map((s, idx) => {
+        if (idx === activeSectionIndex) {
+          const nextItems = s.items.map((item, i) => {
+            if (i === itemIndex) {
+              return {
+                ...item,
+                [field]: value,
+              };
+            }
+            return item;
+          });
+          return {
+            ...s,
+            items: nextItems,
+          };
+        }
+        return s;
+      })
+    );
+  }
+
+  function removeManagedSectionItem(sectionIndex: number, itemIndex: number) {
+    const item = managedSections[sectionIndex].items[itemIndex];
+    if (item.id && item.id > 0) {
+      setDeletedItemIds((prev) => [...prev, item.id]);
+    }
+    setManagedSections((current) =>
+      current.map((s, idx) => {
+        if (idx === sectionIndex) {
+          return {
+            ...s,
+            items: s.items.filter((_, i) => i !== itemIndex),
+          };
+        }
+        return s;
+      })
+    );
+  }
+
   useEffect(() => {
-    fetchServices();
+    void loadPages();
   }, []);
+
+  useEffect(() => {
+    if (selectedPageSlug) {
+      void loadPage(selectedPageSlug);
+    }
+  }, [selectedPageSlug]);
 
   useEffect(() => {
     async function syncAdminAuth() {
@@ -161,88 +1126,1048 @@ export function ServicesModule() {
     clearStoredAuth();
     setAdminToken("");
     setHasSessionAuth(false);
+    setErrorText("");
+    setSuccessText("");
   }
+
+  const sectionTabs = useMemo(() => {
+    return [
+      { value: "publishing_workflow", label: "Publishing Workflow" },
+      ...SECTION_KEYS.map((key) => ({ value: key, label: SECTION_LABELS[key] })),
+    ];
+  }, []);
+
+  const isPublishingWorkflowActive = activeTab === "publishing_workflow";
+  const activeManagedSectionIndex = managedSections.findIndex((s) => s.section_key === activeTab);
+  const activeManagedSection = activeManagedSectionIndex !== -1 ? managedSections[activeManagedSectionIndex] : null;
 
   return (
     <div className="p-2xl flex flex-col gap-xl">
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        title={deleteConfirm.title}
+        message={deleteConfirm.message}
+        onConfirm={deleteConfirm.onConfirm}
+        onCancel={() => setDeleteConfirm((prev) => ({ ...prev, isOpen: false }))}
+      />
+
+      {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-md">
         <div>
-          <h1 className="text-title text-text-primary">Services</h1>
-          <p className="text-label-sm text-text-secondary mt-xs">View and manage your service catalog.</p>
+          <h1 className="text-title text-text-primary">Service Pages</h1>
+          <p className="text-label-sm text-text-secondary mt-xs">Manage your website service pages and service sections dynamically.</p>
         </div>
         <div className="flex items-center gap-md">
-          <Button variant="neutral" iconStart={<RefreshCw size={16} />} onClick={fetchServices}>
+          <CustomButton variant="primary" iconStart={<RefreshCw size={16} />} onClick={loadPages}>
             Refresh
-          </Button>
+          </CustomButton>
           {!hasToken ? (
-            <Button variant="neutral" onClick={setToken}>
+            <CustomButton variant="primary" onClick={setToken}>
               Set Admin Token
-            </Button>
+            </CustomButton>
           ) : (
-            <Button variant="neutral" onClick={clearToken}>
+            <CustomButton variant="primary" onClick={clearToken}>
               Clear Token
-            </Button>
+            </CustomButton>
           )}
         </div>
       </div>
 
-      <div className="flex gap-xl items-center">
-        {[
-          { label: "Total Services", value: services.length },
-          { label: "Active", value: services.filter((service) => service.status === "active").length },
-          { label: "Categories", value: new Set(services.map((service) => service.category)).size },
-        ].map((stat) => (
-          <div key={stat.label} className="bg-surface-bg rounded-corner-lg p-xl flex-1 text-center">
-            <span className="text-title text-text-primary">{stat.value}</span>
-            <p className="text-video-title text-text-secondary mt-xs">{stat.label}</p>
-          </div>
+      {/* Page Pills */}
+      <div className="bg-surface-bg rounded-corner-lg p-xl flex flex-wrap gap-sm">
+        {pages.map((page) => (
+          <Pill
+            key={page.id}
+            label={page.title}
+            active={selectedPageSlug === page.slug}
+            onClick={() => handlePageSelect(page.slug)}
+          />
         ))}
       </div>
 
-      <div className="bg-surface-bg rounded-corner-lg p-xl flex flex-col gap-lg">
-        <div className="flex items-center gap-md">
-          <div className="relative flex-1">
-            <Search size={16} className="absolute left-md top-1/2 -translate-y-1/2 text-text-secondary" />
-            <input
-              type="text"
-              placeholder="Search services..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-xl pr-md py-sm rounded-corner-md border border-border-primary bg-bg-faint text-text-primary"
+      {/* Active Page Card */}
+      {selectedPage && (
+        <div className="bg-surface-bg rounded-corner-lg p-xl flex items-center justify-between flex-wrap gap-md">
+          <div>
+            <p className="text-label text-text-primary">{selectedPage.title}</p>
+            <p className="text-video-title text-text-tertiary">{selectedPage.slug}</p>
+          </div>
+          <div className="flex items-center gap-md">
+            <Badge label={selectedPage.status} variant={selectedPage.status === "published" ? "success" : "default"} />
+            <CustomButton variant="danger" iconStart={<Trash2 size={16} />} onClick={triggerDeletePage} disabled={!canManage}>
+              Delete Page
+            </CustomButton>
+            <CustomButton variant="primary" iconStart={<Pencil size={16} />} onClick={openEditPage} disabled={!canManage}>
+              Edit Page
+            </CustomButton>
+            <CustomButton variant="primary" iconStart={<Plus size={16} />} onClick={openCreatePage}>
+              Add Page
+            </CustomButton>
+          </div>
+        </div>
+      )}
+
+      {/* Alerts */}
+      {errorText && (
+        <div className="bg-danger/10 border border-danger/20 rounded-corner-lg p-lg text-label-sm text-danger">
+          {errorText}
+        </div>
+      )}
+      {successText && (
+        <div className="bg-success/10 border border-success/20 rounded-corner-lg p-lg flex items-center gap-sm text-label-sm text-success">
+          <CheckCircle2 size={16} />
+          {successText}
+        </div>
+      )}
+
+      {/* Tabs */}
+      {selectedPage && (
+        <>
+          <div className="bg-surface-bg rounded-corner-lg p-md border border-border-primary">
+            <Tabs
+              options={sectionTabs}
+              activeTab={activeTab}
+              onChange={(value) => setActiveTab(value)}
             />
           </div>
-        </div>
-        <div className="flex gap-sm flex-wrap">
-          {["All", ...categoryList].map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-lg py-sm rounded-corner-full text-label-sm transition-colors ${
-                activeCategory === category ? "bg-brand-primary text-on-brand" : "bg-bg-faint text-text-secondary hover:bg-brand-primary/10 hover:text-text-primary"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-xl">
-        {isLoading && (
-          <div className="col-span-2 bg-surface-bg rounded-corner-lg p-2xl text-center">
-            <p className="text-label text-text-secondary">Loading services...</p>
+          {/* Tab Panels */}
+          {isPublishingWorkflowActive ? (
+            <div className="flex flex-col gap-xl">
+              <h2 className="text-label text-text-primary">Publishing Workflow</h2>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-xl">
+                {/* Save Draft & Publish */}
+                <div className="flex flex-col gap-lg">
+                  <Card title="Page Publish Control">
+                    <p className="text-label-sm text-text-secondary mb-md">
+                      Clear the frontend cache to publish all saved service changes live.
+                    </p>
+                    <div className="flex gap-md">
+                      <CustomButton
+                        variant="primary"
+                        iconStart={<Globe size={16} />}
+                        onClick={handleClearCache}
+                        disabled={isSaving || !canManage}
+                      >
+                        Publish Changes (Clear Cache)
+                      </CustomButton>
+                    </div>
+                  </Card>
+                </div>
+
+                {/* JSON Preview */}
+                <div className="flex flex-col gap-lg">
+                  <Card title="JSON Preview Compilation">
+                    <p className="text-label-sm text-text-secondary mb-sm">
+                      Real-time compiled schema output.
+                    </p>
+                    <pre className="bg-bg-faint border border-border-primary rounded-corner-md p-md text-[11px] font-mono overflow-auto max-h-[300px] text-text-primary whitespace-pre-wrap">
+                      {JSON.stringify(previewJson, null, 2)}
+                    </pre>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Active Section Panel */
+            activeManagedSection && (
+              <div className="flex flex-col gap-lg">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-label text-text-primary">{activeManagedSection.label}</h3>
+                  <div className="flex items-center gap-sm">
+                    <CustomButton
+                      variant="primary"
+                      size="small"
+                      onClick={clearActiveSection}
+                    >
+                      Clear All
+                    </CustomButton>
+                    <CustomButton
+                      variant="primary"
+                      size="small"
+                      iconStart={<Save size={16} />}
+                      onClick={() => saveManagedSection(activeManagedSection.section_key)}
+                      disabled={isSaving || !canManage}
+                    >
+                      Save Section
+                    </CustomButton>
+                  </div>
+                </div>
+
+                <Card>
+                  {/* Section is_active toggle */}
+                  <div className="flex items-center gap-sm pb-md border-b border-border-secondary mb-lg">
+                    <label className="flex items-center gap-sm text-label-sm text-text-secondary">
+                      <input
+                        type="checkbox"
+                        checked={activeManagedSection.is_active}
+                        onChange={(e) => updateSectionHeader("is_active", e.target.checked)}
+                      />
+                      Section Active (Visible in public output)
+                    </label>
+                  </div>
+
+                  {/* Dynamic inputs based on activeTab */}
+                  {activeTab === "hero" ? (
+                    <div className="flex flex-col gap-lg mb-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                        <InputField
+                          label="Hero Tag"
+                          placeholder="e.g. WHO WE ARE"
+                          value={activeManagedSection.tag}
+                          onChange={(value) => updateSectionHeader("tag", value)}
+                        />
+                        <InputField
+                          label="Hero Title Part 1"
+                          placeholder="e.g. We Build Things"
+                          value={activeManagedSection.title1}
+                          onChange={(value) => updateSectionHeader("title1", value)}
+                        />
+                        <InputField
+                          label="Hero Title Part 2"
+                          placeholder="e.g. That Scale"
+                          value={activeManagedSection.title2}
+                          onChange={(value) => updateSectionHeader("title2", value)}
+                        />
+                      </div>
+                      <div className="w-full">
+                        <TextareaField
+                          label="Hero Description"
+                          placeholder="Explain the page focus..."
+                          value={activeManagedSection.description}
+                          rows={3}
+                          onChange={(value) => updateSectionHeader("description", value)}
+                        />
+                      </div>
+                    </div>
+                  ) : activeTab === "header" ? (
+                    <div className="flex flex-col gap-lg mb-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                        <InputField
+                          label="Section Tag"
+                          placeholder="e.g. FEATURES"
+                          value={activeManagedSection.tag}
+                          onChange={(value) => updateSectionHeader("tag", value)}
+                        />
+                        <InputField
+                          label="Heading / Subheading 1"
+                          placeholder="e.g. What We Offer"
+                          value={activeManagedSection.subheading1}
+                          onChange={(value) => updateSectionHeader("subheading1", value)}
+                        />
+                        <InputField
+                          label="Subheading / Subheading 2"
+                          placeholder="e.g. Tailored Services"
+                          value={activeManagedSection.subheading2}
+                          onChange={(value) => updateSectionHeader("subheading2", value)}
+                        />
+                      </div>
+                      <div className="w-full">
+                        <TextareaField
+                          label="Subtext / Description"
+                          placeholder="Explain this section..."
+                          value={activeManagedSection.subtext}
+                          rows={3}
+                          onChange={(value) => updateSectionHeader("subtext", value)}
+                        />
+                      </div>
+                    </div>
+                  ) : activeTab === "whyus" || activeTab === "result" || activeTab === "review" || activeTab === "data" ? (
+                    <div className="flex flex-col gap-lg mb-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                        <InputField
+                          label="Section Tag"
+                          placeholder="e.g. WHY US"
+                          value={activeManagedSection.tag}
+                          onChange={(value) => updateSectionHeader("tag", value)}
+                        />
+                        <InputField
+                          label="Heading / Subheading 1"
+                          placeholder="e.g. Why Choose Us"
+                          value={activeManagedSection.subheading1}
+                          onChange={(value) => updateSectionHeader("subheading1", value)}
+                        />
+                        <InputField
+                          label="Subheading / Subheading 2"
+                          placeholder="e.g. The Best Choice"
+                          value={activeManagedSection.subheading2}
+                          onChange={(value) => updateSectionHeader("subheading2", value)}
+                        />
+                      </div>
+                      <div className="w-full">
+                        <TextareaField
+                          label="Subtext"
+                          placeholder="Explain this section..."
+                          value={activeManagedSection.subtext}
+                          rows={3}
+                          onChange={(value) => updateSectionHeader("subtext", value)}
+                        />
+                      </div>
+                    </div>
+                  ) : activeTab === "directory" || activeTab === "benefits" ? (
+                    <div className="flex flex-col gap-lg mb-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                        <InputField
+                          label="Section Tag"
+                          placeholder="e.g. WHY US"
+                          value={activeManagedSection.tag}
+                          onChange={(value) => updateSectionHeader("tag", value)}
+                        />
+                        <InputField
+                          label="Subheading 1"
+                          placeholder="e.g. Why Choose Us"
+                          value={activeManagedSection.subheading1}
+                          onChange={(value) => updateSectionHeader("subheading1", value)}
+                        />
+                        <InputField
+                          label="Subheading 2"
+                          placeholder="e.g. The Best Choice"
+                          value={activeManagedSection.subheading2}
+                          onChange={(value) => updateSectionHeader("subheading2", value)}
+                        />
+                      </div>
+                      <div className="w-full">
+                        <TextareaField
+                          label="Subtext"
+                          placeholder="Explain this section..."
+                          value={activeManagedSection.subtext}
+                          rows={3}
+                          onChange={(value) => updateSectionHeader("subtext", value)}
+                        />
+                      </div>
+                    </div>
+                  ) : activeTab === "comparison" ? (
+                    <div className="border-t border-border-secondary pt-md mt-md flex flex-col gap-lg bg-bg-faint p-lg rounded-corner-lg border border-border-primary">
+                      <p className="font-semibold text-label-sm text-text-primary">Comparison Table details</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                        <InputField
+                          label="Title"
+                          placeholder="ChatGPT vs Claude"
+                          value={activeManagedSection.title || ""}
+                          onChange={(value) => updateSectionHeader("title", value)}
+                        />
+                        <InputField
+                          label="Short Description"
+                          placeholder="ChatGPT is a language model that uses machine learning to generate human-like text..."
+                          value={activeManagedSection.description || ""}
+                          onChange={(value) => updateSectionHeader("description", value)}
+                        />
+                        <InputField
+                          label="Tag"
+                          placeholder="Artificial Intelligence"
+                          value={activeManagedSection.tag || ""}
+                          onChange={(value) => updateSectionHeader("tag", value)}
+                        />
+                      </div>
+                    </div>
+                  ) : activeTab === "process" ? (
+                    <div className="flex flex-col gap-lg mb-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                        <InputField
+                          label="Section Tag"
+                          placeholder="e.g. PROCESS"
+                          value={activeManagedSection.tag}
+                          onChange={(value) => updateSectionHeader("tag", value)}
+                        />
+                        <InputField
+                          label="Heading / Subheading 1"
+                          placeholder="e.g. Our Process"
+                          value={activeManagedSection.subheading1}
+                          onChange={(value) => updateSectionHeader("subheading1", value)}
+                        />
+                        <InputField
+                          label="Subheading / Subheading 2"
+                          placeholder="e.g. How We Work"
+                          value={activeManagedSection.subheading2}
+                          onChange={(value) => updateSectionHeader("subheading2", value)}
+                        />
+                      </div>
+                      <div className="w-full">
+                        <TextareaField
+                          label="Subtext"
+                          placeholder="Explain this section..."
+                          value={activeManagedSection.subtext}
+                          rows={3}
+                          onChange={(value) => updateSectionHeader("subtext", value)}
+                        />
+                      </div>
+                      <div className="w-full">
+                      <div className="flex flex-col gap-lg mb-lg border border-border-primary rounded-corner-lg p-lg bg-bg-faint">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-lg border-t border-border-secondary pt-md">
+                          <div>
+                            <p className="font-semibold text-label-sm mb-md text-text-primary">Preview CTA Link</p>
+                            <div className="grid gap-md">
+                              <InputField
+                                label="Button Text"
+                                placeholder="Explore Services"
+                                value={activeManagedSection.processCtaPreviewText || ""}
+                                onChange={(value) => updateSectionHeader("processCtaPreviewText", value)}
+                              />
+                              <InputField
+                                label="Button URL"
+                                placeholder="/services"
+                                value={activeManagedSection.processCtaPreviewUrl || ""}
+                                onChange={(value) => updateSectionHeader("processCtaPreviewUrl", value)}
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <p className="font-semibold text-label-sm mb-md text-text-primary">Full CTA Link</p>
+                            <div className="grid gap-md">
+                              <InputField
+                                label="CTA Description"
+                                placeholder="Liked this? Tell us more..."
+                                value={activeManagedSection.processCtaFullDescription || ""}
+                                onChange={(value) => updateSectionHeader("processCtaFullDescription", value)}
+                              />
+                              <InputField
+                                label="Button Text"
+                                placeholder="Or Talk to Our Team"
+                                value={activeManagedSection.processCtaFullText || ""}
+                                onChange={(value) => updateSectionHeader("processCtaFullText", value)}
+                              />
+                              <InputField
+                                label="Button URL"
+                                placeholder="#get-started"
+                                value={activeManagedSection.processCtaFullUrl || ""}
+                                onChange={(value) => updateSectionHeader("processCtaFullUrl", value)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      </div>
+                    </div>
+                  ) : activeTab === "techspec" ? (
+                    <div className="flex flex-col gap-lg mb-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                        <InputField
+                          label="Tech Tag"
+                          placeholder="Tech Specs"
+                          value={activeManagedSection.techtag || ""}
+                          onChange={(value) => updateSectionHeader("techtag", value)}
+                        />
+                        <InputField
+                          label="Tech Tags (comma separated)"
+                          placeholder="React, Next.js, Tailwind"
+                          value={activeManagedSection.techTagsText || ""}
+                          onChange={(value) => updateSectionHeader("techTagsText", value)}
+                        />
+                        <InputField
+                          label="Tech Heading 1"
+                          placeholder="Our Technology"
+                          value={activeManagedSection.techHeading1 || ""}
+                          onChange={(value) => updateSectionHeader("techHeading1", value)}
+                        />
+                        <InputField
+                          label="Tech Heading 2"
+                          placeholder="Stack & Expertise"
+                          value={activeManagedSection.techHeading2 || ""}
+                          onChange={(value) => updateSectionHeader("techHeading2", value)}
+                        />
+                      </div>
+                      <div className="w-full">
+                        <TextareaField
+                          label="Tech Subtext"
+                          placeholder="Our tech stack description..."
+                          value={activeManagedSection.techSubtext || ""}
+                          rows={3}
+                          onChange={(value) => updateSectionHeader("techSubtext", value)}
+                        />
+                      </div>
+                    </div>
+                  ) : activeTab === "faq" ? (
+                    <div className="flex flex-col gap-lg mb-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                        <InputField
+                          label="Section Tag"
+                          placeholder="e.g. FAQ"
+                          value={activeManagedSection.tag}
+                          onChange={(value) => updateSectionHeader("tag", value)}
+                        />
+                        <InputField
+                          label="Heading / Subheading 1"
+                          placeholder="e.g. FAQ"
+                          value={activeManagedSection.subheading1}
+                          onChange={(value) => updateSectionHeader("subheading1", value)}
+                        />
+                        <InputField
+                          label="Subheading / Subheading 2"
+                          placeholder="e.g. General Questions"
+                          value={activeManagedSection.subheading2}
+                          onChange={(value) => updateSectionHeader("subheading2", value)}
+                        />
+                      </div>
+                      <div className="w-full">
+                        <TextareaField
+                          label="Subtext / Description"
+                          placeholder="Explain this section..."
+                          value={activeManagedSection.subtext}
+                          rows={3}
+                          onChange={(value) => updateSectionHeader("subtext", value)}
+                        />
+                      </div>
+                    </div>
+                  ) : activeTab === "cta" ? (
+                    <div className="flex flex-col gap-lg mb-lg border border-border-primary rounded-corner-lg p-lg bg-bg-faint">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-lg border-t border-border-secondary pt-md">
+                        <div>
+                          <p className="font-semibold text-label-sm mb-md text-text-primary">Preview CTA Link</p>
+                          <div className="grid gap-md">
+                            <InputField
+                              label="Button Text"
+                              placeholder="Explore Services"
+                              value={activeManagedSection.ctaPreviewText || ""}
+                              onChange={(value) => updateSectionHeader("ctaPreviewText", value)}
+                            />
+                            <InputField
+                              label="Button URL"
+                              placeholder="/services"
+                              value={activeManagedSection.ctaPreviewUrl || ""}
+                              onChange={(value) => updateSectionHeader("ctaPreviewUrl", value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="font-semibold text-label-sm mb-md text-text-primary">Full CTA Link</p>
+                          <div className="grid gap-md">
+                            <InputField
+                              label="CTA Description"
+                              placeholder="Liked this? Tell us more..."
+                              value={activeManagedSection.ctaFullDescription || ""}
+                              onChange={(value) => updateSectionHeader("ctaFullDescription", value)}
+                            />
+                            <InputField
+                              label="Button Text"
+                              placeholder="Or Talk to Our Team"
+                              value={activeManagedSection.ctaFullText || ""}
+                              onChange={(value) => updateSectionHeader("ctaFullText", value)}
+                            />
+                            <InputField
+                              label="Button URL"
+                              placeholder="#get-started"
+                              value={activeManagedSection.ctaFullUrl || ""}
+                              onChange={(value) => updateSectionHeader("ctaFullUrl", value)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Section Items */}
+                  {!["hero", "header", "techspec", "cta"].includes(activeTab) && (
+                    <div className="border-t border-border-secondary pt-lg flex flex-col gap-lg">
+                      <div className="flex items-center justify-between">
+                        <p className="text-label-sm font-semibold text-text-primary">Card Items</p>
+                        <CustomButton
+                          variant="primary"
+                          size="small"
+                          iconStart={<Plus size={16} />}
+                          onClick={addManagedSectionItem}
+                        >
+                          Add Card Item
+                        </CustomButton>
+                      </div>
+
+                      <div className="flex flex-col gap-lg">
+                        {activeManagedSection.items.length === 0 && (
+                          <p className="text-label-sm text-text-secondary">No items in this section.</p>
+                        )}
+                        {activeManagedSection.items.map((item, itemIndex) => (
+                          <div
+                            key={item.row_id}
+                            className="bg-bg-faint rounded-corner-lg p-lg border border-border-primary flex flex-col gap-md"
+                          >
+                            <div className="flex justify-between items-center pb-sm border-b border-border-secondary">
+                              <span className="text-label-xs font-semibold text-text-primary">Item #{itemIndex + 1}</span>
+                              <div className="flex items-center gap-md">
+                                <label className="flex items-center gap-sm text-label-xs text-text-secondary">
+                                  <input
+                                    type="checkbox"
+                                    checked={item.is_active}
+                                    onChange={(e) => updateManagedSectionItem(itemIndex, "is_active", e.target.checked)}
+                                  />
+                                  Active
+                                </label>
+                                <label className="flex items-center gap-sm text-label-xs text-text-secondary">
+                                  <input
+                                    type="checkbox"
+                                    checked={item.is_featured}
+                                    onChange={(e) => updateManagedSectionItem(itemIndex, "is_featured", e.target.checked)}
+                                  />
+                                  Featured
+                                </label>
+                              </div>
+                            </div>
+
+                            {/* Standard Fields layout for Card Items based on sections.ts props */}
+                            {activeManagedSection.section_key === "faq" ? (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                                <TextareaField
+                                  label="Question"
+                                  placeholder="e.g. What is the process?"
+                                  value={item.question || ""}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "question", v)}
+                                />
+                                <TextareaField
+                                  label="Answer"
+                                  placeholder="e.g. The process is..."
+                                  value={item.answer || ""}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "answer", v)}
+                                />
+                              </div>
+                            ) : activeManagedSection.section_key === "process" ? (
+                              <div className="grid grid-cols-1 md:grid-cols-4 gap-lg">
+                                <InputField
+                                  label="Step Number"
+                                  placeholder="01"
+                                  value={item.number || ""}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "number", v)}
+                                />
+                                <InputField
+                                  label="Step Title"
+                                  placeholder="Discovery"
+                                  value={item.title || ""}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "title", v)}
+                                />
+                                <InputField
+                                  label="Icon Name"
+                                  placeholder="e.g. Search, Users, Rocket"
+                                  value={item.icon || ""}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "icon", v)}
+                                />
+                                <InputField
+                                  label="Duration"
+                                  placeholder="1-2 days"
+                                  value={item.duration || ""}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "duration", v)}
+                                />
+                                <div className="md:col-span-4">
+                                  <TextareaField
+                                    label="Step Description"
+                                    placeholder="We learn about you..."
+                                    value={item.description || ""}
+                                    rows={2}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "description", v)}
+                                  />
+                                </div>
+                              </div>
+                            ) : activeManagedSection.section_key === "whyus" ? (
+                              <div className="flex flex-col gap-lg">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                                  <InputField
+                                    label="Icon Name"
+                                    placeholder="Users, Clock, Rocket"
+                                    value={item.icon || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "icon", v)}
+                                  />
+                                  <InputField
+                                    label="Title"
+                                    placeholder="Clear Communication"
+                                    value={item.title || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "title", v)}
+                                  />
+                                  <InputField
+                                    label="URL link"
+                                    placeholder="/about"
+                                    value={item.url || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "url", v)}
+                                  />
+                                </div>
+                                <TextareaField
+                                  label="Description"
+                                  placeholder="Enter description..."
+                                  value={item.description || ""}
+                                  rows={2}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "description", v)}
+                                />
+                              </div>
+                            ) : activeManagedSection.section_key === "directory" || activeManagedSection.section_key === "benefits" ? (
+                              <div className="flex flex-col gap-lg">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                                  <InputField
+                                    label="Icon Name"
+                                    placeholder="Users, Clock, Rocket"
+                                    value={item.icon || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "icon", v)}
+                                  />
+                                  <InputField
+                                    label="Title"
+                                    placeholder="Clear Communication"
+                                    value={item.title || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "title", v)}
+                                  />
+                                  <InputField
+                                    label="URL link"
+                                    placeholder="/about"
+                                    value={item.href || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "href", v)}
+                                  />
+                                  <InputField
+                                    label="Tags (comma separated)"
+                                    placeholder="E-Commerce, WordPress"
+                                    value={item.tagsText || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "tagsText", v)}
+                                  />
+                                  <InputField
+                                    label="Badge"
+                                    placeholder="featured / premium"
+                                    value={item.badge || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "badge", v)}
+                                  />
+                                </div>
+                                <TextareaField
+                                  label="Description"
+                                  placeholder="Enter description..."
+                                  value={item.description || ""}
+                                  rows={2}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "description", v)}
+                                />
+                              </div>
+                            ) : activeManagedSection.section_key === "comparison" ? (
+                              <div className="flex flex-col gap-lg">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                                  <InputField
+                                    label="leftHeading"
+                                    placeholder="Other Approach"
+                                    value={item.leftHeading || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "leftHeading", v)}
+                                  />
+                                  <InputField
+                                    label="rightHeading"
+                                    placeholder="The WebNDevs Way"
+                                    value={item.rightHeading || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "rightHeading", v)}
+                                  />
+                                </div>
+                                <TextareaField
+                                  label="Left Points (one per line)"
+                                  placeholder="Point 1&#10;Point 2"
+                                  value={item.leftPointsText || ""}
+                                  rows={4}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "leftPointsText", v)}
+                                />
+                                <TextareaField
+                                  label="Right Points (one per line)"
+                                  placeholder="Point 1&#10;Point 2"
+                                  value={item.rightPointsText || ""}
+                                  rows={4}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "rightPointsText", v)}
+                                />
+                              </div>
+                            ) : activeManagedSection.section_key === "stats" ? (
+                              <div className="grid grid-cols-1 md:grid-cols-4 gap-lg">
+                                <InputField
+                                  label="Stat Value"
+                                  placeholder="e.g. 50+ or 98%"
+                                  value={item.value || ""}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "value", v)}
+                                />
+                                <InputField
+                                  label="Stat Title"
+                                  placeholder="Projects Completed"
+                                  value={item.title || ""}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "title", v)}
+                                />
+                                <InputField
+                                  label="Icon Name"
+                                  placeholder="Star, Target"
+                                  value={item.icon || ""}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "icon", v)}
+                                />
+                                <InputField
+                                  label="URL link"
+                                  placeholder="/about"
+                                  value={item.url || ""}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "url", v)}
+                                />
+                              </div>
+                            ) : activeManagedSection.section_key === "result" ? (
+                              <div className="flex flex-col gap-lg">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                                  <InputField
+                                    label="Project Title"
+                                    placeholder="Sabzithela"
+                                    value={item.title || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "title", v)}
+                                  />
+                                  <InputField
+                                    label="Category"
+                                    placeholder="E-Commerce"
+                                    value={item.category || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "category", v)}
+                                  />
+                                  <InputField
+                                    label="Badge"
+                                    placeholder="featured / premium"
+                                    value={item.badge || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "badge", v)}
+                                  />
+                                  <TextareaField
+                                    label="Results (one per line)"
+                                    placeholder="Result 1\nResult 2\nResult 3"
+                                    value={item.resultsText || ""}
+                                    rows={3}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "resultsText", v)}
+                                  />
+                                  <InputField
+                                    label="Tags (comma separated)"
+                                    placeholder="E-Commerce, WordPress"
+                                    value={item.tagsText || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "tagsText", v)}
+                                  />
+                                  <InputField
+                                    label="URL Link"
+                                    placeholder="https://..."
+                                    value={item.url || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "url", v)}
+                                  />
+                                </div>
+                                <TextareaField
+                                  label="Project Description"
+                                  placeholder="Enter project summary..."
+                                  value={item.description || ""}
+                                  rows={3}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "description", v)}
+                                />
+                              </div>
+                            ) : activeManagedSection.section_key === "review" ? (
+                              <div className="flex flex-col gap-lg">
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-lg">
+                                  <InputField
+                                    label="Client Name"
+                                    placeholder="Ankit Sharma"
+                                    value={item.name || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "name", v)}
+                                  />
+                                  <InputField
+                                    label="Role / Title"
+                                    placeholder="Founder, Sabzithela"
+                                    value={item.role || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "role", v)}
+                                  />
+                                  <InputField
+                                    label="Company"
+                                    placeholder="Sabzithela"
+                                    value={item.company || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "company", v)}
+                                  />
+                                  <div>
+                                    <label className="mb-xs block text-label-xs font-medium text-text-secondary">Rating</label>
+                                    <select
+                                      className="rounded-lg border border-border-primary bg-surface-bg px-md py-sm text-text-primary w-full text-xs select-none"
+                                      value={item.rating || 5}
+                                      onChange={(e) => updateManagedSectionItem(itemIndex, "rating", Number(e.target.value))}
+                                    >
+                                      <option value={5}>5 Stars</option>
+                                      <option value={4}>4 Stars</option>
+                                      <option value={3}>3 Stars</option>
+                                      <option value={2}>2 Stars</option>
+                                      <option value={1}>1 Star</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                                  <InputField
+                                    label="Photo URL"
+                                    placeholder="https://..."
+                                    value={item.photo_url || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "photo_url", v)}
+                                  />
+                                  <TextareaField
+                                    label="Feedback Service"
+                                    placeholder="WebNDevs built a fast, user-friendly grocery platform..."
+                                    value={item.service || ""}
+                                    rows={2}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "service", v)}
+                                  />
+                                </div>
+                              </div>
+                            ) : activeManagedSection.section_key === "data" ? (
+                              <div className="flex flex-col gap-lg">
+                                <InputField
+                                  label="Title"
+                                  placeholder="Data Title"
+                                  value={item.title || ""}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "title", v)}
+                                />
+                                <TextareaField
+                                  label="Description"
+                                  placeholder="Data Description"
+                                  value={item.description || ""}
+                                  rows={3}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "description", v)}
+                                />
+                              </div>
+                            ) : (
+                              /* Default Generic Card layout */
+                              <div className="flex flex-col gap-lg">
+                                <InputField
+                                  label="Item Title"
+                                  placeholder="Card Title"
+                                  value={item.title || ""}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "title", v)}
+                                />
+                                <TextareaField
+                                  label="Item Description"
+                                  placeholder="Card Description"
+                                  value={item.description || ""}
+                                  rows={3}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "description", v)}
+                                />
+                              </div>
+                            )}
+
+                            <div className="flex justify-end pt-md border-t border-border-secondary mt-sm">
+                              <CustomButton
+                                variant="danger"
+                                size="small"
+                                iconStart={<Trash2 size={16} />}
+                                onClick={() => removeManagedSectionItem(activeManagedSectionIndex, itemIndex)}
+                              >
+                                Remove Card Item
+                              </CustomButton>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </Card>
+              </div>
+            )
+          )}
+        </>
+      )}
+
+      {/* Create / Edit Page Modal */}
+      {showPageModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm p-4">
+          <div className="bg-surface-bg border border-border-primary rounded-xl max-w-xl w-full p-6 shadow-2xl flex flex-col gap-xl">
+            <div className="border-b border-border-secondary pb-md flex justify-between items-center">
+              <div>
+                <h3 className="text-label font-bold text-text-primary">
+                  {isEditingPage ? "Edit Page Details" : "Create New Page"}
+                </h3>
+                <p className="text-label-sm text-text-secondary mt-1">
+                  Define the page URL (slug), name, SEO configurations, and hero info.
+                </p>
+              </div>
+              <button
+                className="text-text-secondary hover:text-text-primary text-xl font-bold p-xs cursor-pointer animate-fade-in"
+                onClick={() => setShowPageModal(false)}
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-lg overflow-y-auto max-h-[50vh] pr-sm">
+              <h4 className="text-label-sm font-semibold text-text-primary">Basic Information</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                <InputField
+                  label="Page Name / Title"
+                  placeholder="e.g. About Us"
+                  value={pageForm.title}
+                  onChange={(v) => setPageForm((prev) => ({ ...prev, title: v }))}
+                />
+                <InputField
+                  label="Page URL / Slug"
+                  placeholder="e.g. /about or /"
+                  value={pageForm.slug}
+                  onChange={(v) => setPageForm((prev) => ({ ...prev, slug: v }))}
+                />
+              </div>
+
+              <div>
+                <label className="mb-xs block text-label-sm font-medium text-text-secondary">Status</label>
+                <select
+                  className="w-full rounded-lg border border-border-primary bg-bg-faint px-md py-sm text-text-primary select-none"
+                  value={pageForm.status}
+                  onChange={(e) => setPageForm((prev) => ({ ...prev, status: e.target.value as PageStatus }))}
+                >
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                </select>
+              </div>
+
+              <h4 className="text-label-sm font-semibold text-text-primary pt-md border-t border-border-secondary">
+                SEO Metadata
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                <InputField
+                  label="SEO Title"
+                  placeholder="SEO Search Engine Title"
+                  value={pageForm.seo_title}
+                  onChange={(v) => setPageForm((prev) => ({ ...prev, seo_title: v }))}
+                />
+                <InputField
+                  label="Meta Keywords"
+                  placeholder="keywords, comma separated"
+                  value={pageForm.meta_keywords}
+                  onChange={(v) => setPageForm((prev) => ({ ...prev, meta_keywords: v }))}
+                />
+              </div>
+              <TextareaField
+                label="SEO Description"
+                placeholder="Brief SEO meta description..."
+                value={pageForm.seo_description}
+                rows={2}
+                onChange={(v) => setPageForm((prev) => ({ ...prev, seo_description: v }))}
+              />
+
+              <h4 className="text-label-sm font-semibold text-text-primary pt-md border-t border-border-secondary">
+                Initial Hero Details
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                <InputField
+                  label="Hero Tag"
+                  placeholder="e.g. WHO WE ARE"
+                  value={pageForm.hero_tag}
+                  onChange={(v) => setPageForm((prev) => ({ ...prev, hero_tag: v }))}
+                />
+                <InputField
+                  label="Title 1"
+                  placeholder="e.g. We Build Things"
+                  value={pageForm.hero_title1}
+                  onChange={(v) => setPageForm((prev) => ({ ...prev, hero_title1: v }))}
+                />
+                <InputField
+                  label="Title 2"
+                  placeholder="e.g. That Scale"
+                  value={pageForm.hero_title2}
+                  onChange={(v) => setPageForm((prev) => ({ ...prev, hero_title2: v }))}
+                />
+              </div>
+              <TextareaField
+                label="Hero Description"
+                placeholder="Explain the page focus..."
+                value={pageForm.hero_description}
+                rows={2}
+                onChange={(v) => setPageForm((prev) => ({ ...prev, hero_description: v }))}
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-md pt-lg border-t border-border-secondary">
+              <CustomButton variant="primary" onClick={() => setShowPageModal(false)}>
+                Cancel
+              </CustomButton>
+              <CustomButton
+                variant="primary"
+                onClick={handleSavePage}
+                disabled={!pageForm.title.trim() || !pageForm.slug.trim() || isSaving || !canManage}
+              >
+                {isSaving ? "Saving..." : isEditingPage ? "Save Changes" : "Create Page"}
+              </CustomButton>
+            </div>
           </div>
-        )}
-        {!isLoading &&
-          filteredServices.map((service) => (
-            <ServiceCard key={service.id} service={service} />
-          ))}
-        {!isLoading && filteredServices.length === 0 && (
-          <div className="col-span-2 bg-surface-bg rounded-corner-lg p-2xl text-center">
-            <p className="text-label text-text-secondary">No services found.</p>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
+
+export default ServiceModule;

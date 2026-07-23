@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Badge, Button, InputField, SelectField, TextareaField } from "@figma/astraui";
-import { CheckCircle2, Plus, RefreshCw, Save, Trash2 } from "lucide-react";
+import { Badge, InputField, SelectField, TextareaField } from "@figma/astraui";
+import { CheckCircle2, Edit, Plus, RefreshCw, Save, Trash2 } from "lucide-react";
 import { API_BASE_URL } from "../../config/api.config";
 import { clearStoredAuth, getStoredToken, setStoredToken } from "../auth";
+import { Pill, Tabs, Card, Button, ConfirmModal } from "../components/blocks";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -22,6 +23,10 @@ type Service = {
   meta_description?: string | null;
   meta_keywords?: string[] | null;
   canonical_url?: string | null;
+  tag?: string | null;
+  subheading1?: string | null;
+  subheading2?: string | null;
+  subtext?: string | null;
 };
 
 type ServiceDetail = Service & {
@@ -106,21 +111,25 @@ type ServicePageContentPayload = {
 };
 
 type SectionKey =
-  | "how_we_work"
-  | "who_is_this_for"
-  | "real_results_delivered"
-  | "client_testimonials"
-  | "frequently_asked_questions"
-  | "technologies_we_use"
-  | "what_you_get"
-  | "why_choose_our_service";
+  | "seo"
+  | "hero"
+  | "stats"
+  | "benefits"
+  | "delivered"
+  | "process"
+  | "usecase"
+  | "results"
+  | "faq"
+  | "cta";
 
 type ManagedSection = {
   section_key: SectionKey;
   heading: string;
   subheading?: string;
+  tag?: string;
+  subtext?: string;
   is_active: boolean;
-  items: Array<Record<string, string>>;
+  items: Array<Record<string, any>>;
 };
 
 type ServicePageSectionsPayload = {
@@ -292,12 +301,27 @@ type EditableSectionItem = {
   icon: string;
   number: string;
   project_url: string;
+  // New fields from JSON format
+  keywords: string;
+  image: string;
+  path: string;
+  tag: string;
+  title1: string;
+  title2: string;
+  href: string;
+  preview_text: string;
+  preview_url: string;
+  full_text: string;
+  full_description: string;
+  full_url: string;
 };
 
 type EditableManagedSection = {
   section_key: SectionKey;
   heading: string;
   subheading: string;
+  tag?: string;
+  subtext?: string;
   is_active: boolean;
   items: EditableSectionItem[];
 };
@@ -387,14 +411,16 @@ const SERVICE_PAGE_BASE_SECTION_TABS: Array<{ value: Exclude<ServicePageSectionT
   { value: "dynamic_content", label: "Dynamic Content" },
 ];
 const SECTION_DEFINITIONS: Array<{ key: SectionKey; label: string }> = [
-  { key: "how_we_work", label: "How We Work" },
-  { key: "who_is_this_for", label: "Who Is This For?" },
-  { key: "real_results_delivered", label: "Real Results We've Delivered" },
-  { key: "client_testimonials", label: "Client Testimonials" },
-  { key: "frequently_asked_questions", label: "Frequently Asked Questions" },
-  { key: "technologies_we_use", label: "Technologies We Use" },
-  { key: "what_you_get", label: "What You Get" },
-  { key: "why_choose_our_service", label: "Why Choose Our Service?" },
+  { key: "seo", label: "SEO Config" },
+  { key: "hero", label: "Hero Section" },
+  { key: "stats", label: "Stats Section" },
+  { key: "benefits", label: "Benefits Section" },
+  { key: "delivered", label: "Delivered Section" },
+  { key: "process", label: "Process Section" },
+  { key: "usecase", label: "Usecase Section" },
+  { key: "results", label: "Results Section" },
+  { key: "faq", label: "FAQ Section" },
+  { key: "cta", label: "CTA Section" },
 ];
 
 function emptySectionItem(): EditableSectionItem {
@@ -419,6 +445,19 @@ function emptySectionItem(): EditableSectionItem {
     icon: "",
     number: "",
     project_url: "",
+    // New fields
+    keywords: "",
+    image: "",
+    path: "",
+    tag: "",
+    title1: "",
+    title2: "",
+    href: "",
+    preview_text: "",
+    preview_url: "",
+    full_text: "",
+    full_description: "",
+    full_url: "",
   };
 }
 
@@ -427,7 +466,9 @@ function defaultManagedSections(): EditableManagedSection[] {
     section_key: section.key,
     heading: "",
     subheading: "",
-    is_active: true,
+    tag: "",
+    subtext: "",
+    is_active: false,
     items: [emptySectionItem()],
   }));
 }
@@ -589,7 +630,7 @@ function keyFromName(value: string): string {
     .replace(/-+/g, "-");
 }
 
-function toEditableSectionItem(item: Record<string, string> | undefined): EditableSectionItem {
+function toEditableSectionItem(item: Record<string, any> | undefined): EditableSectionItem {
   return {
     title: item?.title ?? "",
     description: item?.description ?? "",
@@ -611,79 +652,154 @@ function toEditableSectionItem(item: Record<string, string> | undefined): Editab
     icon: item?.icon ?? item?.value ?? "",
     number: item?.number ?? "",
     project_url: item?.project_url ?? item?.url ?? "",
+    // New fields
+    keywords: Array.isArray(item?.keywords) ? item.keywords.join(", ") : item?.keywords ?? "",
+    image: item?.image ?? "",
+    path: item?.path ?? "",
+    tag: item?.tag ?? "",
+    title1: item?.title1 ?? "",
+    title2: item?.title2 ?? "",
+    href: item?.href ?? "",
+    preview_text: item?.preview_text ?? item?.preview?.text ?? "",
+    preview_url: item?.preview_url ?? item?.preview?.url ?? "",
+    full_text: item?.full_text ?? item?.full?.text ?? "",
+    full_description: item?.full_description ?? item?.full?.description ?? "",
+    full_url: item?.full_url ?? item?.full?.url ?? "",
   };
 }
 
-function cleanSectionItem(sectionKey: SectionKey, item: EditableSectionItem): Record<string, string | number | string[] | null> {
-  if (sectionKey === "client_testimonials") {
-    return {
-      author_name: item.author_name.trim() || null,
-      author_title: item.author_title.trim() || null,
-      company: item.company.trim() || null,
-      content: item.content.trim() || null,
-      rating: Number(item.rating || 5),
+function splitKeywordsToArray(value: string): string[] | null {
+  const normalized = value.trim();
+  if (!normalized) {
+    return null;
+  }
+  const items = normalized.split(/[,\n]/);
+  const cleanedItems = items
+    .map((item) => {
+      let cleaned = item.trim();
+      cleaned = cleaned.replace(/^['"]|['"]$/g, "");
+      cleaned = cleaned.replace(/[\/\\|]/g, "").trim();
+      return cleaned;
+    })
+    .filter(Boolean);
+  return cleanedItems.length > 0 ? cleanedItems : null;
+}
+
+function splitResultsToArray(value: string): string[] | null {
+  const normalized = value.trim();
+  if (!normalized) {
+    return null;
+  }
+  const items = normalized.split(/\r?\n/);
+  const cleanedItems = items
+    .map((item) => {
+      let cleaned = item.trim();
+      cleaned = cleaned.replace(/^['"]|['"]$/g, "");
+      cleaned = cleaned.replace(/[\/\\|]/g, "").trim();
+      return cleaned;
+    })
+    .filter(Boolean);
+  return cleanedItems.length > 0 ? cleanedItems : null;
+}
+
+function omitEmptyKeys(obj: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const key of Object.keys(obj)) {
+    const val = obj[key];
+    if (val === null || val === undefined || val === "") {
+      continue;
+    }
+    if (Array.isArray(val)) {
+      if (val.length === 0) {
+        continue;
+      }
+      result[key] = val;
+    } else if (typeof val === "object") {
+      const cleanedSub = omitEmptyKeys(val);
+      if (Object.keys(cleanedSub).length > 0) {
+        result[key] = cleanedSub;
+      }
+    } else {
+      result[key] = val;
+    }
+  }
+  return result;
+}
+
+function cleanSectionItem(sectionKey: SectionKey, item: EditableSectionItem): Record<string, any> {
+  let raw: Record<string, any> = {};
+
+  if (sectionKey === "seo") {
+    raw = {
+      title: item.title.trim(),
+      description: item.description.trim(),
+      keywords: splitKeywordsToArray(item.keywords),
+      image: item.image.trim(),
+      path: item.path.trim(),
+    };
+  } else if (sectionKey === "hero") {
+    raw = {
+      tag: item.tag.trim(),
+      title1: item.title1.trim(),
+      title2: item.title2.trim(),
+      description: item.description.trim(),
+    };
+  } else if (sectionKey === "stats") {
+    raw = {
+      icon: item.icon.trim(),
+      value: item.value.trim(),
+      title: item.title.trim(),
+    };
+  } else if (sectionKey === "benefits" || sectionKey === "delivered") {
+    raw = {
+      icon: item.icon.trim(),
+      title: item.title.trim(),
+      description: item.description.trim(),
+    };
+  } else if (sectionKey === "process") {
+    raw = {
+      number: item.number.trim(),
+      title: item.title.trim(),
+      description: item.description.trim(),
+    };
+  } else if (sectionKey === "usecase") {
+    raw = {
+      icon: item.icon.trim(),
+      title: item.title.trim(),
+      description: item.description.trim(),
+      href: item.href.trim(),
+    };
+  } else if (sectionKey === "results") {
+    raw = {
+      title: item.title.trim(),
+      description: item.description.trim(),
+      results: splitResultsToArray(item.results),
+    };
+  } else if (sectionKey === "faq") {
+    raw = {
+      question: item.question.trim(),
+      answer: item.answer.trim(),
+    };
+  } else if (sectionKey === "cta") {
+    raw = {
+      preview: {
+        text: item.preview_text.trim(),
+        url: item.preview_url.trim(),
+      },
+      full: {
+        text: item.full_text.trim(),
+        description: item.full_description.trim(),
+        url: item.full_url.trim(),
+      }
+    };
+  } else {
+    raw = {
+      title: item.title.trim(),
+      description: item.description.trim(),
     };
   }
 
-  if (sectionKey === "frequently_asked_questions") {
-    return {
-      question: item.question.trim() || null,
-      answer: item.answer.trim() || null,
-    };
-  }
-
-  if (sectionKey === "real_results_delivered") {
-    return {
-      title: item.title.trim() || null,
-      category: item.category.trim() || null,
-      description: item.description.trim() || null,
-      results: item.results.split("\n").map((x) => x.trim()).filter(Boolean),
-      technologies: item.technologies.split(",").map((x) => x.trim()).filter(Boolean),
-      project_url: item.project_url.trim() || null,
-    };
-  }
-
-  if (sectionKey === "how_we_work") {
-    return {
-      number: item.number.trim() || null,
-      title: item.title.trim() || null,
-      description: item.description.trim() || null,
-    };
-  }
-
-  if (sectionKey === "who_is_this_for") {
-    return {
-      title: item.title.trim() || null,
-      description: item.description.trim() || null,
-    };
-  }
-
-  if (sectionKey === "technologies_we_use") {
-    return {
-      title: item.title.trim() || null,
-    };
-  }
-
-  if (sectionKey === "what_you_get") {
-    return {
-      number: item.number.trim() || null,
-      title: item.title.trim() || null,
-      description: item.description.trim() || null,
-    };
-  }
-
-  if (sectionKey === "why_choose_our_service") {
-    return {
-      title: item.title.trim() || null,
-      icon: item.icon.trim() || null,
-      description: item.description.trim() || null,
-    };
-  }
-
-  return {
-    title: item.title.trim() || null,
-    description: item.description.trim() || null,
-  };
+  return omitEmptyKeys(raw);
 }
 
 export function ServicePlansModule() {
@@ -725,9 +841,61 @@ export function ServicePlansModule() {
   const [isSaving, setIsSaving] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [successText, setSuccessText] = useState("");
+  const [showJsonPreview, setShowJsonPreview] = useState(false);
 
   const canManage = adminToken.trim().length > 0;
   const activeService = useMemo(() => services.find((service) => service.slug === activeServiceSlug) ?? null, [services, activeServiceSlug]);
+
+  const previewJson = useMemo(() => {
+    const rawJson: Record<string, any> = {
+      slug: activeService?.slug ?? "",
+      tag: activeService?.tag ?? "",
+      subheading1: activeService?.subheading1 ?? "",
+      subheading2: activeService?.subheading2 ?? "",
+      subtext: activeService?.subtext ?? "",
+    };
+
+    managedSections.forEach((section) => {
+      if (!section.is_active) {
+        return;
+      }
+
+      const cleanedItems = section.items
+        .map((item) => cleanSectionItem(section.section_key, item))
+        .filter((item) => Object.keys(item).length > 0);
+
+      if (section.section_key === "seo") {
+        if (cleanedItems.length > 0) {
+          rawJson.seo = cleanedItems[0];
+        }
+      } else if (section.section_key === "hero") {
+        rawJson.hero = {
+          tag: section.tag?.trim() || null,
+          title1: section.heading?.trim() || null,
+          title2: section.subheading?.trim() || null,
+          description: section.subtext?.trim() || null,
+        };
+        rawJson.hero = omitEmptyKeys(rawJson.hero);
+      } else if (section.section_key === "cta") {
+        if (cleanedItems.length > 0) {
+          rawJson.cta = cleanedItems[0];
+        }
+      } else if (section.section_key === "stats") {
+        rawJson.stats = cleanedItems;
+      } else {
+        rawJson[section.section_key] = {
+          tag: section.tag?.trim() || null,
+          subheading1: section.heading?.trim() || null,
+          subheading2: section.subheading?.trim() || null,
+          subtext: section.subtext?.trim() || null,
+          items: cleanedItems,
+        };
+        rawJson[section.section_key] = omitEmptyKeys(rawJson[section.section_key]);
+      }
+    });
+
+    return omitEmptyKeys(rawJson);
+  }, [activeService, managedSections, sectionLocale]);
   const servicePageSectionTabs = useMemo<Array<{ value: ServicePageSectionTab; label: string }>>(
     () => [
       SERVICE_PAGE_BASE_SECTION_TABS[0],
@@ -743,6 +911,7 @@ export function ServicePlansModule() {
     : -1;
   const activeManagedSection = activeManagedSectionIndex >= 0 ? managedSections[activeManagedSectionIndex] : null;
   const isPlanTabActive = activeTab === "plan_configurations";
+  const hasHeaderFields = activeManagedSection ? ["hero", "benefits", "delivered", "process", "usecase", "results", "faq"].includes(activeManagedSection.section_key) : false;
 
   function handleTabChange(nextTab: ServicePlansTab) {
     setActiveTab(nextTab);
@@ -761,9 +930,12 @@ export function ServicePlansModule() {
       }
 
       const nextServices = payload.data?.data ?? [];
-      setServices(nextServices);
-      if (!activeServiceSlug && nextServices.length > 0) {
-        setActiveServiceSlug(nextServices[0].slug);
+      const realServices = nextServices.filter((service) =>
+        categoryList.includes(service.category)
+      );
+      setServices(realServices);
+      if (!activeServiceSlug && realServices.length > 0) {
+        setActiveServiceSlug(realServices[0].slug);
       }
     } catch (error) {
       setErrorText(error instanceof Error ? error.message : "Failed to fetch services.");
@@ -938,10 +1110,14 @@ export function ServicePlansModule() {
           const section = sectionMap.get(definition.key);
           return {
             section_key: definition.key,
-            heading: section?.heading ?? definition.label,
+            heading: section?.heading ?? "",
             subheading: section?.subheading ?? "",
-            is_active: section?.is_active ?? true,
-            items: (section?.items ?? []).length > 0 ? (section?.items ?? []).map((item) => toEditableSectionItem(item)) : [emptySectionItem()],
+            tag: section?.tag ?? "",
+            subtext: section?.subtext ?? "",
+            is_active: section?.is_active ?? false,
+            items: (section?.items ?? []).length > 0 
+              ? (section?.items ?? []).map((item) => toEditableSectionItem(item))
+              : [emptySectionItem()],
           };
         }),
       );
@@ -1099,6 +1275,8 @@ export function ServicePlansModule() {
       fetchPlans(activeServiceSlug);
       fetchServiceDetails(activeServiceSlug);
     }
+    setIsEditingService(false);
+    setIsCreatingService(false);
   }, [activeServiceSlug]);
 
   useEffect(() => {
@@ -1272,6 +1450,23 @@ export function ServicePlansModule() {
       const section = next[sectionIndex];
       const remaining = section.items.filter((_, index) => index !== itemIndex);
       next[sectionIndex] = { ...section, items: remaining.length > 0 ? remaining : [emptySectionItem()] };
+      return next;
+    });
+  }
+
+  function clearActiveSection() {
+    if (activeManagedSectionIndex < 0) return;
+    setManagedSections((current) => {
+      const next = [...current];
+      next[activeManagedSectionIndex] = {
+        ...next[activeManagedSectionIndex],
+        heading: "",
+        subheading: "",
+        tag: "",
+        subtext: "",
+        is_active: false,
+        items: [emptySectionItem()],
+      };
       return next;
     });
   }
@@ -1732,13 +1927,19 @@ export function ServicePlansModule() {
     const body = {
       locale: sectionLocale.trim() || "en",
       publish: shouldPublish,
-      sections: managedSections.map((section) => ({
-        section_key: section.section_key,
-        heading: section.heading.trim() || null,
-        subheading: section.subheading.trim() || null,
-        is_active: section.is_active,
-        items: section.items.map((item) => cleanSectionItem(section.section_key, item)),
-      })),
+      sections: managedSections
+        .filter((section) => section.is_active)
+        .map((section) => ({
+          section_key: section.section_key,
+          heading: section.heading.trim() || null,
+          subheading: section.subheading.trim() || null,
+          tag: section.tag?.trim() || null,
+          subtext: section.subtext?.trim() || null,
+          is_active: section.is_active,
+          items: section.items
+            .map((item) => cleanSectionItem(section.section_key, item))
+            .filter((item) => Object.keys(item).length > 0),
+        })),
     };
 
     try {
@@ -2279,7 +2480,17 @@ export function ServicePlansModule() {
   // Service creation state and functions
   const [isCreatingService, setIsCreatingService] = useState(false);
   const [newServiceName, setNewServiceName] = useState("");
+  const [newServiceSlug, setNewServiceSlug] = useState("");
+  const [newServiceTag, setNewServiceTag] = useState("");
+  const [newServiceSubheading1, setNewServiceSubheading1] = useState("");
+  const [newServiceSubheading2, setNewServiceSubheading2] = useState("");
+  const [newServiceSubtext, setNewServiceSubtext] = useState("");
   const [newServiceCategory, setNewServiceCategory] = useState("Web Development");
+
+  function handleNameChange(val: string) {
+    setNewServiceName(val);
+    setNewServiceSlug(keyFromName(val));
+  }
 
   function openCreateService() {
     if (!canManage) {
@@ -2287,7 +2498,13 @@ export function ServicePlansModule() {
       return;
     }
     setIsCreatingService(true);
+    setIsEditingService(false);
     setNewServiceName("");
+    setNewServiceSlug("");
+    setNewServiceTag("");
+    setNewServiceSubheading1("");
+    setNewServiceSubheading2("");
+    setNewServiceSubtext("");
     setNewServiceCategory("Web Development");
     setErrorText("");
     setSuccessText("");
@@ -2307,11 +2524,15 @@ export function ServicePlansModule() {
     setErrorText("");
     setSuccessText("");
 
-    const slug = keyFromName(newServiceName);
+    const slug = newServiceSlug.trim() || keyFromName(newServiceName);
     const body = {
       name: newServiceName.trim(),
       slug,
       category: newServiceCategory,
+      tag: newServiceTag.trim(),
+      subheading1: newServiceSubheading1.trim(),
+      subheading2: newServiceSubheading2.trim(),
+      subtext: newServiceSubtext.trim(),
       base_price: 0,
       status: "active",
     };
@@ -2352,15 +2573,30 @@ export function ServicePlansModule() {
     }
   }
 
-  async function deleteService() {
-    if (!activeService || !activeServiceSlug) {
+  const [isEditingService, setIsEditingService] = useState(false);
+
+  function openEditService() {
+    if (!activeService) return;
+    setIsEditingService(true);
+    setIsCreatingService(false);
+    setNewServiceName(activeService.name);
+    setNewServiceSlug(activeService.slug);
+    setNewServiceTag(activeService.tag ?? "");
+    setNewServiceSubheading1(activeService.subheading1 ?? "");
+    setNewServiceSubheading2(activeService.subheading2 ?? "");
+    setNewServiceSubtext(activeService.subtext ?? "");
+    setNewServiceCategory(activeService.category);
+    setErrorText("");
+    setSuccessText("");
+  }
+
+  async function updateService() {
+    if (!activeServiceSlug || !newServiceName.trim()) {
+      setErrorText("Service name is required.");
       return;
     }
     if (!canManage) {
-      setErrorText("Set admin API token first.");
-      return;
-    }
-    if (!confirm(`Delete service "${activeService.name}"? This will delete the service, all its plans, sections, and content. This action cannot be undone.`)) {
+      setErrorText("Set an admin API token first.");
       return;
     }
 
@@ -2368,70 +2604,153 @@ export function ServicePlansModule() {
     setErrorText("");
     setSuccessText("");
 
+    const slug = newServiceSlug.trim() || keyFromName(newServiceName);
+    const body = {
+      name: newServiceName.trim(),
+      slug,
+      category: newServiceCategory,
+      tag: newServiceTag.trim() || null,
+      subheading1: newServiceSubheading1.trim() || null,
+      subheading2: newServiceSubheading2.trim() || null,
+      subtext: newServiceSubtext.trim() || null,
+    };
+
     try {
       const response = await fetch(`${API_BASE_URL}/services/${activeServiceSlug}`, {
-        method: "DELETE",
+        method: "PUT",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${adminToken}`,
         },
+        body: JSON.stringify(body),
       });
-      const payload: ApiResponse<null> = await response.json();
+      const payload: ApiResponse<Service> = await response.json();
       if (!response.ok || !payload.success) {
-        throw new Error(payload.message || "Failed to delete service.");
+        const errorMessage = payload.errors && Object.keys(payload.errors).length > 0 
+          ? Object.values(payload.errors as Record<string, string[]>).flat().join(", ")
+          : payload.message || "Failed to update service details.";
+        throw new Error(errorMessage);
       }
 
-      // Attempt to clear the public API cache to ensure the page is gone from the frontend
-      try {
-        await fetch(`${API_BASE_URL}/settings/cache/clear`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({ type: "content" }),
-        });
-      } catch (e) {
-        console.warn("Could not clear cache, but service was deleted.", e);
-      }
-
-      // Refresh services list and clear selection
       await fetchServices();
-      setActiveServiceSlug("");
-      setSuccessText(`Service "${activeService.name}" deleted successfully.`);
+      setActiveServiceSlug(slug);
+      setIsEditingService(false);
+      setSuccessText("Service details updated successfully!");
     } catch (error) {
-      setErrorText(error instanceof Error ? error.message : "Failed to delete service.");
+      setErrorText(error instanceof Error ? error.message : "Failed to update service details.");
     } finally {
       setIsSaving(false);
     }
   }
 
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+
+  async function triggerDeleteService() {
+    if (!activeService || !activeServiceSlug) {
+      return;
+    }
+    if (!canManage) {
+      setErrorText("Set admin API token first.");
+      return;
+    }
+    setDeleteConfirm({
+      isOpen: true,
+      title: "Delete Service",
+      message: `Delete service "${activeService.name}"? This will delete the service, all its plans, sections, and content. This action cannot be undone.`,
+      onConfirm: async () => {
+        setDeleteConfirm((prev) => ({ ...prev, isOpen: false }));
+        setIsSaving(true);
+        setErrorText("");
+        setSuccessText("");
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/services/${activeServiceSlug}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${adminToken}`,
+            },
+          });
+          const payload: ApiResponse<null> = await response.json();
+          if (!response.ok || !payload.success) {
+            throw new Error(payload.message || "Failed to delete service.");
+          }
+
+          // Attempt to clear the public API cache to ensure the page is gone from the frontend
+          try {
+            await fetch(`${API_BASE_URL}/settings/cache/clear`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${adminToken}`,
+              },
+              body: JSON.stringify({ type: "content" }),
+            });
+          } catch (e) {
+            console.warn("Could not clear cache, but service was deleted.", e);
+          }
+
+          // Refresh services list and clear selection
+          await fetchServices();
+          setActiveServiceSlug("");
+          setSuccessText(`Service "${activeService.name}" deleted successfully.`);
+        } catch (error) {
+          setErrorText(error instanceof Error ? error.message : "Failed to delete service.");
+        } finally {
+          setIsSaving(false);
+        }
+      },
+    });
+  }
+
   return (
     <div className="p-2xl flex flex-col gap-xl">
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        title={deleteConfirm.title}
+        message={deleteConfirm.message}
+        onConfirm={deleteConfirm.onConfirm}
+        onCancel={() => setDeleteConfirm((prev) => ({ ...prev, isOpen: false }))}
+      />
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-title text-text-primary">Service Plans</h1>
           <p className="text-label-sm text-text-secondary mt-xs">Dedicated plan configuration and synchronization for each service.</p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-lg">
-          <Button variant="neutral" iconStart={<RefreshCw size={16} />} onClick={() => activeServiceSlug && fetchPlans(activeServiceSlug)}>
-            Refresh
+          <Button
+            variant="primary"
+            iconStart={<RefreshCw size={16} className="group-hover:rotate-180 transition-transform duration-500" />}
+            onClick={() => activeServiceSlug && fetchPlans(activeServiceSlug)}
+            className="group"
+          >
+            Refresh Plans
           </Button>
           {!canManage ? (
-            <Button variant="neutral" onClick={setToken}>
+            <Button variant="primary" onClick={setToken}>
               Set Admin Token
             </Button>
           ) : (
-            <Button variant="neutral"  onClick={clearToken}>
+            <Button variant="primary"  onClick={clearToken}>
               Clear Token
             </Button>
           )}
           <Button variant="primary" iconStart={<Save size={16} />} onClick={savePlans} disabled={isSaving || !activeServiceSlug}>
             Save Plans
           </Button>
-          <Button variant="neutral" iconStart={<Save size={16} />} onClick={saveTemplates} disabled={isTemplateSaving || !activeServiceSlug}>
+          <Button variant="primary" iconStart={<Save size={16} />} onClick={saveTemplates} disabled={isTemplateSaving || !activeServiceSlug}>
             Save Template Fields
           </Button>
-          <Button variant="neutral" iconStart={<Save size={16} />} onClick={saveServiceMeta} disabled={isSaving || !activeServiceSlug}>
+          <Button variant="primary" iconStart={<Save size={16} />} onClick={saveServiceMeta} disabled={isSaving || !activeServiceSlug}>
             Save Service Meta
           </Button>
         </div>
@@ -2439,15 +2758,12 @@ export function ServicePlansModule() {
 
       <div className="bg-surface-bg rounded-corner-lg p-xl flex flex-wrap gap-sm">
         {services.map((service) => (
-          <button
+          <Pill
             key={service.id}
+            label={service.name}
+            active={activeServiceSlug === service.slug}
             onClick={() => setActiveServiceSlug(service.slug)}
-            className={`px-xl py-xl rounded-corner-full text-label-sm transition-colors ${
-              activeServiceSlug === service.slug ? "bg-brand-primary text-on-brand" : "bg-bg-faint text-text-secondary hover:bg-brand-primary/10 hover:text-text-primary"
-            }`}
-          >
-            {service.name}
-          </button>
+          />
         ))}
       </div>
 
@@ -2459,8 +2775,11 @@ export function ServicePlansModule() {
         </div>
         <div className="flex items-center gap-md">
           <Badge label={activeService.status} variant={activeService.status === "active" ? "success" : "default"} />
-          <Button variant="subtle" iconStart={<Trash2 size={16} />} onClick={deleteService} disabled={!canManage}>
+          <Button variant="danger" iconStart={<Trash2 size={16} />} onClick={triggerDeleteService} disabled={!canManage}>
             Delete
+          </Button>
+          <Button variant="primary" iconStart={<Edit size={16} />} onClick={openEditService} disabled={!canManage}>
+            Edit Service
           </Button>
           <Button variant="primary" iconStart={<Plus size={16} />} onClick={openCreateService}>
             Add Service
@@ -2470,29 +2789,102 @@ export function ServicePlansModule() {
       )}
 
       {isCreatingService && (
-      <div className="bg-surface-bg rounded-corner-lg p-xl flex flex-col gap-lg border border-brand-primary">
-        <h3 className="text-label text-text-primary">Create New Service</h3>
-        <div className="grid grid-cols-2 gap-lg">
-          <InputField label="Service Name" placeholder="e.g. Custom Development" value={newServiceName} onChange={setNewServiceName} />
-          <SelectField
-            label="Category"
-            options={categoryList.map((cat) => ({ value: cat, label: cat }))}
-            value={newServiceCategory}
-            onChange={setNewServiceCategory}
-          />
+      <div className="bg-surface-bg rounded-corner-lg p-xl flex flex-col gap-xl border border-brand-primary my-lg shadow-lg">
+        <div className="border-b border-border-secondary pb-md">
+          <h3 className="text-label font-bold text-text-primary">Create New Service</h3>
+          <p className="text-label-sm text-text-secondary mt-1">Define the service URL, category, and initial header details.</p>
         </div>
-        {newServiceName && (
-          <div className="bg-bg-faint rounded-corner-md p-lg flex items-center gap-sm">
+        
+        <div className="flex flex-col gap-lg">
+          <h4 className="text-label-sm font-semibold text-text-primary">Basic Information</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+            <InputField label="Service Name" placeholder="e.g. Custom Development" value={newServiceName} onChange={handleNameChange} />
+            <InputField label="Service Slug" placeholder="e.g. custom-development" value={newServiceSlug} onChange={setNewServiceSlug} />
+            <SelectField
+              label="Category"
+              options={categoryList.map((cat) => ({ value: cat, label: cat }))}
+              value={newServiceCategory}
+              onChange={setNewServiceCategory}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-lg pt-md border-t border-border-secondary">
+          <h4 className="text-label-sm font-semibold text-text-primary">Initial Hero Details</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+            <InputField label="Tag" placeholder="e.g. CUSTOM DEVELOPMENT" value={newServiceTag} onChange={setNewServiceTag} />
+            <InputField label="Subheading 1" placeholder="e.g. Custom Solutions" value={newServiceSubheading1} onChange={setNewServiceSubheading1} />
+            <InputField label="Subheading 2" placeholder="e.g. Tailored to Your Business" value={newServiceSubheading2} onChange={setNewServiceSubheading2} />
+          </div>
+          <div className="w-full mt-sm">
+            <TextareaField label="Subtext" placeholder="Explain the main focus of this service..." value={newServiceSubtext} rows={3} onChange={setNewServiceSubtext} />
+          </div>
+        </div>
+
+        {newServiceSlug && (
+          <div className="bg-bg-faint rounded-corner-md p-lg flex items-center gap-sm mt-sm border border-border-primary">
             <span className="text-label-sm text-text-secondary">URL Preview:</span>
-            <span className="text-label-sm text-brand-primary font-mono">/services/{newServiceName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}</span>
+            <span className="text-label-sm text-brand-primary font-mono font-semibold">/services/{newServiceSlug}</span>
           </div>
         )}
-        <div className="flex items-center gap-md">
-          <Button variant="neutral" onClick={() => { setIsCreatingService(false); setNewServiceName(""); setNewServiceCategory("Web Development"); }}>
+
+        <div className="flex items-center justify-end gap-md pt-lg border-t border-border-secondary mt-md">
+          <Button variant="primary" onClick={() => setIsCreatingService(false)}>
             Cancel
           </Button>
           <Button variant="primary" iconStart={<Save size={16} />} onClick={createService} disabled={!newServiceName.trim() || !canManage}>
             Create Service
+          </Button>
+        </div>
+      </div>
+      )}
+
+      {isEditingService && (
+      <div className="bg-surface-bg rounded-corner-lg p-xl flex flex-col gap-xl border border-brand-primary my-lg shadow-lg">
+        <div className="border-b border-border-secondary pb-md">
+          <h3 className="text-label font-bold text-text-primary">Edit Service Details</h3>
+          <p className="text-label-sm text-text-secondary mt-1">Modify the service URL, category, and initial header details.</p>
+        </div>
+        
+        <div className="flex flex-col gap-lg">
+          <h4 className="text-label-sm font-semibold text-text-primary">Basic Information</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+            <InputField label="Service Name" placeholder="e.g. Custom Development" value={newServiceName} onChange={handleNameChange} />
+            <InputField label="Service Slug" placeholder="e.g. custom-development" value={newServiceSlug} onChange={setNewServiceSlug} />
+            <SelectField
+              label="Category"
+              options={categoryList.map((cat) => ({ value: cat, label: cat }))}
+              value={newServiceCategory}
+              onChange={setNewServiceCategory}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-lg pt-md border-t border-border-secondary">
+          <h4 className="text-label-sm font-semibold text-text-primary">Hero Details</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+            <InputField label="Tag" placeholder="e.g. CUSTOM DEVELOPMENT" value={newServiceTag} onChange={setNewServiceTag} />
+            <InputField label="Subheading 1" placeholder="e.g. Custom Solutions" value={newServiceSubheading1} onChange={setNewServiceSubheading1} />
+            <InputField label="Subheading 2" placeholder="e.g. Tailored to Your Business" value={newServiceSubheading2} onChange={setNewServiceSubheading2} />
+          </div>
+          <div className="w-full mt-sm">
+            <TextareaField label="Subtext" placeholder="Explain the main focus of this service..." value={newServiceSubtext} rows={3} onChange={setNewServiceSubtext} />
+          </div>
+        </div>
+
+        {newServiceSlug && (
+          <div className="bg-bg-faint rounded-corner-md p-lg flex items-center gap-sm mt-sm border border-border-primary">
+            <span className="text-label-sm text-text-secondary">URL Preview:</span>
+            <span className="text-label-sm text-brand-primary font-mono font-semibold">/services/{newServiceSlug}</span>
+          </div>
+        )}
+
+        <div className="flex items-center justify-end gap-md pt-lg border-t border-border-secondary mt-md">
+          <Button variant="primary" onClick={() => setIsEditingService(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" iconStart={<Save size={16} />} onClick={updateService} disabled={!newServiceName.trim() || !canManage}>
+            Update Service
           </Button>
         </div>
       </div>
@@ -2509,123 +2901,34 @@ export function ServicePlansModule() {
         </div>
       )}
 
-      {!isMobileLayout ? (
-        <div
-          role="tablist"
-          aria-label="Service plan content sections"
-          className="flex items-center gap-2 rounded-corner-lg border border-border-primary bg-bg-faint p-2"
-        >
-          <button
-            type="button"
-            role="tab"
-            id="tab-plan-configurations"
-            aria-controls="panel-plan-configurations"
-            aria-selected={isPlanTabActive}
-            disabled={isPlanTabActive}
-            onClick={() => handleTabChange("plan_configurations")}
-            className={`rounded-corner-md px-4 py-2 text-label-sm font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
-              isPlanTabActive
-                ? "bg-brand-primary text-on-brand shadow-sm"
-                : "bg-transparent text-text-secondary hover:bg-surface-bg hover:text-text-primary"
-            }`}
-          >
-            Plan Configurations
-          </button>
-          <button
-            type="button"
-            role="tab"
-            id="tab-service-page-sections"
-            aria-controls="panel-service-page-sections"
-            aria-selected={!isPlanTabActive}
-            disabled={!isPlanTabActive}
-            onClick={() => handleTabChange("service_page_sections")}
-            className={`rounded-corner-md px-4 py-2 text-label-sm font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
-              !isPlanTabActive
-                ? "bg-brand-primary text-on-brand shadow-sm"
-                : "bg-transparent text-text-secondary hover:bg-surface-bg hover:text-text-primary"
-            }`}
-          >
-            Service Page Sections
-          </button>
-        </div>
-      ) : (
-        <div aria-label="Service plan section accordion" className="flex flex-col gap-2">
-          <button
-            type="button"
-            aria-label="Toggle Plan Configurations section"
-            aria-expanded={isPlanTabActive}
-            aria-controls="panel-plan-configurations"
-            disabled={isPlanTabActive}
-            onClick={() => handleTabChange("plan_configurations")}
-            className={`w-full rounded-corner-md border px-4 py-3 text-left text-label-sm font-medium transition-all duration-200 ${
-              isPlanTabActive
-                ? "border-brand-primary bg-brand-primary/10 text-text-primary"
-                : "border-border-primary bg-surface-bg text-text-secondary hover:bg-bg-faint hover:text-text-primary"
-            }`}
-          >
-            Plan Configurations
-          </button>
-          <button
-            type="button"
-            aria-label="Toggle Service Page Sections section"
-            aria-expanded={!isPlanTabActive}
-            aria-controls="panel-service-page-sections"
-            disabled={!isPlanTabActive}
-            onClick={() => handleTabChange("service_page_sections")}
-            className={`w-full rounded-corner-md border px-4 py-3 text-left text-label-sm font-medium transition-all duration-200 ${
-              !isPlanTabActive
-                ? "border-brand-primary bg-brand-primary/10 text-text-primary"
-                : "border-border-primary bg-surface-bg text-text-secondary hover:bg-bg-faint hover:text-text-primary"
-            }`}
-          >
-            Service Page Sections
-          </button>
-        </div>
-      )}
+      <Tabs
+        options={[
+          { label: "Plan Configurations", value: "plan_configurations" },
+          { label: "Service Page Sections", value: "service_page_sections" },
+        ]}
+        activeTab={isPlanTabActive ? "plan_configurations" : "service_page_sections"}
+        onChange={(val) => handleTabChange(val as "plan_configurations" | "service_page_sections")}
+        isMobile={isMobileLayout}
+      />
 
       {isPlanTabActive && (
         <div id="panel-plan-configurations" role="tabpanel" aria-labelledby="tab-plan-configurations" className="flex flex-col gap-xl">
           <h2 className="text-title text-text-primary">Plan Configurations</h2>
 
           <div className="bg-surface-bg rounded-corner-lg p-md border border-border-primary">
-            {!isMobileLayout ? (
-              <div role="tablist" aria-label="Plan configuration sections" className="flex flex-wrap items-center gap-2">
-                {PLAN_CONFIG_SECTION_TABS.map((section) => {
-                  const isActive = activePlanConfigTab === section.value;
-                  return (
-                    <button
-                      key={section.value}
-                      type="button"
-                      role="tab"
-                      aria-selected={isActive}
-                      aria-controls={`plan-config-${section.value}`}
-                      onClick={() => setActivePlanConfigTab(section.value)}
-                      className={`rounded-corner-md px-4 py-2 text-label-sm font-medium transition-all duration-200 ${
-                        isActive
-                          ? "bg-brand-primary text-on-brand shadow-sm"
-                          : "bg-transparent text-text-secondary hover:bg-bg-faint hover:text-text-primary"
-                      }`}
-                    >
-                      {section.label}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <SelectField
-                label="Plan Configuration Section"
-                options={PLAN_CONFIG_SECTION_TABS}
-                value={activePlanConfigTab}
-                onChange={(value) => setActivePlanConfigTab(value as PlanConfigSectionTab)}
-              />
-            )}
+            <Tabs
+              options={PLAN_CONFIG_SECTION_TABS}
+              activeTab={activePlanConfigTab}
+              onChange={(value) => setActivePlanConfigTab(value as PlanConfigSectionTab)}
+              isMobile={isMobileLayout}
+            />
           </div>
 
           {activePlanConfigTab === "plan_definitions" && (
           <div id="plan-config-plan_definitions" role="tabpanel" className="flex flex-col gap-lg transition-opacity duration-200">
           <div className="flex items-center justify-between">
             <h3 className="text-label text-text-primary">Plan Definitions</h3>
-            <Button variant="neutral" size="small" iconStart={<Plus size={16} />} onClick={addPlan}>
+            <Button variant="primary" size="small" iconStart={<Plus size={16} />} onClick={addPlan}>
               Add Plan
             </Button>
           </div>
@@ -2637,52 +2940,53 @@ export function ServicePlansModule() {
           ) : (
             <div className="flex flex-col gap-lg">
               {plans.map((plan, index) => (
-                <div key={plan.row_id} className="bg-surface-bg rounded-corner-lg p-xl border border-border-primary">
-                  <div className="flex items-center justify-between mb-lg">
-                    <p className="text-label text-text-primary">Plan {index + 1}</p>
-                    <Button variant="subtle" size="small" iconStart={<Trash2 size={16} />} onClick={() => removePlan(index)}>
+                <Card
+                  key={plan.row_id}
+                  title={`Plan ${index + 1}`}
+                  headerActions={
+                    <Button variant="danger" size="small" iconStart={<Trash2 size={16} />} onClick={() => removePlan(index)}>
                       Remove
                     </Button>
+                  }
+                >
+                  <div className="grid grid-cols-2 gap-xl">
+                    <InputField label="Plan Key" placeholder="starter" value={plan.plan_key} onChange={(value) => updatePlan(index, "plan_key", keyFromName(value))} />
+                    <InputField label="Plan Name" placeholder="Starter" value={plan.name} onChange={(value) => updatePlan(index, "name", value)} />
+                    <InputField label="Price" placeholder="0.00" value={plan.price} onChange={(value) => updatePlan(index, "price", value)} />
+                    <SelectField
+                      label="Billing Cycle"
+                      options={[
+                        { value: "one_time", label: "One Time" },
+                        { value: "monthly", label: "Monthly" },
+                      ]}
+                      value={plan.billing_cycle}
+                      onChange={(value) => updatePlan(index, "billing_cycle", value as EditablePlan["billing_cycle"])}
+                    />
+                    <InputField label="Delivery Days" placeholder="7" value={plan.delivery_days} onChange={(value) => updatePlan(index, "delivery_days", value)} />
+                    <InputField label="Max Duration (Days)" placeholder="30" value={plan.max_duration_days} onChange={(value) => updatePlan(index, "max_duration_days", value)} />
+                    <InputField label="Display Order" placeholder="0" value={String(plan.display_order)} onChange={(value) => updatePlan(index, "display_order", Number(value || "0"))} />
+                    <InputField label="Parent Plan Key" placeholder="starter" value={plan.parent_plan_key} onChange={(value) => updatePlan(index, "parent_plan_key", keyFromName(value))} />
+                    <InputField label="Max Revisions" placeholder="3" value={plan.max_revisions} onChange={(value) => updatePlan(index, "max_revisions", value)} />
                   </div>
 
-              <div className="grid grid-cols-2 gap-xl">
-                <InputField label="Plan Key" placeholder="starter" value={plan.plan_key} onChange={(value) => updatePlan(index, "plan_key", keyFromName(value))} />
-                <InputField label="Plan Name" placeholder="Starter" value={plan.name} onChange={(value) => updatePlan(index, "name", value)} />
-                <InputField label="Price" placeholder="0.00" value={plan.price} onChange={(value) => updatePlan(index, "price", value)} />
-                <SelectField
-                  label="Billing Cycle"
-                  options={[
-                    { value: "one_time", label: "One Time" },
-                    { value: "monthly", label: "Monthly" },
-                  ]}
-                  value={plan.billing_cycle}
-                  onChange={(value) => updatePlan(index, "billing_cycle", value as EditablePlan["billing_cycle"])}
-                />
-                <InputField label="Delivery Days" placeholder="7" value={plan.delivery_days} onChange={(value) => updatePlan(index, "delivery_days", value)} />
-                <InputField label="Max Duration (Days)" placeholder="30" value={plan.max_duration_days} onChange={(value) => updatePlan(index, "max_duration_days", value)} />
-                <InputField label="Display Order" placeholder="0" value={String(plan.display_order)} onChange={(value) => updatePlan(index, "display_order", Number(value || "0"))} />
-                <InputField label="Parent Plan Key" placeholder="starter" value={plan.parent_plan_key} onChange={(value) => updatePlan(index, "parent_plan_key", keyFromName(value))} />
-                <InputField label="Max Revisions" placeholder="3" value={plan.max_revisions} onChange={(value) => updatePlan(index, "max_revisions", value)} />
-              </div>
+                  <div className="grid grid-cols-2 gap-xl mt-lg">
+                    <TextareaField label="Description" placeholder="Brief plan description shown to customers..." value={plan.description} rows={3} onChange={(value) => updatePlan(index, "description", value)} />
+                    <TextareaField label="Features (one per line)" placeholder="Unlimited revisions" value={plan.features_text} rows={3} onChange={(value) => updatePlan(index, "features_text", value)} />
+                    <TextareaField label="Custom Config (JSON)" placeholder='{"badge": "Popular", "highlight": true}' value={plan.custom_config_text} rows={4} onChange={(value) => updatePlan(index, "custom_config_text", value)} />
+                    <TextareaField label="Comparison Points (one per line)" placeholder="Best for small businesses" value={plan.comparison_points_text} rows={4} onChange={(value) => updatePlan(index, "comparison_points_text", value)} />
+                  </div>
 
-              <div className="grid grid-cols-2 gap-xl mt-lg">
-                <TextareaField label="Description" placeholder="Brief plan description shown to customers..." value={plan.description} rows={3} onChange={(value) => updatePlan(index, "description", value)} />
-                <TextareaField label="Features (one per line)" placeholder="Unlimited revisions" value={plan.features_text} rows={3} onChange={(value) => updatePlan(index, "features_text", value)} />
-                <TextareaField label="Custom Config (JSON)" placeholder='{"badge": "Popular", "highlight": true}' value={plan.custom_config_text} rows={4} onChange={(value) => updatePlan(index, "custom_config_text", value)} />
-                <TextareaField label="Comparison Points (one per line)" placeholder="Best for small businesses" value={plan.comparison_points_text} rows={4} onChange={(value) => updatePlan(index, "comparison_points_text", value)} />
-              </div>
-
-              <div className="flex items-center gap-md mt-lg">
-                <label className="flex items-center gap-sm text-label-sm text-text-secondary">
-                  <input type="checkbox" checked={plan.is_featured} onChange={(event) => updatePlan(index, "is_featured", event.target.checked)} />
-                  Featured
-                </label>
-                <label className="flex items-center gap-sm text-label-sm text-text-secondary">
-                  <input type="checkbox" checked={plan.is_active} onChange={(event) => updatePlan(index, "is_active", event.target.checked)} />
-                  Active
-                </label>
-              </div>
-                </div>
+                  <div className="flex items-center gap-md mt-lg">
+                    <label className="flex items-center gap-sm text-label-sm text-text-secondary">
+                      <input type="checkbox" checked={plan.is_featured} onChange={(event) => updatePlan(index, "is_featured", event.target.checked)} />
+                      Featured
+                    </label>
+                    <label className="flex items-center gap-sm text-label-sm text-text-secondary">
+                      <input type="checkbox" checked={plan.is_active} onChange={(event) => updatePlan(index, "is_active", event.target.checked)} />
+                      Active
+                    </label>
+                  </div>
+                </Card>
               ))}
             </div>
           )}
@@ -2693,7 +2997,7 @@ export function ServicePlansModule() {
       <div id="plan-config-package_relations" role="tabpanel" className="flex flex-col gap-lg transition-opacity duration-200">
       <div className="flex items-center justify-between mt-xl">
         <h3 className="text-label text-text-primary">Package Relations</h3>
-        <Button variant="neutral" size="small" iconStart={<Plus size={16} />} onClick={addRelation}>
+        <Button variant="primary" size="small" iconStart={<Plus size={16} />} onClick={addRelation}>
           Add Relation
         </Button>
       </div>
@@ -2728,7 +3032,7 @@ export function ServicePlansModule() {
                 onChange={(value) => updateRelation(index, "to_plan_key", value)}
               />
               <div className="flex items-end">
-                <Button variant="subtle" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeRelation(index)}>
+                <Button variant="danger" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeRelation(index)}>
                   Remove
                 </Button>
               </div>
@@ -2743,7 +3047,7 @@ export function ServicePlansModule() {
       <div id="plan-config-template_fields" role="tabpanel" className="flex flex-col gap-lg transition-opacity duration-200">
       <div className="flex items-center justify-between mt-xl">
         <h3 className="text-label text-text-primary">Template Fields</h3>
-        <Button variant="neutral" size="small" iconStart={<Plus size={16} />} onClick={addTemplateField}>
+        <Button variant="primary" size="small" iconStart={<Plus size={16} />} onClick={addTemplateField}>
           Add Template Field
         </Button>
       </div>
@@ -2777,7 +3081,7 @@ export function ServicePlansModule() {
                     Required
                   </label>
                 </div>
-                <Button variant="subtle" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeTemplateField(index)}>
+                <Button variant="danger" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeTemplateField(index)}>
                   Remove Field
                 </Button>
               </div>
@@ -2792,7 +3096,7 @@ export function ServicePlansModule() {
       <div id="plan-config-template_values" role="tabpanel" className="flex flex-col gap-lg transition-opacity duration-200">
       <div className="flex items-center justify-between mt-xl">
         <h3 className="text-label text-text-primary">Template Values</h3>
-        <Button variant="neutral" size="small" iconStart={<Plus size={16} />} onClick={addTemplateValue}>
+        <Button variant="primary" size="small" iconStart={<Plus size={16} />} onClick={addTemplateValue}>
           Add Template Value
         </Button>
       </div>
@@ -2814,7 +3118,7 @@ export function ServicePlansModule() {
                 onChange={(next) => updateTemplateValue(index, "service_plan_key", next)}
               />
               <div className="flex items-end">
-                <Button variant="subtle" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeTemplateValue(index)}>
+                <Button variant="danger" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeTemplateValue(index)}>
                   Remove Value
                 </Button>
               </div>
@@ -2832,7 +3136,7 @@ export function ServicePlansModule() {
       <div id="plan-config-service_metadata" role="tabpanel" className="flex flex-col gap-lg transition-opacity duration-200">
       <div className="flex items-center justify-between mt-xl">
         <h3 className="text-label text-text-primary">Service Metadata & Category Mapping</h3>
-        <Button variant="neutral" size="small" iconStart={<Save size={16} />} onClick={saveServiceMeta} disabled={isSaving || !activeServiceSlug}>
+        <Button variant="primary" size="small" iconStart={<Save size={16} />} onClick={saveServiceMeta} disabled={isSaving || !activeServiceSlug}>
           Save Metadata
         </Button>
       </div>
@@ -2889,39 +3193,12 @@ export function ServicePlansModule() {
         <div id="panel-service-page-sections" role="tabpanel" aria-labelledby="tab-service-page-sections" className="flex flex-col gap-xl">
       <h2 className="text-title text-text-primary">Service Page Sections</h2>
 
-      <div className="bg-surface-bg rounded-corner-lg p-md border border-border-primary">
-        {!isMobileLayout ? (
-          <div role="tablist" aria-label="Service page sections" className="flex flex-wrap items-center gap-2">
-            {servicePageSectionTabs.map((section) => {
-              const isActive = activeServicePageSectionTab === section.value;
-              return (
-                <button
-                  key={section.value}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  aria-controls={`service-section-${section.value}`}
-                  onClick={() => setActiveServicePageSectionTab(section.value)}
-                  className={`rounded-corner-md border px-4 py-2 text-label-sm font-medium transition-all duration-300 ${
-                    isActive
-                      ? "border-brand-primary bg-brand-primary text-on-brand shadow-sm"
-                      : "border-border-primary bg-transparent text-text-secondary hover:bg-bg-faint hover:text-text-primary"
-                  }`}
-                >
-                  {section.label}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <SelectField
-            label="Service Page Section"
-            options={servicePageSectionTabs}
-            value={activeServicePageSectionTab}
-            onChange={(value) => setActiveServicePageSectionTab(value as ServicePageSectionTab)}
-          />
-        )}
-      </div>
+      <Tabs
+        options={servicePageSectionTabs}
+        activeTab={activeServicePageSectionTab}
+        onChange={(value) => setActiveServicePageSectionTab(value as ServicePageSectionTab)}
+        isMobile={isMobileLayout}
+      />
 
       {activeServicePageSectionTab === "publishing_workflow" && (
       <div id="service-section-publishing_workflow" role="tabpanel" className="flex flex-col gap-lg transition-opacity duration-200">
@@ -2933,19 +3210,19 @@ export function ServicePlansModule() {
         <h3 className="text-label text-text-primary">Publishing Workflow</h3>
         <div className="flex items-center gap-sm">
           <InputField label="Locale" placeholder="en" value={sectionLocale} onChange={(value) => setSectionLocale(value.trim() || "en")} />
-          <Button variant="neutral" size="small" onClick={() => activeServiceSlug && fetchManagedSections(activeServiceSlug, "draft")} disabled={!activeServiceSlug || isSaving}>
+          <Button variant="primary" size="small" onClick={() => activeServiceSlug && fetchManagedSections(activeServiceSlug, "draft")} disabled={!activeServiceSlug || isSaving}>
             Refresh Draft
           </Button>
-          <Button variant="neutral" size="small" onClick={() => activeServiceSlug && fetchManagedSections(activeServiceSlug, "published")} disabled={!activeServiceSlug || isSaving}>
-            Preview Published
+          <Button variant="primary" size="small" onClick={() => setShowJsonPreview(!showJsonPreview)} disabled={!activeServiceSlug || isSaving}>
+            {showJsonPreview ? "Hide Preview" : "Preview Published"}
           </Button>
-          <Button variant="neutral" size="small" iconStart={<Save size={16} />} onClick={() => saveManagedSections(false)} disabled={isSaving || !activeServiceSlug}>
+          <Button variant="primary" size="small" iconStart={<Save size={16} />} onClick={() => saveManagedSections(false)} disabled={isSaving || !activeServiceSlug}>
             Save Draft
           </Button>
           <Button variant="primary" size="small" iconStart={<Save size={16} />} onClick={() => saveManagedSections(true)} disabled={isSaving || !activeServiceSlug}>
             Save & Publish
           </Button>
-          <Button variant="neutral" size="small" onClick={publishManagedSections} disabled={isSaving || !activeServiceSlug}>
+          <Button variant="primary" size="small" onClick={publishManagedSections} disabled={isSaving || !activeServiceSlug}>
             Publish Draft
           </Button>
         </div>
@@ -2966,17 +3243,34 @@ export function ServicePlansModule() {
             onChange={setSelectedSectionVersionId}
           />
           <div className="flex items-end">
-            <Button variant="neutral" size="small" onClick={() => rollbackManagedSections(false)} disabled={isSaving || !activeServiceSlug}>
+            <Button variant="primary" size="small" onClick={() => rollbackManagedSections(false)} disabled={isSaving || !activeServiceSlug}>
               Rollback Draft
             </Button>
           </div>
           <div className="flex items-end">
-            <Button variant="neutral" size="small" onClick={() => rollbackManagedSections(true)} disabled={isSaving || !activeServiceSlug}>
+            <Button variant="primary" size="small" onClick={() => rollbackManagedSections(true)} disabled={isSaving || !activeServiceSlug}>
               Rollback & Publish
             </Button>
           </div>
         </div>
       </div>
+
+      {showJsonPreview && (
+        <div className="bg-surface-bg rounded-corner-lg p-xl border border-border-primary flex flex-col gap-lg shadow-md transition-all duration-300">
+          <div className="flex items-center justify-between border-b border-border-secondary pb-md">
+            <div>
+              <h4 className="text-label font-bold text-text-primary">JSON Payload Preview</h4>
+              <p className="text-label-sm text-text-secondary mt-1">This is the exact JSON structure that will be sent to the database and published live.</p>
+            </div>
+            <Button variant="neutral" size="small" onClick={() => setShowJsonPreview(false)}>
+              Close Preview
+            </Button>
+          </div>
+          <pre className="bg-bg-faint p-lg rounded-corner-md border border-border-primary overflow-x-auto font-mono text-label-xs text-text-primary whitespace-pre-wrap leading-relaxed max-h-[500px]">
+            {JSON.stringify(previewJson, null, 2)}
+          </pre>
+        </div>
+      )}
       </>
       )}
       </div>
@@ -3012,408 +3306,242 @@ export function ServicePlansModule() {
       )}
 
       {managedSectionKeys.has(activeServicePageSectionTab as SectionKey) && (
-      <div id={`service-section-${activeServicePageSectionTab}`} role="tabpanel" className="flex flex-col gap-lg transition-opacity duration-200">
+      <div id={`service-section-${activeServicePageSectionTab}`} role="tabpanel" className="flex flex-col gap-xl transition-opacity duration-200">
       {isLoading ? (
         <div className="bg-surface-bg rounded-corner-lg p-lg border border-border-primary text-label text-text-secondary">Loading section content...</div>
       ) : activeManagedSection ? (
-      <div className="bg-surface-bg rounded-corner-lg p-lg border border-border-primary">
-        <div className="grid grid-cols-3 gap-lg">
-          <InputField label="Section Key" value={activeManagedSection.section_key} onChange={() => {}} />
-          <InputField label="Heading" placeholder="Why Choose Us" value={activeManagedSection.heading} onChange={(value) => updateManagedSection(activeManagedSectionIndex, "heading", value)} />
-          <InputField label="Subheading" placeholder="Trusted by 500+ businesses" value={activeManagedSection.subheading} onChange={(value) => updateManagedSection(activeManagedSectionIndex, "subheading", value)} />
+      <div className="bg-surface-bg rounded-corner-lg p-xl flex flex-col gap-xl border border-border-primary shadow-sm">
+        
+        {/* Section Identifier & Status */}
+        <div className="flex flex-wrap items-center justify-between gap-md border-b border-border-secondary pb-lg mb-xs">
+          <div>
+            <h3 className="text-label font-bold text-text-primary">Edit Section: {activeManagedSection.section_key.toUpperCase()}</h3>
+            <p className="text-label-sm text-text-secondary mt-1">Modify the fields and items configuration below.</p>
+          </div>
+          <div className="flex items-center gap-lg">
+            <label className="flex items-center gap-sm text-label-sm text-text-secondary cursor-pointer select-none">
+              <input 
+                type="checkbox" 
+                className="rounded border-border-primary text-brand-primary focus:ring-brand-primary"
+                checked={activeManagedSection.is_active} 
+                onChange={(event) => updateManagedSection(activeManagedSectionIndex, "is_active", event.target.checked)} 
+              />
+              Active Section
+            </label>
+            <Button variant="danger" size="small" onClick={clearActiveSection}>
+              Clear All
+            </Button>
+          </div>
         </div>
-        <div className="mt-md">
-          <label className="flex items-center gap-sm text-label-sm text-text-secondary">
-            <input type="checkbox" checked={activeManagedSection.is_active} onChange={(event) => updateManagedSection(activeManagedSectionIndex, "is_active", event.target.checked)} />
-            Active Section
-          </label>
-        </div>
-        <div className="flex items-center justify-between mt-lg">
-          <p className="text-label-sm text-text-secondary">Items</p>
-          <Button variant="neutral" size="small" iconStart={<Plus size={16} />} onClick={() => addManagedSectionItem(activeManagedSectionIndex)}>
-            Add More
-          </Button>
-        </div>
-        <div className="flex flex-col gap-md mt-md">
-          {activeManagedSection.items.map((item, itemIndex) => (
-            <div key={`${activeManagedSection.section_key}-${itemIndex}`} className="bg-bg-faint rounded-corner-md p-md border border-border-primary">
-              {activeManagedSection.section_key === "client_testimonials" ? (
-                <div className="flex flex-col gap-md">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-md">
-                    <InputField
-                      label="Author Name"
-                      placeholder="Sarah Mitchell"
-                      value={item.author_name}
-                      onChange={(value) =>
-                        updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "author_name", value)
-                      }
-                    />
 
-                    <InputField
-                      label="Author Role & Company"
-                      placeholder="CEO, TechStart Inc."
-                      value={item.author_title}
-                      onChange={(value) =>
-                        updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "author_title", value)
-                      }
-                    />
-
-                    <InputField
-                      label="Company"
-                      placeholder="TechStart Inc."
-                      value={item.company}
-                      onChange={(value) =>
-                        updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "company", value)
-                      }
-                    />
-
-                    <InputField
-                    label="Rating" 
-                    value={item.rating}
-                    placeholder="5"
-                    onChange={(value) =>
-                      updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "rating", value)}
-                    />
-                  </div>
-
-                  <TextareaField
-                    label="Content"
-                    placeholder="WebNDevs transformed our outdated website into a modern, high-converting platform..."
-                    value={item.content}
-                    rows={4}
-                    onChange={(value) =>
-                      updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "content", value)
-                    }
-                  />
-
-                  <div className="flex justify-end">
-                    <Button
-                      variant="subtle"
-                      size="small"
-                      iconStart={<Trash2 size={16} />}
-                      onClick={() => removeManagedSectionItem(activeManagedSectionIndex, itemIndex)}
-                    >
-                      Remove Testimonial
-                    </Button>
-                  </div>
-                </div>
-              ) : activeManagedSection.section_key === "frequently_asked_questions" ? (
-                  <div className="flex flex-col gap-md">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-md">
-                      <TextareaField
-                        label="Question"
-                        placeholder="What services does WebNDevs offer?"
-                        value={item.question}
-                        rows={3}
-                        onChange={(value) =>
-                          updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "question", value)
-                        }
-                      />
-
-                      <TextareaField
-                        label="Answer"
-                        placeholder="We offer complete digital solutions including web development, UI/UX design, mobile apps, AI automation, SEO, and digital marketing."
-                        value={item.answer}
-                        rows={3}
-                        onChange={(value) =>
-                          updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "answer", value)
-                        }
-                      />
-                    </div>
-
-                    <div className="flex justify-end">
-                      <Button
-                        variant="subtle"
-                        size="small"
-                        iconStart={<Trash2 size={16} />}
-                        onClick={() => removeManagedSectionItem(activeManagedSectionIndex, itemIndex)}
-                      >
-                        Remove FAQ
-                      </Button>
-                    </div>
-                  </div>
-              ) : activeManagedSection.section_key === "real_results_delivered" ? (
-                <div className="flex flex-col gap-md">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-md">
-                    <InputField
-                      label="Project Title"
-                      placeholder="FinanceFlow SaaS Platform"
-                      value={item.title}
-                      onChange={(value) =>
-                        updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)
-                      }
-                    />
-
-                    <InputField
-                      label="Category"
-                      placeholder="Web Development"
-                      value={item.category}
-                      onChange={(value) =>
-                        updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "category", value)
-                      }
-                    />
-
-                    <InputField
-                      label="Project URL"
-                      placeholder="https://webndevs.com/project"
-                      value={item.project_url}
-                      onChange={(value) =>
-                        updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "project_url", value)
-                      }
-                    />
-                  </div>
-
-                  <TextareaField
-                    label="Project Description"
-                    placeholder="Built a complete financial management platform with real-time analytics and automated reporting."
-                    value={item.description}
-                    rows={3}
-                    onChange={(value) =>
-                      updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "description", value)
-                    }
-                  />
-
-                  <TextareaField
-                    label="Results"
-                    placeholder={`10,000+ active users in 6 months
-                      40% reduction in processing time
-                      98% uptime since launch`}
-                    value={item.results}
-                    rows={4}
-                    onChange={(value) =>
-                      updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "results", value)
-                    }
-                  />
-
-                  <InputField
-                    label="Technologies"
-                    placeholder="React, Node.js, PostgreSQL"
-                    value={item.technologies}
-                    onChange={(value) =>
-                      updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "technologies", value)
-                    }
-                  />
-
-                  <div className="flex justify-end">
-                    <Button
-                      variant="subtle"
-                      size="small"
-                      iconStart={<Trash2 size={16} />}
-                      onClick={() => removeManagedSectionItem(activeManagedSectionIndex, itemIndex)}
-                    >
-                      Remove Result
-                    </Button>
-                  </div>
-                </div>
-              ) : activeManagedSection.section_key === "why_choose_our_service" ? (
-                    <div className="flex flex-col gap-md">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-md">
-                        <InputField
-                          label="Card Title"
-                          placeholder="One Team for Everything"
-                          value={item.title}
-                          onChange={(value) =>
-                            updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)
-                          }
-                        />
-
-                        <InputField
-                          label="Icon"
-                          placeholder="type icon name from below description"
-                          value={item.icon}
-                          onChange={(value) =>
-                            updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "icon", value)
-                          }
-                        />
-                      </div>
-
-                      <TextareaField
-                        label="Description"
-                        placeholder="Shield, Rocket, TrendingUp, BadgeCheck, Zap, Star, Target, Handshake, Award, CheckCircle, Gauge, Workflow, Sparkles, Lightbulb, Gem, Crown, Medal, ThumbsUp, Lock, ShieldCheck"
-                        value={item.description}
-                        rows={3}
-                        onChange={(value) =>
-                          updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "description", value)
-                        }
-                      />
-
-                      <div className="flex justify-end">
-                        <Button
-                          variant="subtle"
-                          size="small"
-                          iconStart={<Trash2 size={16} />}
-                          onClick={() => removeManagedSectionItem(activeManagedSectionIndex, itemIndex)}
-                        >
-                          Remove Card
-                        </Button>
-                      </div>
-                    </div> 
-              ) : activeManagedSection.section_key === "what_you_get" ? (
-                    <div className="flex flex-col gap-md">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-md">
-                        <InputField
-                          label="Number"
-                          placeholder="1"
-                          value={item.number}
-                          onChange={(value) =>
-                            updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "number", value)
-                          }
-                        />
-
-                        <InputField
-                          label="Title"
-                          placeholder="API integrations"
-                          value={item.title}
-                          onChange={(value) =>
-                            updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)
-                          }
-                        />
-                      </div>
-
-                      <TextareaField
-                        label="Description"
-                        placeholder="Connect different platforms and tools to work together automatically."
-                        value={item.description}
-                        rows={3}
-                        onChange={(value) =>
-                          updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "description", value)
-                        }
-                      />
-
-                      <div className="flex justify-end">
-                        <Button
-                          variant="subtle"
-                          size="small"
-                          iconStart={<Trash2 size={16} />}
-                          onClick={() => removeManagedSectionItem(activeManagedSectionIndex, itemIndex)}
-                        >
-                          Remove Item
-                        </Button>
-                      </div>
-                    </div> 
-              ) : activeManagedSection.section_key === "technologies_we_use" ? (
-                    <div className="flex flex-col gap-md">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-md">
-                        <InputField
-                          label="Technology Name"
-                          placeholder="React, Node.js, AWS"
-                          value={item.title}
-                          onChange={(value) =>
-                            updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)
-                          }
-                        />
-                      </div>
-
-                      <div className="flex justify-end">
-                        <Button
-                          variant="subtle"
-                          size="small"
-                          iconStart={<Trash2 size={16} />}
-                          onClick={() => removeManagedSectionItem(activeManagedSectionIndex, itemIndex)}
-                        >
-                          Remove Technology
-                        </Button>
-                      </div>
-                    </div> 
-              ) : activeManagedSection.section_key === "who_is_this_for" ? (
-                    <div className="flex flex-col gap-md">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-md">
-                        <InputField
-                          label="Title"
-                          placeholder="Startups, SMBs, Enterprises"
-                          value={item.title}
-                          onChange={(value) =>
-                            updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)
-                          }
-                        />
-                      </div>
-
-                      <TextareaField
-                        label="Description"
-                        placeholder="Automate workflows early and grow efficiently with smaller teams."
-                        value={item.description}
-                        rows={3}
-                        onChange={(value) =>
-                          updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "description", value)
-                        }
-                      />
-
-                      <div className="flex justify-end">
-                        <Button
-                          variant="subtle"
-                          size="small"
-                          iconStart={<Trash2 size={16} />}
-                          onClick={() => removeManagedSectionItem(activeManagedSectionIndex, itemIndex)}
-                        >
-                          Remove Clients
-                        </Button>
-                      </div>
-                    </div> 
-              ) : activeManagedSection.section_key === "how_we_work" ? (
-                    <div className="flex flex-col gap-md">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-md">
-                        <InputField
-                          label="Number"
-                          placeholder="1"
-                          value={item.number}
-                          onChange={(value) =>
-                            updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "number", value)
-                          }
-                        />
-                        <InputField
-                          label="Title"
-                          placeholder="Workflow Analysis"
-                          value={item.title}
-                          onChange={(value) =>
-                            updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)
-                          }
-                        />
-                      </div>
-
-                      <TextareaField
-                        label="Description"
-                        placeholder="We study your current process and identify repetitive bottlenecks."
-                        value={item.description}
-                        rows={3}
-                        onChange={(value) =>
-                          updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "description", value)
-                        }
-                      />
-
-                      <div className="flex justify-end">
-                        <Button
-                          variant="subtle"
-                          size="small"
-                          iconStart={<Trash2 size={16} />}
-                          onClick={() => removeManagedSectionItem(activeManagedSectionIndex, itemIndex)}
-                        >
-                          Remove Clients
-                        </Button>
-                      </div>
-                    </div> 
-              ) : (
-                <>
-                  <div className="grid grid-cols-3 gap-md">
-                    <InputField label="Title" placeholder="Feature Headline" value={item.title} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)} />
-                    <InputField label="Name" placeholder="John Doe" value={item.name} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "name", value)} />
-                    <InputField label="Role" placeholder="CEO, Acme Corp" value={item.role} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "role", value)} />
-                    <InputField label="Value" placeholder="500+" value={item.value} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "value", value)} />
-                    <InputField label="Metric" placeholder="clients served" value={item.metric} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "metric", value)} />
-                    <Button variant="subtle" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeManagedSectionItem(activeManagedSectionIndex, itemIndex)}>
-                      Remove Item
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-md mt-md">
-                    <TextareaField label="Description" placeholder="Brief description..." value={item.description} rows={2} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "description", value)} />
-                    <TextareaField label="Quote" placeholder='"The best service I have ever used"' value={item.quote} rows={2} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "quote", value)} />
-                    <TextareaField label="Question" placeholder="What does this plan include?" value={item.question} rows={2} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "question", value)} />
-                    <TextareaField label="Answer" placeholder="This plan includes..." value={item.answer} rows={2} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "answer", value)} />
-                  </div>
-                </>
-              )}
+        {/* Section Header Configuration */}
+        {hasHeaderFields && (
+          <div className="flex flex-col gap-lg border-b border-border-secondary pb-xl mb-xs">
+            <h4 className="text-label-sm font-semibold text-text-primary">Header Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+              <InputField 
+                label={activeManagedSection.section_key === "hero" ? "Tag (e.g. WEB DEVELOPMENT)" : "Tag"} 
+                placeholder="e.g. WHY CHOOSE OUR SERVICE" 
+                value={activeManagedSection.tag ?? ""} 
+                onChange={(value) => updateManagedSection(activeManagedSectionIndex, "tag", value)} 
+              />
+              <InputField 
+                label={activeManagedSection.section_key === "hero" ? "Title 1 (Modern Websites)" : "Subheading 1"} 
+                placeholder="e.g. Modern Solutions" 
+                value={activeManagedSection.heading} 
+                onChange={(value) => updateManagedSection(activeManagedSectionIndex, "heading", value)} 
+              />
+              <InputField 
+                label={activeManagedSection.section_key === "hero" ? "Title 2 (Built to Perform)" : "Subheading 2"} 
+                placeholder="e.g. Built for Success" 
+                value={activeManagedSection.subheading} 
+                onChange={(value) => updateManagedSection(activeManagedSectionIndex, "subheading", value)} 
+              />
             </div>
-          ))}
-        </div>
+            <div className="w-full mt-sm">
+              <TextareaField 
+                label={activeManagedSection.section_key === "hero" ? "Description" : "Subtext"} 
+                placeholder="Explain the section in detail..." 
+                value={activeManagedSection.subtext ?? ""} 
+                rows={3} 
+                onChange={(value) => updateManagedSection(activeManagedSectionIndex, "subtext", value)} 
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Section specific fields and items */}
+        {activeManagedSection.section_key === "seo" ? (
+          <div className="flex flex-col gap-lg">
+            <h4 className="text-label-sm font-semibold text-text-primary">SEO Metadata</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+              <InputField
+                label="SEO Title"
+                placeholder="Web Development Services | Modern Websites | WebNDevs"
+                value={activeManagedSection.items[0]?.title ?? ""}
+                onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, 0, "title", value)}
+              />
+              <InputField
+                label="Canonical Path"
+                placeholder="/services/web-development"
+                value={activeManagedSection.items[0]?.path ?? ""}
+                onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, 0, "path", value)}
+              />
+              <InputField
+                label="SEO Share Image URL"
+                placeholder="/images/web-development.jpg"
+                value={activeManagedSection.items[0]?.image ?? ""}
+                onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, 0, "image", value)}
+              />
+              <InputField
+                label="SEO Keywords (comma separated)"
+                placeholder="web development, custom applications, React"
+                value={activeManagedSection.items[0]?.keywords ?? ""}
+                onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, 0, "keywords", value)}
+              />
+            </div>
+            <div className="w-full mt-sm">
+              <TextareaField
+                label="Meta Description"
+                placeholder="Build fast, secure and scalable websites..."
+                value={activeManagedSection.items[0]?.description ?? ""}
+                rows={3}
+                onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, 0, "description", value)}
+              />
+            </div>
+          </div>
+        ) : activeManagedSection.section_key === "hero" ? (
+          <div className="text-label-sm text-text-secondary bg-bg-faint p-lg rounded-corner-md border border-border-primary leading-relaxed">
+            Hero content is configured entirely via the Tag, Title 1, Title 2, and Description parameters above.
+          </div>
+        ) : activeManagedSection.section_key === "cta" ? (
+          <div className="flex flex-col gap-xl">
+            <div className="flex flex-col gap-lg">
+              <h4 className="text-label-sm font-semibold text-text-primary pb-sm border-b border-border-secondary">Preview Button CTA</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                <InputField
+                  label="Button Text"
+                  placeholder="Explore All Services"
+                  value={activeManagedSection.items[0]?.preview_text ?? ""}
+                  onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, 0, "preview_text", value)}
+                />
+                <InputField
+                  label="Destination URL"
+                  placeholder="/services"
+                  value={activeManagedSection.items[0]?.preview_url ?? ""}
+                  onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, 0, "preview_url", value)}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-lg pt-md">
+              <h4 className="text-label-sm font-semibold text-text-primary pb-sm border-b border-border-secondary">Full Banner CTA</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                <InputField
+                  label="Heading Text"
+                  placeholder="Ready to Build Your Website?"
+                  value={activeManagedSection.items[0]?.full_text ?? ""}
+                  onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, 0, "full_text", value)}
+                />
+                <InputField
+                  label="Banner Action URL"
+                  placeholder="#get-started"
+                  value={activeManagedSection.items[0]?.full_url ?? ""}
+                  onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, 0, "full_url", value)}
+                />
+              </div>
+              <div className="w-full mt-sm">
+                <TextareaField
+                  label="Banner Description"
+                  placeholder="Get a free consultation and project plan within 24 hours."
+                  value={activeManagedSection.items[0]?.full_description ?? ""}
+                  rows={3}
+                  onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, 0, "full_description", value)}
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-lg">
+            <div className="flex items-center justify-between pb-sm border-b border-border-secondary">
+              <h4 className="text-label-sm font-semibold text-text-primary">Card Items</h4>
+              <Button variant="primary" size="small" iconStart={<Plus size={16} />} onClick={() => addManagedSectionItem(activeManagedSectionIndex)}>
+                Add Card Item
+              </Button>
+            </div>
+            <div className="flex flex-col gap-lg">
+              {activeManagedSection.items.map((item, itemIndex) => (
+                <div key={`${activeManagedSection.section_key}-${itemIndex}`} className="bg-bg-faint rounded-corner-md p-lg border border-border-primary flex flex-col gap-lg transition-all duration-300">
+                  
+                  {activeManagedSection.section_key === "stats" ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                      <InputField label="Icon (Lucide name)" placeholder="Clock, Code, Star, Zap" value={item.icon} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "icon", value)} />
+                      <InputField label="Stat Value" placeholder="2-4 weeks / 50+" value={item.value} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "value", value)} />
+                      <InputField label="Stat Title" placeholder="Average Delivery Time" value={item.title} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)} />
+                    </div>
+                  ) : activeManagedSection.section_key === "benefits" || activeManagedSection.section_key === "delivered" ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                      <InputField label="Icon (Lucide name)" placeholder="Zap, Shield, Smartphone" value={item.icon} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "icon", value)} />
+                      <InputField label="Headline Title" placeholder="Lightning-Fast Performance" value={item.title} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)} />
+                      <InputField label="Detailed Description" placeholder="Optimized code makes it run fast..." value={item.description} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "description", value)} />
+                    </div>
+                  ) : activeManagedSection.section_key === "process" ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+                      <InputField label="Step Number" placeholder="01" value={item.number} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "number", value)} />
+                      <InputField label="Step Title" placeholder="Discovery & Planning" value={item.title} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)} />
+                      <InputField label="Step Description" placeholder="We learn about your business..." value={item.description} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "description", value)} />
+                    </div>
+                  ) : activeManagedSection.section_key === "usecase" ? (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-lg">
+                      <InputField label="Icon (Lucide name)" placeholder="Rocket, Cpu" value={item.icon} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "icon", value)} />
+                      <InputField label="Usecase Title" placeholder="Startups & Founders" value={item.title} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)} />
+                      <InputField label="Usecase Description" placeholder="Launch your MVP quickly..." value={item.description} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "description", value)} />
+                      <InputField label="Link (href)" placeholder="/contact" value={item.href} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "href", value)} />
+                    </div>
+                  ) : activeManagedSection.section_key === "results" ? (
+                    <div className="flex flex-col gap-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                        <InputField label="Project Title" placeholder="FinanceFlow SaaS Platform" value={item.title} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)} />
+                        <InputField label="Technologies (comma separated)" placeholder="React, Next.js, Laravel" value={item.technologies} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "technologies", value)} />
+                      </div>
+                      <div className="w-full">
+                        <TextareaField label="Project Description" placeholder="Built a complete financial management platform..." value={item.description} rows={2} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "description", value)} />
+                      </div>
+                      <div className="w-full">
+                        <TextareaField label="Key Results Delivered (one per line)" placeholder="10K+ users in 6 months&#10;Real-time analytics dashboard" value={item.results} rows={3} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "results", value)} />
+                      </div>
+                    </div>
+                  ) : activeManagedSection.section_key === "faq" ? (
+                    <div className="flex flex-col gap-lg">
+                      <div className="w-full">
+                        <TextareaField label="Question" placeholder="What is web development?" value={item.question} rows={2} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "question", value)} />
+                      </div>
+                      <div className="w-full">
+                        <TextareaField label="Answer" placeholder="Web development is..." value={item.answer} rows={3} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "answer", value)} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                      <InputField label="Title" value={item.title} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "title", value)} />
+                      <InputField label="Description" value={item.description} onChange={(value) => updateManagedSectionItem(activeManagedSectionIndex, itemIndex, "description", value)} />
+                    </div>
+                  )}
+
+                  <div className="flex justify-end pt-md border-t border-border-secondary mt-sm">
+                    <Button
+                      variant="danger"
+                      size="small"
+                      iconStart={<Trash2 size={16} />}
+                      onClick={() => removeManagedSectionItem(activeManagedSectionIndex, itemIndex)}
+                    >
+                      Remove Card Item
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       ) : (
       <div className="bg-surface-bg rounded-corner-lg p-lg border border-border-primary text-label text-text-secondary">Section data not available yet.</div>
@@ -3431,10 +3559,10 @@ export function ServicePlansModule() {
         <div className="flex items-center justify-between mt-xl">
           <h3 className="text-label text-text-primary">Dynamic Page Content</h3>
           <div className="flex items-center gap-sm">
-            <Button variant="neutral" size="small" iconStart={<Plus size={16} />} onClick={addContentItem}>
+            <Button variant="primary" size="small" iconStart={<Plus size={16} />} onClick={addContentItem}>
               Add Content
             </Button>
-            <Button variant="neutral" size="small" iconStart={<Save size={16} />} onClick={savePageContent} disabled={isSaving || !activeServiceSlug}>
+            <Button variant="primary" size="small" iconStart={<Save size={16} />} onClick={savePageContent} disabled={isSaving || !activeServiceSlug}>
               Save Content
             </Button>
           </div>
@@ -3462,7 +3590,7 @@ export function ServicePlansModule() {
                 />
                 <InputField label="Display Order" placeholder="0" value={String(item.display_order)} onChange={(value) => updateContentItem(index, "display_order", Number(value || "0"))} />
                 <div className="flex items-end">
-                  <Button variant="subtle" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeContentItem(index)}>
+                  <Button variant="danger" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeContentItem(index)}>
                     Remove
                   </Button>
                 </div>
@@ -3495,10 +3623,10 @@ export function ServicePlansModule() {
       <div className="flex items-center justify-between mt-xl">
         <h3 className="text-label text-text-primary">Package Offers</h3>
         <div className="flex items-center gap-sm">
-          <Button variant="neutral" size="small" iconStart={<Plus size={16} />} onClick={addOffer}>
+          <Button variant="primary" size="small" iconStart={<Plus size={16} />} onClick={addOffer}>
             Add Offer
           </Button>
-          <Button variant="neutral" size="small" iconStart={<Save size={16} />} onClick={saveOffers} disabled={isSaving || !activeServiceSlug}>
+          <Button variant="primary" size="small" iconStart={<Save size={16} />} onClick={saveOffers} disabled={isSaving || !activeServiceSlug}>
             Save Offers
           </Button>
         </div>
@@ -3527,7 +3655,7 @@ export function ServicePlansModule() {
               <InputField label="Starts At" placeholder="2026-01-01 00:00:00" value={offer.starts_at} onChange={(value) => updateOffer(index, "starts_at", value)} />
               <InputField label="Ends At" placeholder="2026-12-31 23:59:59" value={offer.ends_at} onChange={(value) => updateOffer(index, "ends_at", value)} />
               <div className="flex items-end">
-                <Button variant="subtle" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeOffer(index)}>
+                <Button variant="danger" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeOffer(index)}>
                   Remove
                 </Button>
               </div>
@@ -3555,16 +3683,16 @@ export function ServicePlansModule() {
         <h3 className="text-label text-text-primary">Service Categories</h3>
         <div className="flex items-center gap-sm">
           <InputField placeholder="Search categories..." value={categorySearch} onChange={setCategorySearch} />
-          <Button variant="neutral" size="small" iconStart={<RefreshCw size={16} />} onClick={fetchCategories}>
+          <Button variant="primary" size="small" iconStart={<RefreshCw size={16} />} onClick={fetchCategories}>
             Search
           </Button>
-          <Button variant="neutral" size="small" iconStart={<Plus size={16} />} onClick={addCategory}>
+          <Button variant="primary" size="small" iconStart={<Plus size={16} />} onClick={addCategory}>
             Add Category
           </Button>
-          <Button variant="neutral" size="small" iconStart={<Save size={16} />} onClick={saveCategories} disabled={isSaving}>
+          <Button variant="primary" size="small" iconStart={<Save size={16} />} onClick={saveCategories} disabled={isSaving}>
             Save Categories
           </Button>
-          <Button variant="subtle" size="small" iconStart={<Trash2 size={16} />} onClick={deleteSelectedCategories} disabled={isSaving}>
+          <Button variant="danger" size="small" iconStart={<Trash2 size={16} />} onClick={deleteSelectedCategories} disabled={isSaving}>
             Delete Selected
           </Button>
         </div>
@@ -3584,7 +3712,7 @@ export function ServicePlansModule() {
               <InputField label="Template Key" placeholder="design_template" value={category.template_key} onChange={(value) => updateCategory(index, "template_key", value)} />
               <InputField label="Display Order" placeholder="0" value={String(category.display_order)} onChange={(value) => updateCategory(index, "display_order", Number(value || "0"))} />
               <div className="flex items-end">
-                <Button variant="subtle" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeCategory(index)}>
+                <Button variant="danger" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeCategory(index)}>
                   Remove
                 </Button>
               </div>
@@ -3612,16 +3740,16 @@ export function ServicePlansModule() {
         <h3 className="text-label text-text-primary">Media Library</h3>
         <div className="flex items-center gap-sm">
           <InputField placeholder="Search media..." value={mediaSearch} onChange={setMediaSearch} />
-          <Button variant="neutral" size="small" iconStart={<RefreshCw size={16} />} onClick={fetchMediaAssets}>
+          <Button variant="primary" size="small" iconStart={<RefreshCw size={16} />} onClick={fetchMediaAssets}>
             Search
           </Button>
-          <Button variant="neutral" size="small" iconStart={<Plus size={16} />} onClick={addMediaAsset}>
+          <Button variant="primary" size="small" iconStart={<Plus size={16} />} onClick={addMediaAsset}>
             Add Asset
           </Button>
-          <Button variant="neutral" size="small" iconStart={<Save size={16} />} onClick={saveMediaAssets} disabled={isSaving}>
+          <Button variant="primary" size="small" iconStart={<Save size={16} />} onClick={saveMediaAssets} disabled={isSaving}>
             Save Media
           </Button>
-          <Button variant="subtle" size="small" iconStart={<Trash2 size={16} />} onClick={deleteSelectedMediaAssets} disabled={isSaving}>
+          <Button variant="danger" size="small" iconStart={<Trash2 size={16} />} onClick={deleteSelectedMediaAssets} disabled={isSaving}>
             Delete Selected
           </Button>
         </div>
@@ -3648,7 +3776,7 @@ export function ServicePlansModule() {
               <InputField label="Height" placeholder="630" value={asset.height} onChange={(value) => updateMediaAsset(index, "height", value)} />
               <InputField label="Display Order" placeholder="0" value={String(asset.display_order)} onChange={(value) => updateMediaAsset(index, "display_order", Number(value || "0"))} />
               <div className="flex items-end">
-                <Button variant="subtle" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeMediaAsset(index)}>
+                <Button variant="danger" size="small" iconStart={<Trash2 size={16} />} onClick={() => removeMediaAsset(index)}>
                   Remove
                 </Button>
               </div>
