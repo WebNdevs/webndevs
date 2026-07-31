@@ -14,7 +14,7 @@ return new class extends Migration
 
         Schema::create('redirects', function (Blueprint $table) {
             $table->id();
-            $table->string('from_url', 1000)->unique();
+            $table->string('from_url', 255)->unique();
             $table->string('to_url', 1000);
             $table->smallInteger('redirect_type')->default(301);
             $table->integer('hit_count')->default(0);
