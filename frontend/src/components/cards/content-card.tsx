@@ -5,6 +5,7 @@ import { ScrollReveal } from "../animations/scroll-reveal";
 export type ContentCardProps = {
   title?: string;
   excerpt?: string;
+  author?: string;
   image?: string;
   slug?: string;
   content?: string;
@@ -14,12 +15,12 @@ export type ContentCardProps = {
   onClick?: () => void;
 };
 
-export function ContentCard({ title, excerpt, image, tags, onClick, }: ContentCardProps) {
+export function ContentCard({ title, excerpt, author, image, tags, onClick, }: ContentCardProps) {
   return (
     <DSCard
       hoverable
       onClick={onClick}
-      className="cursor-pointer bg-transparent bg-linear-to-r from-[#22C55E]/5 to-[#06B6D4]/5 overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22C55E]"
+      className="cursor-pointer bg-transparent bg-linear-to-r from-[#22C55E]/5 to-[#06B6D4]/5 overflow-hidden focus-visible:outline-2 focus-visible:outline-[#22C55E]"
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -40,6 +41,9 @@ export function ContentCard({ title, excerpt, image, tags, onClick, }: ContentCa
       <h3 className="text-xl font-semibold text-[#F9FAFB] mb-2">
         {title}
       </h3>
+      <p className="text-[#9CA3AF] line-clamp-3">
+        {author}
+      </p>
 
       {tags?.length ? (
         <div className="flex flex-wrap gap-2 my-3">

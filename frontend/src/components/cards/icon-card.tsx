@@ -84,6 +84,7 @@ export function IconCard({icon, title, description, url, tags}: IconCardProps) {
 }
 
 export function IconCardGrid({items} : {items: IconCardProps[]}) {
+  if (!items) return null;
   return(
     <motion.div 
       variants={gridVariants}

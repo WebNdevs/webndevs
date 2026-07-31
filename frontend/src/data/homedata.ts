@@ -1,13 +1,14 @@
 export const homeData = {
   sections: [
+    // why choose us
     {
-      section_key: "why-choose",
+      section_key: "why-choose", 
       tag: "Why Us?",
       subheading1: "Why Choose",
       subheading2: "WebNDevs?",
       subtext:
-        "We're not just another agency. We're the reliable digital partner you can count on for the long haul.",
-      items: [
+        "We're not just another agency. We're the reliable digital partner you can count on for the long haul.", 
+        items: [
         {
           icon: "Users",
           title: "One Team for Everything",
@@ -67,12 +68,15 @@ export const homeData = {
         ],
       },
     },
+    // portfolio
     {
       section_key: "portfolio",
-      tag: "Our Work",
-      subheading1: "Real Results for",
-      subheading2: "Real Businesses",
-      subtext: "See how we've helped companies grow through design, development, automation, and data-driven solutions.",
+      header: { 
+        tag: "Our Work",
+        subheading1: "Real Results for",
+        subheading2: "Real Businesses",
+        subtext: "See how we've helped companies grow through design, development, automation, and data-driven solutions.",
+      }, 
       items: [
         {
           title: "Sabzithela",
@@ -400,6 +404,7 @@ export const homeData = {
         }
       }
     },
+    // process
     {
       section_key: "process",
       tag: "Our Process",
@@ -407,7 +412,7 @@ export const homeData = {
       subheading2: "5 Simple Steps",
       subtext:
         "Our proven process ensures your project is delivered on time, on budget, and exceeds expectations.",
-      items: [
+        items: [
         {
           number: '01',
           icon: 'Search',
@@ -444,18 +449,19 @@ export const homeData = {
           duration: 'Ongoing'
         }
       ],
-      cta: {
-        preview: {
-          text: "More Projects",
-          url: "/portfolio"
+        cta: {
+          preview: {
+            text: "More Projects",
+            url: "/portfolio"
+          },
+          full: {
+            description: "Ready to get started? Book a free 30-minute consultation and let's discuss your project.",
+            text: "Schedule Your Free Call",
+            url: "#get-started"
+          }
         },
-        full: {
-          description: "Ready to get started? Book a free 30-minute consultation and let's discuss your project.",
-          text: "Schedule Your Free Call",
-          url: "#get-started"
-        }
-      },
     },
+    // testimonials
     {
       section_key: "testimonials",
       tag: "Client Success Stories",
@@ -708,6 +714,7 @@ export const homeData = {
         }
       },
     },
+    // privacy
     {
       section_key: "privacy",
       tag: "Privacy Policy",
@@ -741,6 +748,7 @@ export const homeData = {
           "Your privacy matters. Learn how we collect, use, protect, and responsibly manage your information while delivering our services."
       },
     },
+    // terms
     {
       section_key: "terms",
       tag: "Terms of Service",
@@ -774,6 +782,7 @@ export const homeData = {
           "These terms outline the responsibilities, expectations, and commitments that help create successful and transparent working relationships."
       },
     },
+    // contact-us
     {
       section_key: "contact-us",
       tag: "Contact Us",
@@ -807,6 +816,7 @@ export const homeData = {
           "Whether you're launching a startup, modernizing your business, or scaling with AI and automation, we're ready to help bring your vision to life."
       },
     },
+    // faq
     {
       section_key: "faq",
       tag: "Question & Answers",
@@ -875,6 +885,7 @@ export const homeData = {
         },
       },
     },
+    // error
     {
       section_key: "error",
       tag: "404 Error",
@@ -930,6 +941,7 @@ export const homeData = {
         },
       }
     },
+    // services
     {
       section_key: "services",
       tag: "Professional Services",

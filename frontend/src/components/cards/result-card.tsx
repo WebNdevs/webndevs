@@ -104,6 +104,7 @@ export function ResultCard({title, category, description, tags, badge, url, resu
 }
 
 export function ResultCardGrid({items} : {items: ResultCardProps[]}) {
+  if (!items) return null;
   return(
     <motion.div 
       variants={gridVariants}

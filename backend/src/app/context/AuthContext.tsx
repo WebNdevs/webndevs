@@ -14,7 +14,7 @@ export interface AuthUser {
 // Available permissions
 export const AVAILABLE_PERMISSIONS: Record<string, string> = {
   'services.manage': 'Services - Create, edit, delete',
-  'blog.manage': 'Blog Posts - Create, edit, delete',
+  'articles.manage': 'Articles - Create, edit, delete',
   'case_studies.manage': 'Case Studies - Create, edit, delete',
   'content.manage': 'Content Pages - Create, edit, delete',
   'media.manage': 'Media Library - Upload, delete',

@@ -54,3 +54,11 @@ body {
 .bg-\[\#111827\] {
   background-color: rgba(17, 24, 39, 0.4) !important;
 }
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

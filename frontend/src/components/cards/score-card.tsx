@@ -82,6 +82,7 @@ type ScoreGridProps = {
 export function ScoreGrid({
   items,
 }: ScoreGridProps) {
+  if (!items) return null;
   return (
     <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
       {items.map((item, index) => (

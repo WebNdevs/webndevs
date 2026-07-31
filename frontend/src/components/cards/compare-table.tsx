@@ -1,29 +1,66 @@
-import { DSCard } from "./DScomponents"
+import { DSCard, DSBadge } from "./DScomponents";
 import { ScrollReveal } from "../animations/scroll-reveal"
 
-export type CompareTableProps = {
+export type ComparisonItem = {
   leftHeading?: string;
   rightHeading?: string;
   leftPoints?: string[];
   rightPoints?: string[];
-}
+};
 
-export type ComparisonItem = {
+export type CompareTableItem = {
   tag?: string;
   title?: string;
   description?: string;
-
-  comparison?: CompareTableProps;
+  comparison?: ComparisonItem;
 };
 
-export function CompareTable({leftHeading, rightHeading, leftPoints, rightPoints} : CompareTableProps) {
+export type CompareTableProps = {
+  items?: CompareTableItem[];
+};
+
+export function CompareTable({items}: CompareTableProps) {
   return(
-    <div className="mb-10">
-      <ScrollReveal direction="up" duration={0.8}>
+    <>
+    {items?.map((item, i) => (
+    <div key={i} className="mb-10"> 
+      {/* Title Card */}
+      {item.title && (
+        <div className="space-y-6 mb-3">
+          <ScrollReveal
+            direction="up"
+            duration={0.5}
+          >
+            <DSCard className="bg-transparent bg-linear-to-r from-[#22C55E]/5 to-[#06B6D4]/5">
+              {item.title && (
+                <h2
+                  style={{ fontSize: "24px" }}
+                  className="font-bold text-[#F9FAFB] mb-4"
+                >
+                  {item.title}
+                  {item.tag && (
+                    <DSBadge variant="success" className="ml-2">
+                      {item.tag}
+                    </DSBadge>
+                  )}
+                </h2>
+              )}
+  
+              {item.description && (
+                <p className="text-[15px] leading-relaxed text-[#9CA3AF]">
+                  {item.description}
+                </p>
+              )}
+            </DSCard>
+          </ScrollReveal>
+        </div>
+      )}
+      {item.comparison?.leftHeading && (
+        <ScrollReveal direction="up" duration={0.8}>
         <DSCard className="overflow-hidden bg-transparent">
-          <div className="grid md:grid-cols-2 gap-0">
+          <div key={i} className="grid md:grid-cols-2 gap-0">
           {/* Left Side */}
-          { leftHeading && (
+          { item.comparison?.leftHeading && (
             <div className="p-8 bg-linear-to-br from-[#EF4444]/5 to-[#F97316]/5">
               
               <div className="flex items-center gap-3 mb-6">
@@ -31,12 +68,12 @@ export function CompareTable({leftHeading, rightHeading, leftPoints, rightPoints
                   <span className="text-[#EF4444] text-[20px]">✗</span>
                 </div>
                 <h3 style={{ fontSize: '20px' }} className="font-semibold text-[#F9FAFB]">
-                  {leftHeading}
+                  {item.comparison?.leftHeading}
                 </h3>
               </div>
             
               <ul className="space-y-3">
-                {leftPoints?.map((point, index) => (
+                {item.comparison.leftPoints?.map((point, index) => (
                   <li key={index} className="flex items-start gap-3 text-[14px] text-[#9CA3AF]">
                     <span className="text-[#EF4444] shrink-0">✗</span>
                     <span>{point}</span>
@@ -47,7 +84,7 @@ export function CompareTable({leftHeading, rightHeading, leftPoints, rightPoints
             </div>
           )}
           {/* Right SIde */}
-          { rightHeading && (
+          { item.comparison?.rightHeading && (
             <div className="p-8 bg-linear-to-br from-[#22C55E]/5 to-[#06B6D4]/5">
 
               <div className="flex items-center gap-3 mb-6">
@@ -55,12 +92,12 @@ export function CompareTable({leftHeading, rightHeading, leftPoints, rightPoints
                   <span className="text-[#22C55E] text-[20px]">✓</span>
                 </div>
                 <h3 style={{ fontSize: '20px' }} className="font-semibold text-[#F9FAFB]">
-                  {rightHeading}
+                  {item.comparison?.rightHeading}
                 </h3>
               </div>
 
               <ul className="space-y-3">
-                {rightPoints?.map((point, index) => (
+                {item.comparison?.rightPoints?.map((point, index) => (
                   <li key={index} className="flex items-start gap-3 text-[14px] text-[#F9FAFB]">
                     <span className="text-[#22C55E] shrink-0">✓</span>
                     <span>{point}</span>
@@ -73,6 +110,9 @@ export function CompareTable({leftHeading, rightHeading, leftPoints, rightPoints
           </div>
         </DSCard>
       </ScrollReveal>
+      )}
     </div>
+    ))}
+    </>
   )
 }

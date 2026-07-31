@@ -3,12 +3,14 @@ export const dataHubData = {
     // hub
     {
       section_key: "hub",
-      tag: "Tools & Resources",
-      subheading1: "Want More From WebNDevs?",
-      subheading2: "Explore Some Tools",
-      subtext:
-        "Explore some tools that we have curated for some curious minds. See what you can learn or maybe tryout.",
-      items: [
+        header: {
+          tag: "Tools & Resources",
+          subheading1: "Want More From WebNDevs?",
+          subheading2: "Explore Some Tools",
+          subtext:
+            "Explore some tools that we have curated for some curious minds. See what you can learn or maybe tryout.",
+        },
+        items: [
         {
           icon: "Wrench",
           title: "Tools",
@@ -134,7 +136,7 @@ export const dataHubData = {
           excerpt:
             "From customer support to lead qualification, AI agents are automating processes across every industry.",
           content:
-            "AI agents are no longer limited to chatbots. Businesses now deploy autonomous systems capable of scheduling meetings, qualifying leads generating of reports, and handling support tickets...",
+            "AI agents are no longer limited gagrdffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffasgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrto chatbots. Businesses now deploy autonomous systems capable of scheduling meetings, qualifying leads generating of reports, and handling support tickets...",
           image:
             "https://images.unsplash.com/photo-1485827404703-89b55fcc595e",
           featured: true,

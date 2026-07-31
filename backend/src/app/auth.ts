@@ -17,6 +17,8 @@ export function getStoredToken(): string {
 
 export function setStoredToken(token: string) {
   localStorage.setItem(PRIMARY_TOKEN_KEY, token);
+  localStorage.setItem("wnd_session_expiry", String(Date.now() + 60 * 60 * 1000));
+  localStorage.removeItem("wnd_session_grace_end");
 }
 
 export function clearStoredAuth() {
@@ -24,6 +26,8 @@ export function clearStoredAuth() {
     localStorage.removeItem(key);
     sessionStorage.removeItem(key);
   }
+  localStorage.removeItem("wnd_session_expiry");
+  localStorage.removeItem("wnd_session_grace_end");
 }
 
 export async function fetchAuthenticatedUser(token?: string) {

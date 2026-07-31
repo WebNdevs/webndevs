@@ -6,105 +6,118 @@ import { StatsCardGrid, StatsCardProps } from '../cards/stats-card';
 import { ContentTile, DSTiles } from '../cards/DScomponents';
 import { EntityGrid, EntityCardProps } from '../cards/entity-card';
 import { FAQCard, FAQItemProps } from '../cards/faq-card';
+import { getPageSection, NormalizedPage } from '@/data/content';
 
 export type DynamicSectionData = {
   slug: string;
-  seo: {
-    title: string;
-    description: string;
-    keywords: string[];
+  seo?: {
+    title?: string;
+    description?: string;
+    keywords?: string[];
     image?: string;
-    path: string;
-  }
+    path?: string;
+  };
   hero?: PageHeroProps;
   tag?: string;
   subheading1?: string;
   subheading2?: string;
   subtext?: string;
   overview?: ContentTile[];
-  stats?: StatsCardProps[];
+  stats?: StatsCardProps[] | { items?: StatsCardProps[] };
   highlights?: {
-    tag?: string,
-    subheading1?: string,
-    subheading2?: string,
-    subtext?: string,
-    items?: IconCardProps[];
-  };
-  benefits?: {
-    tag?: string,
-    subheading1?: string,
-    subheading2?: string,
-    subtext?: string,
-    items?: IconCardProps[];
-  };
-  related?: {
-    tag?: string,
-    subheading1?: string,
-    subheading2?: string,
-    subtext?: string,
-    items?: EntityCardProps[];
-  };
-    faq?: {
     tag?: string;
     subheading1?: string;
     subheading2?: string;
     subtext?: string;
-    items: FAQItemProps[];
+    items?: IconCardProps[];
+  };
+  benefits?: {
+    tag?: string;
+    subheading1?: string;
+    subheading2?: string;
+    subtext?: string;
+    items?: IconCardProps[];
+  };
+  related?: {
+    tag?: string;
+    subheading1?: string;
+    subheading2?: string;
+    subtext?: string;
+    items?: EntityCardProps[];
+  };
+  faq?: {
+    tag?: string;
+    subheading1?: string;
+    subheading2?: string;
+    subtext?: string;
+    items?: FAQItemProps[];
   };
   cta?: ShortCTAProps;
-}
+  [key: string]: any;
+};
 
 export type DynamicSectionProps = {
-  section: DynamicSectionData;
-}
+  page: NormalizedPage;
+};
 
+export function DynamicSection({ page }: DynamicSectionProps) {
+  if (!page) return null;
 
-export function DynamicSection({section}:DynamicSectionProps) {  
-  if(!section) return null;
+  const hero = getPageSection<PageHeroProps>(page, "hero");
+  const overview = getPageSection<ContentTile[] | { items?: ContentTile[] }>(page, "overview");
+  const stats = getPageSection<StatsCardProps[] | { items?: StatsCardProps[] }>(page, "stats");
+  const highlights = getPageSection<HeaderSectionProps & { items?: IconCardProps[] }>(page, "highlights");
+  const benefits = getPageSection<HeaderSectionProps & { items?: IconCardProps[] }>(page, "benefits");
+  const related = getPageSection<HeaderSectionProps & { items?: EntityCardProps[] }>(page, "related");
+  const faq = getPageSection<HeaderSectionProps & { items?: FAQItemProps[] }>(page, "faq");
+  const cta = getPageSection<ShortCTAProps>(page, "cta");
+
+  const overviewItems = (Array.isArray(overview) ? overview : overview?.items) as ContentTile[];
+  const statsItems = (Array.isArray(stats) ? stats : stats?.items) as StatsCardProps[];
 
   return (
     <section id='blogs' className="py-20 px-6 bg-[#0B0F14]">
       <div className="max-w-7xl mx-auto">
-        {section?.hero && (
-          <PageHero {...section?.hero as PageHeroProps}/>
+        {hero && (
+          <PageHero {...hero} />
         )}
-        {section?.overview && (
-          <DSTiles items={section?.overview as ContentTile[]}/>
+        {overview && (
+          <DSTiles items={overviewItems as ContentTile[]} />
         )}
-        {section?.stats && (
-          <StatsCardGrid items={section?.stats as StatsCardProps[]}/>
+        {stats && (
+          <StatsCardGrid items={statsItems as StatsCardProps[]} />
         )}
-        {section?.highlights && (
+        {highlights && (
           <>
-            <HeaderSection {...section?.highlights as HeaderSectionProps}/>
-            <IconCardGrid items={section?.highlights?.items as IconCardProps[]}/>
+            <HeaderSection {...highlights} />
+            <IconCardGrid items={highlights?.items as IconCardProps[]} />
           </>
         )}
-        {section?.benefits && (
+        {benefits && (
           <>
-            <HeaderSection {...section?.benefits as HeaderSectionProps}/>
-            <IconCardGrid items={section?.benefits?.items as IconCardProps[]}/>
+            <HeaderSection {...benefits} />
+            <IconCardGrid items={benefits?.items as IconCardProps[]} />
           </>
         )}
-        {section?.related && (
+        {related && (
           <>
-            <HeaderSection {...section?.related as HeaderSectionProps}/>
-            <EntityGrid items={section?.related?.items as EntityCardProps[]}/>
+            <HeaderSection {...related} />
+            <EntityGrid items={related?.items as EntityCardProps[]} />
           </>
         )}
-        {section?.faq && (
+        {faq && (
           <>
-          <HeaderSection {...section?.faq as HeaderSectionProps}/>
-          <FAQCard items={section?.faq?.items as FAQItemProps[]}/>
+            <HeaderSection {...faq} />
+            <FAQCard items={faq?.items as FAQItemProps[]} />
           </>
         )}
-        {section?.cta && (
+        {cta && (
           <>
-            <ShortCTA variant="full" {...section?.cta as ShortCTAProps}/>
-            <ShortCTA variant="preview" {...section?.cta as ShortCTAProps}/>
+            <ShortCTA variant="full" {...cta} />
+            <ShortCTA variant="preview" {...cta} />
           </>
         )}
-        <CTASection/>
+        <CTASection />
 
       </div>
     </section>

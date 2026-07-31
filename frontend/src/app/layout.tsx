@@ -95,7 +95,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-scroll-behaviour="smooth">
+    <html lang="en" data-scroll-behaviour="smooth" className="no-scrollbar">
       <body>
         <GlobalOrganizationSchema />
         <BreadcrumbSchema />

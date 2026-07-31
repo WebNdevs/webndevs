@@ -3,20 +3,33 @@
 use App\Http\Controllers\Api\AiContentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AuditLogController;
-use App\Http\Controllers\Api\BlogPostController;
-use App\Http\Controllers\Api\CaseStudyController;
-use App\Http\Controllers\Api\ComparisonPageController;
 use App\Http\Controllers\Api\ContentPageController;
 use App\Http\Controllers\Api\ContentGapController;
 use App\Http\Controllers\Api\ContentSectionController;
 use App\Http\Controllers\Api\ContentItemController;
+use App\Http\Controllers\Api\ArticlePageController;
+use App\Http\Controllers\Api\ArticleSectionController;
+use App\Http\Controllers\Api\ArticleItemController;
+use App\Http\Controllers\Api\PublicArticleController;
+use App\Http\Controllers\Api\ServicePageController;
+use App\Http\Controllers\Api\ServiceSectionController;
+use App\Http\Controllers\Api\ServiceItemController;
+use App\Http\Controllers\Api\PublicServiceController;
+use App\Http\Controllers\Api\DataHubPageController;
+use App\Http\Controllers\Api\DataHubSectionController;
+use App\Http\Controllers\Api\DataHubItemController;
+use App\Http\Controllers\Api\PublicDataHubController;
+use App\Http\Controllers\Api\SinglePagePageController;
+use App\Http\Controllers\Api\SinglePageSectionController;
+use App\Http\Controllers\Api\SinglePageItemController;
+use App\Http\Controllers\Api\PublicSinglePageController;
 use App\Http\Controllers\Api\CrossReferencePageController;
 use App\Http\Controllers\Api\FAQController;
-use App\Http\Controllers\Api\FreeToolController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\InternalLinkController;
 use App\Http\Controllers\Api\NavigationController;
 use App\Http\Controllers\Api\MediaLibraryController;
+use App\Http\Controllers\Api\PublicContentController;
 use App\Http\Controllers\Api\PackageOfferController;
 use App\Http\Controllers\Api\ProcessStepController;
 use App\Http\Controllers\Api\RedirectController;
@@ -32,11 +45,7 @@ use App\Http\Controllers\Api\ServicePlanController;
 use App\Http\Controllers\Api\ServiceTemplateController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\SitemapController;
-use App\Http\Controllers\Api\SolutionController;
 use App\Http\Controllers\Api\TestimonialController;
-use App\Http\Controllers\Api\ToolCategoryController;
-use App\Http\Controllers\Api\ToolController;
-use App\Http\Controllers\Api\IndustryController;
 use App\Http\Controllers\Api\UseCaseController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Cache;
@@ -96,24 +105,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/services/{service:slug}/package-offers', [PackageOfferController::class, 'index']);
     Route::get('/service-categories', [ServiceCategoryController::class, 'index']);
     Route::get('/service-categories/tree', [ServiceCategoryController::class, 'tree']);
-    Route::get('/tools', [ToolController::class, 'index']);
-    Route::get('/tools/featured', [ToolController::class, 'featured']);
-    Route::get('/tools/{tool:slug}', [ToolController::class, 'show']);
-    Route::get('/tools/{tool:slug}/cross-references', [ToolController::class, 'crossReferences']);
-    Route::get('/tool-categories', [ToolCategoryController::class, 'index']);
-    Route::get('/tool-categories/{toolCategory:slug}', [ToolCategoryController::class, 'show']);
-    Route::get('/industries', [IndustryController::class, 'index']);
-    Route::get('/industries/{industry:slug}', [IndustryController::class, 'show']);
-    Route::get('/industries/{industry:slug}/tools', [IndustryController::class, 'tools']);
-    Route::get('/industries/{industry:slug}/solutions', [IndustryController::class, 'solutions']);
     Route::get('/features', [FeatureController::class, 'index']);
     Route::get('/features/{feature:slug}', [FeatureController::class, 'show']);
-    Route::get('/solutions', [SolutionController::class, 'index']);
-    Route::get('/solutions/{solution:slug}', [SolutionController::class, 'show']);
-    Route::get('/compare', [ComparisonPageController::class, 'index']);
-    Route::get('/compare/{comparisonPage:slug}', [ComparisonPageController::class, 'show']);
-    Route::get('/case-studies', [CaseStudyController::class, 'index']);
-    Route::get('/case-studies/{caseStudy:slug}', [CaseStudyController::class, 'show']);
     Route::get('/navigation/header', [NavigationController::class, 'header']);
     Route::get('/navigation/footer', [NavigationController::class, 'footer']);
     Route::get('/testimonials', [TestimonialController::class, 'index']);
@@ -132,16 +125,37 @@ Route::prefix('v1')->group(function () {
     Route::get('/media/assets', [MediaLibraryController::class, 'assets']);
     Route::get('/media/folders/tree', [MediaLibraryController::class, 'foldersTree']);
     Route::post('/service-inquiries', [ServiceInquiryController::class, 'store'])->middleware('throttle:3,1');
-
+    
+    Route::get('/articles', [PublicArticleController::class, 'index']);
+    Route::get('/article-pages', [ArticlePageController::class, 'index']);
+    Route::get('/article-pages/{articlePage:slug}/sections/{section}', [ArticleSectionController::class, 'show'])->where('articlePage', '.*');
+    Route::get('/article-pages/{articlePage:slug}/sections', [ArticleSectionController::class, 'index'])->where('articlePage', '.*');
+    Route::get('/article-pages/{articlePage:slug}', [ArticlePageController::class, 'show'])->where('articlePage', '.*');
+    
+    Route::get('/service', [PublicServiceController::class, 'index']);
+    Route::get('/service-pages', [ServicePageController::class, 'index']);
+    Route::get('/service-pages/{servicePage:slug}/sections/{section}', [ServiceSectionController::class, 'show'])->where('servicePage', '.*');
+    Route::get('/service-pages/{servicePage:slug}/sections', [ServiceSectionController::class, 'index'])->where('servicePage', '.*');
+    Route::get('/service-pages/{servicePage:slug}', [ServicePageController::class, 'show'])->where('servicePage', '.*');
+    
+    Route::get('/content', [PublicContentController::class, 'index']);
     Route::get('/content-pages', [ContentPageController::class, 'index']);
-    Route::get('/content-pages/{contentPage:slug}', [ContentPageController::class, 'show']);
-    Route::get('/content-pages/{contentPage:slug}/sections', [ContentSectionController::class, 'index']);
-    Route::get('/content-pages/{contentPage:slug}/sections/{section}', [ContentSectionController::class, 'show']);
-    Route::get('/blog-posts', [BlogPostController::class, 'index']);
-    Route::get('/blog-posts/{blogPost:slug}', [BlogPostController::class, 'show']);
-    Route::get('/free-tools', [FreeToolController::class, 'index']);
-    Route::get('/free-tools/{freeTool:slug}', [FreeToolController::class, 'show']);
-
+    Route::get('/content-pages/{contentPage:slug}/sections/{section}', [ContentSectionController::class, 'show'])->where('contentPage', '.*');
+    Route::get('/content-pages/{contentPage:slug}/sections', [ContentSectionController::class, 'index'])->where('contentPage', '.*');
+    Route::get('/content-pages/{contentPage:slug}', [ContentPageController::class, 'show'])->where('contentPage', '.*');
+    
+    Route::get('/datahub', [PublicDataHubController::class, 'index']);
+    Route::get('/datahub-pages', [DataHubPageController::class, 'index']);
+    Route::get('/datahub-pages/{datahubPage:slug}/sections/{section}', [DataHubSectionController::class, 'show'])->where('datahubPage', '.*');
+    Route::get('/datahub-pages/{datahubPage:slug}/sections', [DataHubSectionController::class, 'index'])->where('datahubPage', '.*');
+    Route::get('/datahub-pages/{datahubPage:slug}', [DataHubPageController::class, 'show'])->where('datahubPage', '.*');
+    
+    Route::get('/singlepage', [PublicSinglePageController::class, 'index']);
+    Route::get('/singlepage-pages', [SinglePagePageController::class, 'index']);
+    Route::get('/singlepage-pages/{singlepagePage:slug}/sections/{section}', [SinglePageSectionController::class, 'show'])->where('singlepagePage', '.*');
+    Route::get('/singlepage-pages/{singlepagePage:slug}/sections', [SinglePageSectionController::class, 'index'])->where('singlepagePage', '.*');
+    Route::get('/singlepage-pages/{singlepagePage:slug}', [SinglePagePageController::class, 'show'])->where('singlepagePage', '.*');
+    
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
@@ -166,78 +180,125 @@ Route::prefix('v1')->group(function () {
             });
 
             // Services management - requires services.manage permission
-            Route::middleware(['permission:services.manage'])->group(function () {
-                Route::post('/services', [ServiceController::class, 'store']);
-                Route::post('/services/bulk', [ServiceController::class, 'bulk']);
-                Route::put('/services/{service:slug}', [ServiceController::class, 'update']);
-                Route::delete('/services/{service:slug}', [ServiceController::class, 'destroy']);
-                Route::put('/services/{service:slug}/plans', [ServicePlanController::class, 'sync']);
-                Route::post('/services/{service:slug}/plans/bulk', [ServicePlanController::class, 'bulk']);
-                Route::put('/services/{service:slug}/templates', [ServiceTemplateController::class, 'sync']);
-                Route::put('/services/{service:slug}/page-content', [ServicePageContentController::class, 'sync']);
-                Route::put('/services/{service:slug}/sections', [ServicePageSectionController::class, 'sync']);
-                Route::post('/services/{service:slug}/sections/publish', [ServicePageSectionController::class, 'publish']);
-                Route::post('/services/{service:slug}/sections/rollback', [ServicePageSectionController::class, 'rollback']);
-                Route::put('/services/{service:slug}/package-offers', [PackageOfferController::class, 'sync']);
-                Route::post('/services/{service:slug}/package-offers/bulk', [PackageOfferController::class, 'bulk']);
-                Route::post('/service-categories', [ServiceCategoryController::class, 'store']);
-                Route::put('/service-categories/{serviceCategory}', [ServiceCategoryController::class, 'update']);
-                Route::delete('/service-categories/{serviceCategory}', [ServiceCategoryController::class, 'destroy']);
-                Route::put('/service-categories/reorder', [ServiceCategoryController::class, 'reorder']);
-                Route::post('/service-categories/bulk', [ServiceCategoryController::class, 'bulk']);
-            });
+            // Route::middleware(['permission:services.manage'])->group(function () {
+            //     Route::post('/services', [ServiceController::class, 'store']);
+            //     Route::post('/services/bulk', [ServiceController::class, 'bulk']);
+            //     Route::put('/services/{service:slug}', [ServiceController::class, 'update']);
+            //     Route::delete('/services/{service:slug}', [ServiceController::class, 'destroy']);
+            //     Route::put('/services/{service:slug}/plans', [ServicePlanController::class, 'sync']);
+            //     Route::post('/services/{service:slug}/plans/bulk', [ServicePlanController::class, 'bulk']);
+            //     Route::put('/services/{service:slug}/templates', [ServiceTemplateController::class, 'sync']);
+            //     Route::put('/services/{service:slug}/page-content', [ServicePageContentController::class, 'sync']);
+            //     Route::put('/services/{service:slug}/sections', [ServicePageSectionController::class, 'sync']);
+            //     Route::post('/services/{service:slug}/sections/publish', [ServicePageSectionController::class, 'publish']);
+            //     Route::post('/services/{service:slug}/sections/rollback', [ServicePageSectionController::class, 'rollback']);
+            //     Route::put('/services/{service:slug}/package-offers', [PackageOfferController::class, 'sync']);
+            //     Route::post('/services/{service:slug}/package-offers/bulk', [PackageOfferController::class, 'bulk']);
+            //     Route::post('/service-categories', [ServiceCategoryController::class, 'store']);
+            //     Route::put('/service-categories/{serviceCategory}', [ServiceCategoryController::class, 'update']);
+            //     Route::delete('/service-categories/{serviceCategory}', [ServiceCategoryController::class, 'destroy']);
+            //     Route::put('/service-categories/reorder', [ServiceCategoryController::class, 'reorder']);
+            //     Route::post('/service-categories/bulk', [ServiceCategoryController::class, 'bulk']);
+            // });
 
-            // Tools management - requires tools.manage permission
-            Route::middleware(['permission:tools.manage'])->group(function () {
-                Route::post('/tools', [ToolController::class, 'store']);
-                Route::put('/tools/{tool:slug}', [ToolController::class, 'update']);
-                Route::delete('/tools/{tool:slug}', [ToolController::class, 'destroy']);
-                Route::post('/tool-categories', [ToolCategoryController::class, 'store']);
-                Route::put('/tool-categories/{toolCategory:slug}', [ToolCategoryController::class, 'update']);
-                Route::delete('/tool-categories/{toolCategory:slug}', [ToolCategoryController::class, 'destroy']);
-            });
+            // Service pages management - requires services.manage permission
+            Route::middleware(['permission:service.manage'])->group(function () {
+                Route::post('/service-pages', [ServicePageController::class, 'store']);
+                Route::post('/service-pages/bulk', [ServicePageController::class, 'bulk']);
+                Route::post('/service-pages/{servicePage:slug}/sections/reorder', [ServiceSectionController::class, 'reorder'])->where('servicePage', '.*');
+                Route::post('/service-pages/{servicePage:slug}/sections', [ServiceSectionController::class, 'store'])->where('servicePage', '.*');
+                Route::put('/service-pages/{servicePage:slug}/sections/{section}', [ServiceSectionController::class, 'update'])->where('servicePage', '.*');
+                Route::delete('/service-pages/{servicePage:slug}/sections/{section}', [ServiceSectionController::class, 'destroy'])->where('servicePage', '.*');
+                Route::put('/service-pages/{servicePage:slug}', [ServicePageController::class, 'update'])->where('servicePage', '.*');
+                Route::delete('/service-pages/{servicePage:slug}', [ServicePageController::class, 'destroy'])->where('servicePage', '.*');
 
-            // Industries management - requires industries.manage permission
-            Route::middleware(['permission:industries.manage'])->group(function () {
-                Route::post('/industries', [IndustryController::class, 'store']);
-                Route::put('/industries/{industry:slug}', [IndustryController::class, 'update']);
-                Route::delete('/industries/{industry:slug}', [IndustryController::class, 'destroy']);
+                Route::get('/service-sections/{section}/items', [ServiceItemController::class, 'index']);
+                Route::post('/service-sections/{section}/items', [ServiceItemController::class, 'store']);
+                Route::get('/service-sections/{section}/items/{item}', [ServiceItemController::class, 'show']);
+                Route::put('/service-sections/{section}/items/{item}', [ServiceItemController::class, 'update']);
+                Route::delete('/service-sections/{section}/items/{item}', [ServiceItemController::class, 'destroy']);
+                Route::post('/service-sections/{section}/items/reorder', [ServiceItemController::class, 'reorder']);
+                Route::post('/service-sections/{section}/items/bulk-action', [ServiceItemController::class, 'bulkAction']);
             });
-
-            // Solutions management - requires solutions.manage permission
-            Route::middleware(['permission:solutions.manage'])->group(function () {
-                Route::apiResource('solutions', SolutionController::class)->only(['store', 'update', 'destroy']);
-                Route::post('/solutions/{solution}/attach-tool', [SolutionController::class, 'attachTool']);
-                Route::delete('/solutions/{solution}/tools/{tool}', [SolutionController::class, 'detachTool']);
-                Route::apiResource('comparison-pages', ComparisonPageController::class)->only(['index', 'store', 'update', 'destroy']);
-                Route::put('/comparison-pages/{comparisonPage}/entities', [ComparisonPageController::class, 'syncEntities']);
-            });
-
-            // Case studies management - requires case_studies.manage permission
-            Route::middleware(['permission:case_studies.manage'])->group(function () {
-                Route::apiResource('case-studies', CaseStudyController::class)->only(['store', 'update', 'destroy']);
-                Route::put('/case-studies/{caseStudy}/metrics', [CaseStudyController::class, 'replaceMetrics']);
-            });
-
+    
             // Content pages management - requires content.manage permission
             Route::middleware(['permission:content.manage'])->group(function () {
                 Route::post('/content-pages', [ContentPageController::class, 'store']);
                 Route::post('/content-pages/bulk', [ContentPageController::class, 'bulk']);
-                Route::put('/content-pages/{contentPage:slug}', [ContentPageController::class, 'update']);
-                Route::delete('/content-pages/{contentPage:slug}', [ContentPageController::class, 'destroy']);
-                Route::post('/content-pages/{contentPage:slug}/sections', [ContentSectionController::class, 'store']);
-                Route::put('/content-pages/{contentPage:slug}/sections/{section}', [ContentSectionController::class, 'update']);
-                Route::delete('/content-pages/{contentPage:slug}/sections/{section}', [ContentSectionController::class, 'destroy']);
-                Route::post('/content-pages/{contentPage:slug}/sections/reorder', [ContentSectionController::class, 'reorder']);
-                Route::get('/content-pages/{contentPage:slug}/sections/history', [ContentSectionController::class, 'history']);
-                Route::post('/content-pages/{contentPage:slug}/sections/rollback', [ContentSectionController::class, 'rollback']);
+                Route::post('/content-pages/{contentPage:slug}/sections/reorder', [ContentSectionController::class, 'reorder'])->where('contentPage', '.*');
+                Route::post('/content-pages/{contentPage:slug}/sections', [ContentSectionController::class, 'store'])->where('contentPage', '.*');
+                Route::put('/content-pages/{contentPage:slug}/sections/{section}', [ContentSectionController::class, 'update'])->where('contentPage', '.*');
+                Route::delete('/content-pages/{contentPage:slug}/sections/{section}', [ContentSectionController::class, 'destroy'])->where('contentPage', '.*');
+                Route::put('/content-pages/{contentPage:slug}', [ContentPageController::class, 'update'])->where('contentPage', '.*');
+                Route::delete('/content-pages/{contentPage:slug}', [ContentPageController::class, 'destroy'])->where('contentPage', '.*');
+
+                Route::get('/content-sections/{section}/items', [ContentItemController::class, 'index']);
+                Route::post('/content-sections/{section}/items', [ContentItemController::class, 'store']);
+                Route::get('/content-sections/{section}/items/{item}', [ContentItemController::class, 'show']);
+                Route::put('/content-sections/{section}/items/{item}', [ContentItemController::class, 'update']);
+                Route::delete('/content-sections/{section}/items/{item}', [ContentItemController::class, 'destroy']);
+                Route::post('/content-sections/{section}/items/reorder', [ContentItemController::class, 'reorder']);
+                Route::post('/content-sections/{section}/items/bulk-action', [ContentItemController::class, 'bulkAction']);
             });
 
-            // Blog posts management - requires blog.manage permission
-            Route::middleware(['permission:blog.manage'])->group(function () {
-                Route::post('/blog-posts', [BlogPostController::class, 'store']);
-                Route::put('/blog-posts/{blogPost:slug}', [BlogPostController::class, 'update']);
-                Route::delete('/blog-posts/{blogPost:slug}', [BlogPostController::class, 'destroy']);
+            // DataHub pages management - requires datahub.manage permission
+            Route::middleware(['permission:datahub.manage'])->group(function () {
+                Route::post('/datahub-pages', [DataHubPageController::class, 'store']);
+                Route::post('/datahub-pages/bulk', [DataHubPageController::class, 'bulk']);
+                Route::post('/datahub-pages/{datahubPage:slug}/sections/reorder', [DataHubSectionController::class, 'reorder'])->where('datahubPage', '.*');
+                Route::post('/datahub-pages/{datahubPage:slug}/sections', [DataHubSectionController::class, 'store'])->where('datahubPage', '.*');
+                Route::put('/datahub-pages/{datahubPage:slug}/sections/{section}', [DataHubSectionController::class, 'update'])->where('datahubPage', '.*');
+                Route::delete('/datahub-pages/{datahubPage:slug}/sections/{section}', [DataHubSectionController::class, 'destroy'])->where('datahubPage', '.*');
+                Route::put('/datahub-pages/{datahubPage:slug}', [DataHubPageController::class, 'update'])->where('datahubPage', '.*');
+                Route::delete('/datahub-pages/{datahubPage:slug}', [DataHubPageController::class, 'destroy'])->where('datahubPage', '.*');
+
+                Route::get('/datahub-sections/{section}/items', [DataHubItemController::class, 'index']);
+                Route::post('/datahub-sections/{section}/items', [DataHubItemController::class, 'store']);
+                Route::get('/datahub-sections/{section}/items/{item}', [DataHubItemController::class, 'show']);
+                Route::put('/datahub-sections/{section}/items/{item}', [DataHubItemController::class, 'update']);
+                Route::delete('/datahub-sections/{section}/items/{item}', [DataHubItemController::class, 'destroy']);
+                Route::post('/datahub-sections/{section}/items/reorder', [DataHubItemController::class, 'reorder']);
+                Route::post('/datahub-sections/{section}/items/bulk-action', [DataHubItemController::class, 'bulkAction']);
+            });
+
+            // SinglePage pages management - requires singlepage.manage permission
+            Route::middleware(['permission:singlepage.manage'])->group(function () {
+                Route::post('/singlepage-pages', [SinglePagePageController::class, 'store']);
+                Route::post('/singlepage-pages/bulk', [SinglePagePageController::class, 'bulk']);
+                Route::post('/singlepage-pages/{singlepagePage:slug}/sections/reorder', [SinglePageSectionController::class, 'reorder'])->where('singlepagePage', '.*');
+                Route::post('/singlepage-pages/{singlepagePage:slug}/sections', [SinglePageSectionController::class, 'store'])->where('singlepagePage', '.*');
+                Route::put('/singlepage-pages/{singlepagePage:slug}/sections/{section}', [SinglePageSectionController::class, 'update'])->where('singlepagePage', '.*');
+                Route::delete('/singlepage-pages/{singlepagePage:slug}/sections/{section}', [SinglePageSectionController::class, 'destroy'])->where('singlepagePage', '.*');
+                Route::put('/singlepage-pages/{singlepagePage:slug}', [SinglePagePageController::class, 'update'])->where('singlepagePage', '.*');
+                Route::delete('/singlepage-pages/{singlepagePage:slug}', [SinglePagePageController::class, 'destroy'])->where('singlepagePage', '.*');
+
+                Route::get('/singlepage-sections/{section}/items', [SinglePageItemController::class, 'index']);
+                Route::post('/singlepage-sections/{section}/items', [SinglePageItemController::class, 'store']);
+                Route::get('/singlepage-sections/{section}/items/{item}', [SinglePageItemController::class, 'show']);
+                Route::put('/singlepage-sections/{section}/items/{item}', [SinglePageItemController::class, 'update']);
+                Route::delete('/singlepage-sections/{section}/items/{item}', [SinglePageItemController::class, 'destroy']);
+                Route::post('/singlepage-sections/{section}/items/reorder', [SinglePageItemController::class, 'reorder']);
+                Route::post('/singlepage-sections/{section}/items/bulk-action', [SinglePageItemController::class, 'bulkAction']);
+            });
+
+            // Articles pages management - requires articles.manage permission
+            Route::middleware(['permission:articles.manage'])->group(function () {
+                Route::post('/article-pages', [ArticlePageController::class, 'store']);
+                Route::post('/article-pages/bulk', [ArticlePageController::class, 'bulk']);
+                Route::post('/article-pages/{articlePage:slug}/sections/reorder', [ArticleSectionController::class, 'reorder'])->where('articlePage', '.*');
+                Route::post('/article-pages/{articlePage:slug}/sections', [ArticleSectionController::class, 'store'])->where('articlePage', '.*');
+                Route::put('/article-pages/{articlePage:slug}/sections/{section}', [ArticleSectionController::class, 'update'])->where('articlePage', '.*');
+                Route::delete('/article-pages/{articlePage:slug}/sections/{section}', [ArticleSectionController::class, 'destroy'])->where('articlePage', '.*');
+                Route::put('/article-pages/{articlePage:slug}', [ArticlePageController::class, 'update'])->where('articlePage', '.*');
+                Route::delete('/article-pages/{articlePage:slug}', [ArticlePageController::class, 'destroy'])->where('articlePage', '.*');
+
+                Route::get('/article-sections/{section}/items', [ArticleItemController::class, 'index']);
+                Route::post('/article-sections/{section}/items', [ArticleItemController::class, 'store']);
+                Route::get('/article-sections/{section}/items/{item}', [ArticleItemController::class, 'show']);
+                Route::put('/article-sections/{section}/items/{item}', [ArticleItemController::class, 'update']);
+                Route::delete('/article-sections/{section}/items/{item}', [ArticleItemController::class, 'destroy']);
+                Route::post('/article-sections/{section}/items/reorder', [ArticleItemController::class, 'reorder']);
+                Route::post('/article-sections/{section}/items/bulk-action', [ArticleItemController::class, 'bulkAction']);
             });
 
             // Media library management - requires media.manage permission
@@ -293,7 +354,6 @@ Route::prefix('v1')->group(function () {
                 Route::apiResource('process-steps', ProcessStepController::class)->except(['create', 'edit']);
                 Route::put('/process-steps/reorder', [ProcessStepController::class, 'reorder']);
                 Route::apiResource('use-cases', UseCaseController::class)->except(['create', 'edit']);
-                Route::apiResource('free-tools', FreeToolController::class)->only(['store', 'update', 'destroy']);
                 Route::apiResource('redirects', RedirectController::class)->except(['create', 'edit']);
             });
 
