@@ -304,7 +304,7 @@ export function ArticleModule() {
     setIsLoading(true);
     setErrorText("");
     try {
-      const pageData = await requestJson<ArticlePageModel>(`/article-pages/${encodeURIComponent(slug)}`);
+      const pageData = await requestJson<ArticlePageModel>(`/article-pages/${slug}`);
       setSelectedPage(pageData);
 
       // Map dynamic database sections to frontend sections
@@ -435,7 +435,7 @@ export function ArticleModule() {
     try {
       let savedSlug = pageForm.slug;
       if (isEditingPage && selectedPage) {
-        await requestJson(`/article-pages/${encodeURIComponent(selectedPage.slug)}`, {
+        await requestJson(`/article-pages/${selectedPage.slug}`, {
           method: "PUT",
           body: JSON.stringify({
             title: pageForm.title,
@@ -479,12 +479,12 @@ export function ArticleModule() {
 
       const currentHeroSec = managedSections.find((s) => s.section_key === "hero");
       if (currentHeroSec?.id) {
-        await requestJson(`/article-pages/${encodeURIComponent(savedSlug)}/sections/${currentHeroSec.id}`, {
+        await requestJson(`/article-pages/${savedSlug}/sections/${currentHeroSec.id}`, {
           method: "PUT",
           body: JSON.stringify(updatedHeroSectionPayload),
         });
       } else {
-        await requestJson(`/article-pages/${encodeURIComponent(savedSlug)}/sections`, {
+        await requestJson(`/article-pages/${savedSlug}/sections`, {
           method: "POST",
           body: JSON.stringify(updatedHeroSectionPayload),
         });
@@ -513,7 +513,7 @@ export function ArticleModule() {
         setErrorText("");
         setSuccessText("");
         try {
-          await requestJson(`/article-pages/${encodeURIComponent(selectedPage.slug)}`, {
+          await requestJson(`/article-pages/${selectedPage.slug}`, {
             method: "DELETE",
           });
           setSuccessText(`Page "${selectedPage.title}" deleted.`);
@@ -601,12 +601,12 @@ export function ArticleModule() {
 
       let sectionId = sec.id;
       if (sectionId) {
-        await requestJson(`/article-pages/${encodeURIComponent(selectedPage.slug)}/sections/${sectionId}`, {
+        await requestJson(`/article-pages/${selectedPage.slug}/sections/${sectionId}`, {
           method: "PUT",
           body: JSON.stringify(sectionPayload),
         });
       } else {
-        const createdSection = await requestJson<{ section: ArticleSectionModel }>(`/article-pages/${encodeURIComponent(selectedPage.slug)}/sections`, {
+        const createdSection = await requestJson<{ section: ArticleSectionModel }>(`/article-pages/${selectedPage.slug}/sections`, {
           method: "POST",
           body: JSON.stringify(sectionPayload),
         });

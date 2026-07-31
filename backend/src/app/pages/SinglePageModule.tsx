@@ -540,7 +540,7 @@ export function SinglePageModule() {
     setIsLoading(true);
     setErrorText("");
     try {
-      const pageData = await requestJson<SinglePagePageModel>(`/singlepage-pages/${encodeURIComponent(slug)}`);
+      const pageData = await requestJson<SinglePagePageModel>(`/singlepage-pages/${slug}`);
       setSelectedPage(pageData);
 
       // Map dynamic database sections to frontend sections
@@ -674,7 +674,7 @@ export function SinglePageModule() {
     try {
       let savedSlug = pageForm.slug;
       if (isEditingPage && selectedPage) {
-        await requestJson(`/singlepage-pages/${encodeURIComponent(selectedPage.slug)}`, {
+        await requestJson(`/singlepage-pages/${selectedPage.slug}`, {
           method: "PUT",
           body: JSON.stringify({
             title: pageForm.title,
@@ -725,12 +725,12 @@ export function SinglePageModule() {
 
       const currentHeroSec = managedSections.find((s) => s.section_key === "hero");
       if (currentHeroSec?.id) {
-        await requestJson(`/singlepage-pages/${encodeURIComponent(savedSlug)}/sections/${currentHeroSec.id}`, {
+        await requestJson(`/singlepage-pages/${savedSlug}/sections/${currentHeroSec.id}`, {
           method: "PUT",
           body: JSON.stringify(updatedHeroSectionPayload),
         });
       } else {
-        await requestJson(`/singlepage-pages/${encodeURIComponent(savedSlug)}/sections`, {
+        await requestJson(`/singlepage-pages/${savedSlug}/sections`, {
           method: "POST",
           body: JSON.stringify(updatedHeroSectionPayload),
         });
@@ -759,7 +759,7 @@ export function SinglePageModule() {
         setErrorText("");
         setSuccessText("");
         try {
-          await requestJson(`/singlepage-pages/${encodeURIComponent(selectedPage.slug)}`, {
+          await requestJson(`/singlepage-pages/${selectedPage.slug}`, {
             method: "DELETE",
           });
           setSuccessText(`Page "${selectedPage.title}" deleted.`);
@@ -872,12 +872,12 @@ export function SinglePageModule() {
 
       let sectionId = sec.id;
       if (sectionId) {
-        await requestJson(`/singlepage-pages/${encodeURIComponent(selectedPage.slug)}/sections/${sectionId}`, {
+        await requestJson(`/singlepage-pages/${selectedPage.slug}/sections/${sectionId}`, {
           method: "PUT",
           body: JSON.stringify(sectionPayload),
         });
       } else {
-        const createdSection = await requestJson<{ section: SinglePageSectionModel }>(`/singlepage-pages/${encodeURIComponent(selectedPage.slug)}/sections`, {
+        const createdSection = await requestJson<{ section: SinglePageSectionModel }>(`/singlepage-pages/${selectedPage.slug}/sections`, {
           method: "POST",
           body: JSON.stringify(sectionPayload),
         });

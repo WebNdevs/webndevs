@@ -408,7 +408,7 @@ export function DataHubModule() {
     setIsLoading(true);
     setErrorText("");
     try {
-      const pageData = await requestJson<DataHubPageModel>(`/datahub-pages/${encodeURIComponent(slug)}`);
+      const pageData = await requestJson<DataHubPageModel>(`/datahub-pages/${slug}`);
       setSelectedPage(pageData);
 
       // Map dynamic database sections to frontend sections
@@ -540,7 +540,7 @@ export function DataHubModule() {
     try {
       let savedSlug = pageForm.slug;
       if (isEditingPage && selectedPage) {
-        await requestJson(`/datahub-pages/${encodeURIComponent(selectedPage.slug)}`, {
+        await requestJson(`/datahub-pages/${selectedPage.slug}`, {
           method: "PUT",
           body: JSON.stringify({
             title: pageForm.title,
@@ -584,12 +584,12 @@ export function DataHubModule() {
 
       const currentHeroSec = managedSections.find((s) => s.section_key === "hero");
       if (currentHeroSec?.id) {
-        await requestJson(`/datahub-pages/${encodeURIComponent(savedSlug)}/sections/${currentHeroSec.id}`, {
+        await requestJson(`/datahub-pages/${savedSlug}/sections/${currentHeroSec.id}`, {
           method: "PUT",
           body: JSON.stringify(updatedHeroSectionPayload),
         });
       } else {
-        await requestJson(`/datahub-pages/${encodeURIComponent(savedSlug)}/sections`, {
+        await requestJson(`/datahub-pages/${savedSlug}/sections`, {
           method: "POST",
           body: JSON.stringify(updatedHeroSectionPayload),
         });
@@ -618,7 +618,7 @@ export function DataHubModule() {
         setErrorText("");
         setSuccessText("");
         try {
-          await requestJson(`/datahub-pages/${encodeURIComponent(selectedPage.slug)}`, {
+          await requestJson(`/datahub-pages/${selectedPage.slug}`, {
             method: "DELETE",
           });
           setSuccessText(`Page "${selectedPage.title}" deleted.`);
@@ -731,12 +731,12 @@ export function DataHubModule() {
 
       let sectionId = sec.id;
       if (sectionId) {
-        await requestJson(`/datahub-pages/${encodeURIComponent(selectedPage.slug)}/sections/${sectionId}`, {
+        await requestJson(`/datahub-pages/${selectedPage.slug}/sections/${sectionId}`, {
           method: "PUT",
           body: JSON.stringify(sectionPayload),
         });
       } else {
-        const createdSection = await requestJson<{ section: DataHubSectionModel }>(`/datahub-pages/${encodeURIComponent(selectedPage.slug)}/sections`, {
+        const createdSection = await requestJson<{ section: DataHubSectionModel }>(`/datahub-pages/${selectedPage.slug}/sections`, {
           method: "POST",
           body: JSON.stringify(sectionPayload),
         });
