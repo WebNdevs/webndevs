@@ -10,10 +10,12 @@ class CorsMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $allowedOrigins = array_values(array_filter(array_map(
-            static fn (string $origin): string => rtrim(trim($origin), '/'),
-            explode(',', (string) env('CORS_ALLOWED_ORIGINS', ''))
-        )));
+        // Read from config (not env() directly) so this still works once
+        // `php artisan config:cache` has run in production — Laravel stops
+        // loading the .env file entirely once config is cached, so a raw
+        // env() call here would silently return empty and break CORS for
+        // every route in the `api` middleware group.
+        $allowedOrigins = (array) config('cors.allowed_origins', []);
 
         $origin = (string) $request->headers->get('Origin', '');
         
