@@ -42,12 +42,12 @@ export function ContentModal({ content, onClose }: ContentModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="w-full max-w-4xl max-h-[80vh] overflow-x-hidden overflow-y-auto no-scrollbar break-words bg-linear-to-r from-[#22C55E]/15 to-[#06B6D4]/15 rounded-2xl p-8 focus:outline-none"
+        className="w-full max-w-4xl max-h-[80vh] overflow-x-hidden overflow-y-auto no-scrollbar wrap-break-words bg-linear-to-r from-[#22C55E]/15 to-[#06B6D4]/15 rounded-2xl p-8 focus:outline-none"
       >
         <button
           onClick={onClose}
           aria-label="Close modal"
-          className="float-right text-[#9CA3AF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22C55E] rounded-md p-1"
+          className="float-right text-[#9CA3AF] focus-visible:outline-2 focus-visible:outline-[#22C55E] rounded-md p-1"
         >
           ✕
         </button>
@@ -63,6 +63,7 @@ export function ContentModal({ content, onClose }: ContentModalProps) {
         <h2 id="modal-title" className="text-4xl font-bold text-white mb-4">
           {content.title}
         </h2>
+        <p className="text-lg text-white mb-4">{content.author}</p>
 
         {content.tags?.length ? (
           <div className="flex flex-wrap gap-2 my-3">

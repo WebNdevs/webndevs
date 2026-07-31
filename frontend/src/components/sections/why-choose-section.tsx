@@ -1,25 +1,31 @@
 import { HeaderSection, HeaderSectionProps } from '../cards/header-card';
-import { getHome } from '@/data/content';
+import { getPage, getPageSection } from '@/data/content';
 import { IconCardGrid, IconCardProps } from '../cards/icon-card';
-import { CompareTable } from '../cards/compare-table';
+import { CompareTable, CompareTableItem } from '../cards/compare-table';
 
 
-export function WhyChooseSection() {
-  const section = getHome("why-choose");
-
-  if (!section) return null;
+export async function WhyChooseSection() {
+  const page = await getPage("content", "/");
+  const whyus = getPageSection<HeaderSectionProps & { items?: IconCardProps[] }>(page, "whyus");
+  const compare = getPageSection<HeaderSectionProps & { items?: CompareTableItem[] }>(page, "comparison");
+  
+  if (!page) return null;
 
   return (
     <section aria-label="Why Choose Us" className="py-20 px-6 bg-transparent">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <HeaderSection {...section?.header as HeaderSectionProps}/>
+        {whyus && <HeaderSection {...whyus} />}
 
         {/* Benefits Grid */}
-        <IconCardGrid items={section?.items as IconCardProps[]}/>
+        {whyus?.items && <IconCardGrid items={whyus.items} />}
 
         {/* Comparison Section */}
-        <CompareTable {...section?.comparison}/>
+        {compare && (
+          <>
+            {compare.items && <CompareTable items={compare.items} />}
+          </>
+        )}
       </div>
     </section>
   );

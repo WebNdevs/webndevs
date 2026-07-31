@@ -9,15 +9,16 @@ import { ResultCardGrid, ResultCardProps } from '../cards/result-card';
 import { LadderCardProps, LadderSection } from '../cards/ladder-card';
 import { TechCard, TechCardProps } from '../cards/technology-card';
 import { EntityCardProps, EntityGrid } from '../cards/entity-card';
+import { getPageSection, NormalizedPage } from '@/data/content';
 
 export type DynamicServiceData = {
   slug: string;
-  seo: {
-    title: string;
-    description: string;
-    keywords: string[];
+  seo?: {
+    title?: string;
+    description?: string;
+    keywords?: string[];
     image?: string;
-    path: string;
+    path?: string;
   };
   hero?: PageHeroProps;
   tag?: string;
@@ -25,76 +26,87 @@ export type DynamicServiceData = {
   subheading2?: string;
   subtext?: string;
   overview?: ContentTile[];
-  stats?: StatsCardProps[];
+  stats?: StatsCardProps[] | { items?: StatsCardProps[] };
   delivered?: {
-    tag?: string,
-    subheading1?: string,
-    subheading2?: string,
-    subtext?: string,
-    items?: IconCardProps[];
-  };
-  benefits?: {
-    tag?: string,
-    subheading1?: string,
-    subheading2?: string,
-    subtext?: string,
-    items?: IconCardProps[];
-  };
-  techspec?: TechCardProps;
-  process?: {
-    tag?: string,
-    subheading1?: string,
-    subheading2?: string,
-    subtext?: string,
-    items?: LadderCardProps[];
-  };
-  results?: {
-    tag?: string,
-    subheading1?: string,
-    subheading2?: string,
-    subtext?: string,
-    items?: ResultCardProps[];
-  };
-  usecase?: {
-    tag?: string,
-    subheading1?: string,
-    subheading2?: string,
-    subtext?: string,
-    items?: EntityCardProps[];
-  };
-    faq?: {
     tag?: string;
     subheading1?: string;
     subheading2?: string;
     subtext?: string;
-    items: FAQItemProps[];
+    items?: IconCardProps[];
+  };
+  benefits?: {
+    tag?: string;
+    subheading1?: string;
+    subheading2?: string;
+    subtext?: string;
+    items?: IconCardProps[];
+  };
+  techspec?: TechCardProps;
+  process?: {
+    tag?: string;
+    subheading1?: string;
+    subheading2?: string;
+    subtext?: string;
+    items?: LadderCardProps[];
+  };
+  results?: {
+    tag?: string;
+    subheading1?: string;
+    subheading2?: string;
+    subtext?: string;
+    items?: ResultCardProps[];
+  };
+  usecase?: {
+    tag?: string;
+    subheading1?: string;
+    subheading2?: string;
+    subtext?: string;
+    items?: EntityCardProps[];
+  };
+  faq?: {
+    tag?: string;
+    subheading1?: string;
+    subheading2?: string;
+    subtext?: string;
+    items?: FAQItemProps[];
   };
   cta?: ShortCTAProps;
-}
+  [key: string]: any;
+};
 
 export type DynamicServiceProps = {
-  section: DynamicServiceData;
-}
+  page: NormalizedPage;
+};
 
+export function DynamicService({ page }: DynamicServiceProps) {
+  if (!page) return null;
 
-export function DynamicService({section}:DynamicServiceProps) {  
-  if(!section) return null;
+  const hero = getPageSection<PageHeroProps>(page, "hero");
+  const stats = getPageSection<StatsCardProps[] | { items?: StatsCardProps[] }>(page, "stats");
+  const benefits = getPageSection<HeaderSectionProps & { items?: IconCardProps[] }>(page, "benefits");
+  const delivered = getPageSection<HeaderSectionProps & { items?: IconCardProps[] }>(page, "delivered");
+  const techspec = getPageSection<TechCardProps>(page, "techspec");
+  const process = getPageSection<HeaderSectionProps & { items?: LadderCardProps[] }>(page, "process");
+  const results = getPageSection<HeaderSectionProps & { items?: ResultCardProps[] }>(page, "result");
+  const usecase = getPageSection<HeaderSectionProps & { items?: EntityCardProps[] }>(page, "usecase");
+  const faq = getPageSection<HeaderSectionProps & { items?: FAQItemProps[] }>(page, "faq");
+  const cta = getPageSection<ShortCTAProps>(page, "cta");
 
   const serviceSchema = {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": `${section.hero?.title1 || ""} ${section.hero?.title2 || ""}`.trim() || section.tag || "Service",
-    "description": section.seo?.description || section.hero?.description || "",
+    "name": `${hero?.title1 || ""} ${hero?.title2 || ""}`.trim() || (page.tag as string) || "Service",
+    "description": page.seo_description || hero?.description || "",
     "provider": {
       "@type": "Organization",
       "name": "WebNDevs",
       "url": "https://webndevs.com"
     },
-    "serviceType": section.tag || "Web & Software Services",
+    "serviceType": (page.tag as string) || "Web & Software Services",
     "areaServed": "Worldwide"
   };
 
-  const faqItems = section.faq?.items || [];
+  const faqItems = faq?.items || [];
   const faqSchema = faqItems.length > 0 ? {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -113,6 +125,8 @@ export function DynamicService({section}:DynamicServiceProps) {
     schemas.push(faqSchema);
   }
 
+  const statsItems = (Array.isArray(stats) ? stats : stats?.items) as StatsCardProps[];
+
   return (
     <section id='services' className="py-20 px-6 bg-[#0B0F14]">
       <script
@@ -120,58 +134,59 @@ export function DynamicService({section}:DynamicServiceProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemas) }}
       />
       <div className="max-w-7xl mx-auto">
-        {section?.hero && (
-          <PageHero {...section?.hero as PageHeroProps}/>
+        {hero && (
+          <PageHero {...hero} />
         )}
-        {section?.stats && (
-          <StatsCardGrid items={section?.stats as StatsCardProps[]}/>
+        
+        {stats && (
+          <StatsCardGrid items={statsItems as StatsCardProps[]} />
         )}
-        {section?.benefits && (
+        {benefits && (
           <>
-            <HeaderSection {...section?.benefits as HeaderSectionProps}/>
-            <IconCardGrid items={section?.benefits?.items as IconCardProps[]}/>
+            <HeaderSection {...benefits} />
+            <IconCardGrid items={benefits?.items as IconCardProps[]} />
           </>
         )}
-        {section?.delivered && (
+        {delivered && (
           <>
-            <HeaderSection {...section?.delivered as HeaderSectionProps}/>
-            <IconCardGrid items={section?.delivered?.items as IconCardProps[]}/>
+            <HeaderSection {...delivered} />
+            <IconCardGrid items={delivered?.items as IconCardProps[]} />
           </>
         )}
-        {section?.techspec && (
-          <TechCard {...section?.techspec as TechCardProps}/>
+        {techspec && (
+          <TechCard {...techspec} />
         )}
-        {section?.process && (
+        {process && (
           <div className='py-20 px-6 mb-16 bg-linear-to-r from-[#22C55E]/1 to-[#06B6D4]/1'>
-            <HeaderSection {...section?.process as HeaderSectionProps}/>
-            <LadderSection items={section?.process?.items as LadderCardProps[]}/>
+            <HeaderSection {...process} />
+            <LadderSection items={process?.items as LadderCardProps[]} />
           </div>
         )}
-        {section?.results && (
+        {results && (
           <>
-            <HeaderSection {...section?.results as HeaderSectionProps}/>
-            <ResultCardGrid items={section?.results?.items as ResultCardProps[]}/>
+            <HeaderSection {...results} />
+            <ResultCardGrid items={results?.items as ResultCardProps[]} />
           </>
         )}
-        {section?.usecase && (
+        {usecase && (
           <>
-            <HeaderSection {...section?.usecase as HeaderSectionProps}/>
-            <EntityGrid items={section?.usecase?.items as EntityCardProps[]}/>
+            <HeaderSection {...usecase} />
+            <EntityGrid items={usecase?.items as EntityCardProps[]} />
           </>
         )}
-        {section?.faq && (
+        {faq && (
           <>
-          <HeaderSection {...section?.faq as HeaderSectionProps}/>
-          <FAQCard items={section?.faq?.items as FAQItemProps[]}/>
+            <HeaderSection {...faq} />
+            <FAQCard items={faq?.items as FAQItemProps[]} />
           </>
         )}
-        {section?.cta && (
+        {cta && (
           <>
-            <ShortCTA variant="full" {...section?.cta as ShortCTAProps}/>
-            <ShortCTA variant="preview" {...section?.cta as ShortCTAProps}/>
+            <ShortCTA variant="full" {...cta} />
+            <ShortCTA variant="preview" {...cta} />
           </>
         )}
-        <CTASection/>
+        <CTASection />
 
       </div>
     </section>

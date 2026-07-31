@@ -12,6 +12,8 @@ import {
 import { API_BASE_URL } from "../../config/api.config";
 import { clearStoredAuth, fetchAuthenticatedUser, getStoredToken, setStoredToken, TOKEN_KEYS } from "../auth";
 import { Pill, Tabs, Card, Button as CustomButton, ConfirmModal } from "../components/blocks";
+import { getSectionSchema, getItemSchema, mergeSectionData, mergeItemData } from "../../data/schema";
+
 
 type PageStatus = "published" | "draft";
 
@@ -68,6 +70,7 @@ type EditableSectionItem = {
   row_id: string;
   id?: number;
   title?: string;
+  tag?: string;
   description?: string;
   value?: string;
   icon?: string;
@@ -93,6 +96,15 @@ type EditableSectionItem = {
   url?: string;
   category?: string;
   content?: string;
+  // Comparison
+  comparison?: {
+    leftHeading?: string;
+    rightHeading?: string;
+    leftPoints?: string[];
+    rightPoints?: string[];
+    leftPointsText?: string;
+    rightPointsText?: string;
+  };
   is_active: boolean;
   is_featured: boolean;
 };
@@ -101,6 +113,7 @@ type EditableManagedSection = {
   id?: number;
   section_key: SectionKey;
   label: string;
+  title?: string;
   heading: string;
   subheading: string;
   title1: string;
@@ -112,11 +125,6 @@ type EditableManagedSection = {
   subtext: string;
   is_active: boolean;
   items: EditableSectionItem[];
-  // Comparison
-  leftHeading?: string;
-  rightHeading?: string;
-  leftPointsText?: string;
-  rightPointsText?: string;
   // CTA
   ctaPreviewText?: string;
   ctaPreviewUrl?: string;
@@ -173,7 +181,7 @@ export function ContentModule() {
   const [selectedPage, setSelectedPage] = useState<ContentPageModel | null>(null);
   const [activeTab, setActiveTab] = useState<string>("publishing_workflow");
   const [managedSections, setManagedSections] = useState<EditableManagedSection[]>([]);
-  const [deletedItemIds, setDeletedItemIds] = useState<number[]>([]);
+  const [deletedItemIds, setDeletedItemIds] = useState<{ sectionId: number; itemId: number }[]>([]);
   
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -290,6 +298,7 @@ export function ContentModule() {
             itemData.title = item.title?.trim() || null;
             itemData.description = item.description?.trim() || null;
             itemData.url = item.url?.trim() || null;
+            itemData.tags = item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : (Array.isArray(item.tags) ? item.tags : null);
           } else if (sec.section_key === "process") {
             itemData.icon = item.icon?.trim() || null;
             itemData.title = item.title?.trim() || null;
@@ -316,6 +325,24 @@ export function ContentModule() {
             itemData.rating = item.rating || 5;
             itemData.photo_url = item.photo_url?.trim() || null;
             itemData.role = item.role?.trim() || null;
+          } else if (sec.section_key === "comparison") {
+            itemData.title = item.title?.trim() || null;
+            itemData.description = item.description?.trim() || null;
+            itemData.tag = item.tag?.trim() || null;
+            itemData.comparison = omitEmptyKeys({
+                leftHeading: item.comparison?.leftHeading,
+                rightHeading: item.comparison?.rightHeading,
+                leftPoints:
+                    item.comparison?.leftPointsText
+                        ?.split("\n")
+                        .map(s=>s.trim())
+                        .filter(Boolean),
+                rightPoints:
+                    item.comparison?.rightPointsText
+                        ?.split("\n")
+                        .map(s=>s.trim())
+                        .filter(Boolean),
+            });
           } else if (sec.section_key === "faq") {
             itemData.question = item.question?.trim() || null;
             itemData.answer = item.answer?.trim() || null;
@@ -355,10 +382,19 @@ export function ContentModule() {
         });
       } else if (sec.section_key === "comparison") {
         rawJson.comparison = omitEmptyKeys({
-          leftHeading: sec.leftHeading?.trim() || null,
-          rightHeading: sec.rightHeading?.trim() || null,
-          leftPoints: sec.leftPointsText ? sec.leftPointsText.split("\n").map((s) => s.trim()).filter(Boolean) : null,
-          rightPoints: sec.rightPointsText ? sec.rightPointsText.split("\n").map((s) => s.trim()).filter(Boolean) : null,
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+        });
+      } else if (sec.section_key === "data") {
+        rawJson.data = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
         });
       } else if (sec.section_key === "process") {
         rawJson.process = omitEmptyKeys({
@@ -387,13 +423,21 @@ export function ContentModule() {
           rawJson.stats = cleanedItems;
         }
       } else if (sec.section_key === "result") {
-        if (cleanedItems.length > 0) {
-          rawJson.result = cleanedItems;
-        }
+        rawJson.result = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+        });
       } else if (sec.section_key === "review") {
-        if (cleanedItems.length > 0) {
-          rawJson.review = cleanedItems;
-        }
+        rawJson.review = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+        });
       } else if (sec.section_key === "techspec") {
         rawJson.techspec = omitEmptyKeys({
           techtag: sec.techtag?.trim() || null,
@@ -410,10 +454,6 @@ export function ContentModule() {
           subtext: sec.subtext?.trim() || null,
           items: cleanedItems.length > 0 ? cleanedItems : null,
         });
-      } else if (sec.section_key === "data") {
-        if (cleanedItems.length > 0) {
-          rawJson.data = cleanedItems;
-        }
       } else if (sec.section_key === "cta") {
         rawJson.cta = omitEmptyKeys({
           preview: omitEmptyKeys({
@@ -448,46 +488,6 @@ export function ContentModule() {
     }
   }
 
-  async function seedDefaultPages() {
-    if (!canManage) {
-      setErrorText("Set admin API token first to seed default pages.");
-      return;
-    }
-    setIsSaving(true);
-    setErrorText("");
-    setSuccessText("");
-    const defaultPages = [
-      { title: "Home", slug: "home" },
-      { title: "About", slug: "about" },
-      { title: "Contact Us", slug: "contact-us" },
-      { title: "Privacy", slug: "privacy" },
-    ];
-    try {
-      for (const p of defaultPages) {
-        const exists = pages.some(page => page.slug === p.slug);
-        if (!exists) {
-          await requestJson("/content-pages", {
-            method: "POST",
-            body: JSON.stringify({
-              title: p.title,
-              slug: p.slug,
-              status: "published",
-              seo_title: p.title + " | WebNDevs",
-              seo_description: `WebNDevs ${p.title} page content.`,
-              meta_keywords: `${p.slug}, webndevs`,
-            }),
-          });
-        }
-      }
-      setSuccessText("Default pages initialized successfully.");
-      await loadPages();
-    } catch (err) {
-      setErrorText(err instanceof Error ? err.message : "Failed to seed default pages");
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
   async function loadPage(slug: string) {
     setIsLoading(true);
     setErrorText("");
@@ -499,23 +499,44 @@ export function ContentModule() {
       const apiSections = pageData.sections || [];
       const initialManagedSections = SECTION_KEYS.map((key) => {
         const match = apiSections.find((s) => s.section_key === key);
-        const data = (match?.data || {}) as Record<string, any>;
+        const data = mergeSectionData(key, (match?.data || {}) as Record<string, any>);
         
         // Map database section items to local layout fields
         const items = (match?.items || []).map((item) => {
-          const itemData = (item.data || {}) as Record<string, any>;
+          const rawItemData = (item.data || {}) as Record<string, any>;
+          const itemData = mergeItemData(key, rawItemData);
+          const urlVal = itemData.url || itemData.href || "";
+          const tagsTextVal = Array.isArray(itemData.tags)
+            ? itemData.tags.join(", ")
+            : (typeof itemData.tags === "string" ? itemData.tags : (itemData.tagsText || ""));
+          const resultsTextVal = Array.isArray(itemData.results)
+            ? itemData.results.join("\n")
+            : (typeof itemData.results === "string" ? itemData.results : (itemData.resultsText || ""));
+
           return {
             row_id: `item-${item.id}`,
             id: item.id,
             is_active: item.is_active,
             is_featured: item.is_featured,
             ...itemData,
-            tagsText: Array.isArray(itemData.tags) ? itemData.tags.join(", ") : "",
-            resultsText: Array.isArray(itemData.results) ? itemData.results.join("\n") : "",
+            url: urlVal,
+            href: urlVal,
+            tagsText: tagsTextVal,
+            resultsText: resultsTextVal,
+            comparison: {
+              leftHeading: itemData.comparison?.leftHeading || "",
+              rightHeading: itemData.comparison?.rightHeading || "",
+              leftPoints: Array.isArray(itemData.comparison?.leftPoints) ? itemData.comparison.leftPoints : [],
+              rightPoints: Array.isArray(itemData.comparison?.rightPoints) ? itemData.comparison.rightPoints : [],
+              leftPointsText: Array.isArray(itemData.comparison?.leftPoints)
+                ? itemData.comparison.leftPoints.join("\n")
+                : (typeof itemData.comparison?.leftPoints === "string" ? itemData.comparison.leftPoints : (itemData.comparison?.leftPointsText || "")),
+              rightPointsText: Array.isArray(itemData.comparison?.rightPoints)
+                ? itemData.comparison.rightPoints.join("\n")
+                : (typeof itemData.comparison?.rightPoints === "string" ? itemData.comparison.rightPoints : (itemData.comparison?.rightPointsText || "")),
+            },
           };
         });
-
-       const comparison = key === "comparison" ? data : {};
 
         const cta = key === "cta" ? data : {};
 
@@ -532,6 +553,7 @@ export function ContentModule() {
           id: match?.id,
           section_key: key,
           label: SECTION_LABELS[key],
+          title: data.title || "",
           subheading1: data.subheading1 || "",
           subheading2: data.subheading2 || "",
           heading: data.heading || "",
@@ -543,12 +565,6 @@ export function ContentModule() {
           subtext: data.subtext || "",
           is_active: match ? Boolean(match.is_visible) : true,
           items,
-
-          // comparison
-          leftHeading: comparison.leftHeading || "",
-          rightHeading: comparison.rightHeading || "",
-          leftPointsText: Array.isArray(comparison.leftPoints) ? comparison.leftPoints.join("\n") : "",
-          rightPointsText: Array.isArray(comparison.rightPoints) ? comparison.rightPoints.join("\n") : "",
 
           // cta
           ctaPreviewText: preview.text || "",
@@ -567,7 +583,11 @@ export function ContentModule() {
           techHeading1: techspec.techHeading1 || "",
           techHeading2: techspec.techHeading2 || "",
           techSubtext: techspec.techSubtext || "",
-          techTagsText: Array.isArray(techspec.tags) ? techspec.tags.join(", ") : "",
+          techTagsText: Array.isArray(techspec.tags)
+            ? techspec.tags.join(", ")
+            : typeof techspec.tags === "string"
+            ? techspec.tags
+            : (techspec.techTagsText || ""),
         };
       });
 
@@ -771,16 +791,26 @@ export function ContentModule() {
         dataPayload.subheading1 = sec.subheading1?.trim() || null;
         dataPayload.subheading2 = sec.subheading2?.trim() || null;
         dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "comparison") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
       } else if (sec.section_key === "whyus") {
         dataPayload.tag = sec.tag?.trim() || null;
         dataPayload.subheading1 = sec.subheading1?.trim() || null;
         dataPayload.subheading2 = sec.subheading2?.trim() || null;
         dataPayload.subtext = sec.subtext?.trim() || null;
-      } else if (sec.section_key === "comparison") {
-        dataPayload.leftHeading = sec.leftHeading?.trim() || null;
-        dataPayload.rightHeading = sec.rightHeading?.trim() || null;
-        dataPayload.leftPoints = sec.leftPointsText ? sec.leftPointsText.split("\n").map((s) => s.trim()).filter(Boolean) : null;
-        dataPayload.rightPoints = sec.rightPointsText ? sec.rightPointsText.split("\n").map((s) => s.trim()).filter(Boolean) : null;
+      } else if (sec.section_key === "result") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "review") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
       } else if (sec.section_key === "process") {
         dataPayload.tag = sec.tag?.trim() || null;
         dataPayload.subheading1 = sec.subheading1?.trim() || null;
@@ -797,6 +827,11 @@ export function ContentModule() {
             url: sec.processCtaFullUrl?.trim() || null,
           }),
         });
+      } else if (sec.section_key === "stats") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
       } else if (sec.section_key === "techspec") {
         dataPayload.techtag = sec.techtag?.trim() || null;
         dataPayload.techHeading1 = sec.techHeading1?.trim() || null;
@@ -804,6 +839,11 @@ export function ContentModule() {
         dataPayload.techSubtext = sec.techSubtext?.trim() || null;
         dataPayload.tags = sec.techTagsText ? sec.techTagsText.split(",").map((s) => s.trim()).filter(Boolean) : null;
       } else if (sec.section_key === "faq") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "data") {
         dataPayload.tag = sec.tag?.trim() || null;
         dataPayload.subheading1 = sec.subheading1?.trim() || null;
         dataPayload.subheading2 = sec.subheading2?.trim() || null;
@@ -822,7 +862,7 @@ export function ContentModule() {
 
       const sectionPayload = {
         section_key: sec.section_key,
-        section_type: ["hero", "cta", "comparison", "techspec"].includes(sec.section_key) ? sec.section_key : "items",
+        section_type: ["hero", "cta", "techspec"].includes(sec.section_key) ? sec.section_key : "items",
         data: omitEmptyKeys(dataPayload) || {},
         is_visible: sec.is_active,
         sort_order: 0,
@@ -852,6 +892,7 @@ export function ContentModule() {
           itemData.title = item.title?.trim() || null;
           itemData.description = item.description?.trim() || null;
           itemData.url = item.url?.trim() || null;
+          itemData.tags = item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : (Array.isArray(item.tags) ? item.tags : null);
         } else if (sec.section_key === "process") {
           itemData.icon = item.icon?.trim() || null;
           itemData.title = item.title?.trim() || null;
@@ -862,13 +903,13 @@ export function ContentModule() {
           itemData.icon = item.icon?.trim() || null;
           itemData.title = item.title?.trim() || null;
           itemData.value = item.value?.trim() || null;
-          itemData.url = item.url?.trim() || null;
+          itemData.url = item.url?.trim() || item.href?.trim() || null;
         } else if (sec.section_key === "result") {
           itemData.title = item.title?.trim() || null;
           itemData.category = item.category?.trim() || null;
           itemData.description = item.description?.trim() || null;
-          itemData.results = item.resultsText ? item.resultsText.split("\n").map((s) => s.trim()).filter(Boolean) : null;
-          itemData.tags = item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null;
+          itemData.results = item.resultsText !== undefined ? (item.resultsText ? item.resultsText.split("\n").map((s) => s.trim()).filter(Boolean) : null) : (Array.isArray(item.results) ? item.results : null);
+          itemData.tags = item.tagsText !== undefined ? (item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null) : (Array.isArray(item.tags) ? item.tags : null);
           itemData.badge = item.badge?.trim() || null;
           itemData.url = item.url?.trim() || null;
         } else if (sec.section_key === "review") {
@@ -878,6 +919,20 @@ export function ContentModule() {
           itemData.rating = item.rating || 5;
           itemData.photo_url = item.photo_url?.trim() || null;
           itemData.role = item.role?.trim() || null;
+        } else if (sec.section_key === "comparison") {
+          itemData.title = item.title?.trim() || null;
+          itemData.description = item.description?.trim() || null;
+          itemData.tag = item.tag?.trim() || null;
+          itemData.comparison = omitEmptyKeys({
+            leftHeading: item.comparison?.leftHeading?.trim() || null,
+            rightHeading: item.comparison?.rightHeading?.trim() || null,
+            leftPoints: item.comparison?.leftPointsText
+              ? item.comparison.leftPointsText.split("\n").map(s => s.trim()).filter(Boolean)
+              : (Array.isArray(item.comparison?.leftPoints) && item.comparison.leftPoints.length > 0 ? item.comparison.leftPoints : null),
+            rightPoints: item.comparison?.rightPointsText
+              ? item.comparison.rightPointsText.split("\n").map(s => s.trim()).filter(Boolean)
+              : (Array.isArray(item.comparison?.rightPoints) && item.comparison.rightPoints.length > 0 ? item.comparison.rightPoints : null),
+          });
         } else if (sec.section_key === "faq") {
           itemData.question = item.question?.trim() || null;
           itemData.answer = item.answer?.trim() || null;
@@ -887,6 +942,11 @@ export function ContentModule() {
         } else {
           itemData.title = item.title?.trim() || null;
           itemData.description = item.description?.trim() || null;
+          Object.keys(item).forEach((k) => {
+            if (!["row_id", "id", "is_active", "is_featured", "title", "description"].includes(k) && (item as any)[k] !== undefined) {
+              itemData[k] = (item as any)[k];
+            }
+          });
         }
 
         const itemPayload = {
@@ -909,17 +969,18 @@ export function ContentModule() {
         }
       });
 
-      // Handle deleted items
-      const deletedPromises = deletedItemIds.map(async (id) => {
-        if (id > 0) {
-          await requestJson(`/content-sections/${sectionId}/items/${id}`, {
+      // Handle deleted items scoped to sectionId
+      const sectionDeletedItems = deletedItemIds.filter((d) => d.sectionId === sectionId);
+      const deletedPromises = sectionDeletedItems.map(async (d) => {
+        if (d.itemId > 0) {
+          await requestJson(`/content-sections/${d.sectionId}/items/${d.itemId}`, {
             method: "DELETE",
           });
         }
       });
 
       await Promise.all([...savePromises, ...deletedPromises]);
-      setDeletedItemIds([]);
+      setDeletedItemIds((prev) => prev.filter((d) => d.sectionId !== sectionId));
 
       setSuccessText(`Section "${sec.label}" saved successfully.`);
       await loadPage(selectedPage.slug);
@@ -938,8 +999,14 @@ export function ContentModule() {
     if (activeSectionIndex === -1) return;
     
     const sec = managedSections[activeSectionIndex];
-    const itemIds = sec.items.map((item) => item.id).filter((id): id is number => !!id && id > 0);
-    setDeletedItemIds((prev) => [...prev, ...itemIds]);
+    if (sec.id) {
+      const secId = sec.id;
+      const itemsToDelete = sec.items
+        .map((item) => item.id)
+        .filter((id): id is number => !!id && id > 0)
+        .map((id) => ({ sectionId: secId, itemId: id }));
+      setDeletedItemIds((prev) => [...prev, ...itemsToDelete]);
+    }
 
     setManagedSections((current) =>
       current.map((s, idx) => {
@@ -955,10 +1022,6 @@ export function ContentModule() {
             subheading: "",
             tag: "",
             subtext: "",
-            leftHeading: "",
-            rightHeading: "",
-            leftPointsText: "",
-            rightPointsText: "",
             ctaPreviewText: "",
             ctaPreviewUrl: "",
             ctaFullDescription: "",
@@ -1008,6 +1071,7 @@ export function ContentModule() {
       row_id: `temp-${Date.now()}`,
       is_active: true,
       is_featured: false,
+      ...getItemSchema(activeTab),
     };
 
     setManagedSections((current) =>
@@ -1050,9 +1114,10 @@ export function ContentModule() {
   }
 
   function removeManagedSectionItem(sectionIndex: number, itemIndex: number) {
-    const item = managedSections[sectionIndex].items[itemIndex];
-    if (item.id && item.id > 0) {
-      setDeletedItemIds((prev) => [...prev, item.id]);
+    const sec = managedSections[sectionIndex];
+    const item = sec.items[itemIndex];
+    if (item.id && item.id > 0 && sec.id) {
+      setDeletedItemIds((prev) => [...prev, { sectionId: sec.id!, itemId: item.id! }]);
     }
     setManagedSections((current) =>
       current.map((s, idx) => {
@@ -1200,9 +1265,6 @@ export function ContentModule() {
             </CustomButton>
             <CustomButton variant="primary" iconStart={<Plus size={16} />} onClick={openCreatePage}>
               Add Page
-            </CustomButton>
-            <CustomButton variant="primary" onClick={seedDefaultPages} disabled={isSaving || !canManage}>
-              Seed Default Pages
             </CustomButton>
           </div>
         </div>
@@ -1374,7 +1436,7 @@ export function ContentModule() {
                         />
                       </div>
                     </div>
-                  ) : activeTab === "whyus" || activeTab === "result" || activeTab === "review" || activeTab === "data" ? (
+                  ) : activeTab === "whyus" || activeTab === "comparison" || activeTab === "result" || activeTab === "review" || activeTab === "data" ? (
                     <div className="flex flex-col gap-lg mb-lg">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
                         <InputField
@@ -1403,38 +1465,6 @@ export function ContentModule() {
                           value={activeManagedSection.subtext}
                           rows={3}
                           onChange={(value) => updateSectionHeader("subtext", value)}
-                        />
-                      </div>
-                    </div>
-                  ) : activeTab === "comparison" ? (
-                    <div className="border-t border-border-secondary pt-md mt-md flex flex-col gap-lg bg-bg-faint p-lg rounded-corner-lg border border-border-primary">
-                      <p className="font-semibold text-label-sm text-text-primary">Comparison Table details</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                        <InputField
-                          label="Left Col Heading"
-                          placeholder="Traditional Approach"
-                          value={activeManagedSection.leftHeading || ""}
-                          onChange={(value) => updateSectionHeader("leftHeading", value)}
-                        />
-                        <InputField
-                          label="Right Col Heading"
-                          placeholder="The WebNDevs Way"
-                          value={activeManagedSection.rightHeading || ""}
-                          onChange={(value) => updateSectionHeader("rightHeading", value)}
-                        />
-                        <TextareaField
-                          label="Left Col Points (one per line)"
-                          placeholder="Point 1&#10;Point 2"
-                          value={activeManagedSection.leftPointsText || ""}
-                          rows={4}
-                          onChange={(value) => updateSectionHeader("leftPointsText", value)}
-                        />
-                        <TextareaField
-                          label="Right Col Points (one per line)"
-                          placeholder="Point 1&#10;Point 2"
-                          value={activeManagedSection.rightPointsText || ""}
-                          rows={4}
-                          onChange={(value) => updateSectionHeader("rightPointsText", value)}
                         />
                       </div>
                     </div>
@@ -1526,7 +1556,7 @@ export function ContentModule() {
                           value={activeManagedSection.techtag || ""}
                           onChange={(value) => updateSectionHeader("techtag", value)}
                         />
-                        <InputField
+                        <TextareaField
                           label="Tech Tags (comma separated)"
                           placeholder="React, Next.js, Tailwind"
                           value={activeManagedSection.techTagsText || ""}
@@ -1636,7 +1666,7 @@ export function ContentModule() {
                   ) : null}
 
                   {/* Section Items */}
-                  {!["hero", "header", "comparison", "techspec", "cta"].includes(activeTab) && (
+                  {!["hero", "header", "techspec", "cta"].includes(activeTab) && (
                     <div className="border-t border-border-secondary pt-lg flex flex-col gap-lg">
                       <div className="flex items-center justify-between">
                         <p className="text-label-sm font-semibold text-text-primary">Card Items</p>
@@ -1753,6 +1783,12 @@ export function ContentModule() {
                                     placeholder="/about"
                                     value={item.url || ""}
                                     onChange={(v) => updateManagedSectionItem(itemIndex, "url", v)}
+                                  />
+                                  <InputField
+                                    label="Tags (comma separated)"
+                                    placeholder="E-Commerce, WordPress"
+                                    value={item.tagsText || ""}
+                                    onChange={(v) => updateManagedSectionItem(itemIndex, "tagsText", v)}
                                   />
                                 </div>
                                 <TextareaField
@@ -1906,9 +1942,64 @@ export function ContentModule() {
                                   rows={3}
                                   onChange={(v) => updateManagedSectionItem(itemIndex, "description", v)}
                                 />
+                               </div>
+                             ) : activeManagedSection.section_key === "comparison" ? (
+                               <div className="border-t border-border-secondary pt-md mt-md flex flex-col gap-lg bg-bg-faint p-lg rounded-corner-lg border border-border-primary">
+                               <div className="flex flex-col gap-lg">
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                                   <InputField
+                                     label="Title"
+                                     placeholder="ChatGPT vs Claude"
+                                     value={item.title || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "title", v)}
+                                   />
+                                   <TextareaField
+                                     label="Short description"
+                                     placeholder="ChatGPT is a language model that uses machine learning to generate human-like text..."
+                                     value={item.description || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "description", v)}
+                                   />
+                                   <InputField
+                                     label="Tag"
+                                     placeholder="Artificial Intelligence"
+                                     value={item.tag || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "tag", v)}
+                                   />
+                                 </div>
+                               </div>
+                               <div className="flex flex-col gap-lg">
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                                   <InputField
+                                     label="Left Column Heading"
+                                     placeholder="Traditional Approach"
+                                     value={item?.comparison?.leftHeading || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "comparison", {...item.comparison, leftHeading: v})}
+                                   />
+                                   <InputField
+                                     label="Right Column Heading"
+                                     placeholder="The WebNDevs Way"
+                                     value={item?.comparison?.rightHeading || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "comparison", {...item.comparison, rightHeading: v})}
+                                   />
+                                 </div>
+                                 <TextareaField
+                                   label="Left Points (one per line)"
+                                   placeholder="Point 1&#10;Point 2"
+                                   value={item?.comparison?.leftPointsText || ""}
+                                   rows={4}
+                                   onChange={(v) => updateManagedSectionItem(itemIndex, "comparison", {...item.comparison, leftPointsText: v})}
+                                 />
+                                 <TextareaField
+                                   label="Right Points (one per line)"
+                                   placeholder="Point 1&#10;Point 2"
+                                   value={item?.comparison?.rightPointsText || ""}
+                                   rows={4}
+                                   onChange={(v) => updateManagedSectionItem(itemIndex, "comparison", {...item.comparison, rightPointsText: v})}
+                                 />
+                               </div>
                               </div>
-                            ) : (
-                              /* Default Generic Card layout */
+                             ) : (
+                               /* Default Generic Card layout */
                               <div className="flex flex-col gap-lg">
                                 <InputField
                                   label="Item Title"

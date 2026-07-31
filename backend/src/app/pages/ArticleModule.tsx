@@ -12,6 +12,8 @@ import {
 import { API_BASE_URL } from "../../config/api.config";
 import { clearStoredAuth, fetchAuthenticatedUser, getStoredToken, setStoredToken, TOKEN_KEYS } from "../auth";
 import { Pill, Tabs, Card, Button as CustomButton, ConfirmModal } from "../components/blocks";
+import { getSectionSchema, getItemSchema, mergeSectionData, mergeItemData } from "../../data/schema";
+
 
 type PageStatus = "published" | "draft";
 
@@ -69,6 +71,7 @@ type EditableSectionItem = {
   slug?: string;
   date?: string;
   tags?: string[];
+  tagsText?: string;
   is_active: boolean;
   is_featured: boolean;
 };
@@ -114,7 +117,7 @@ export function ArticleModule() {
   const [selectedPage, setSelectedPage] = useState<ArticlePageModel | null>(null);
   const [activeTab, setActiveTab] = useState<string>("publishing_workflow");
   const [managedSections, setManagedSections] = useState<EditableManagedSection[]>([]);
-  const [deletedItemIds, setDeletedItemIds] = useState<number[]>([]);
+  const [deletedItemIds, setDeletedItemIds] = useState<{ sectionId: number; itemId: number }[]>([]);
   
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -232,7 +235,7 @@ export function ArticleModule() {
             itemData.content = item.content?.trim() || null;
             itemData.date = item.date?.trim() || null;
             itemData.slug = item.slug?.trim() || null;
-            itemData.tags = Array.isArray(item.tags) ? item.tags.map((t) => t.trim()).filter((t) => t.length > 0) : null;
+            itemData.tags = item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : (Array.isArray(item.tags) ? item.tags.map((t) => t.trim()).filter((t) => t.length > 0) : null);
             itemData.image = item.image?.trim() || null;
             itemData.author = item.author?.trim() || null;
             itemData.featured = item.featured || false;
@@ -308,12 +311,15 @@ export function ArticleModule() {
       const apiSections = pageData.sections || [];
       const initialManagedSections = SECTION_KEYS.map((key) => {
         const match = apiSections.find((s) => s.section_key === key);
-        const data = (match?.data || {}) as Record<string, any>;
+        const data = mergeSectionData(key, (match?.data || {}) as Record<string, any>);
         
         // Map database section items to local layout fields
         const items = (match?.items || []).map((item) => {
-          const itemData = (item.data || {}) as Record<string, any>;
-          // Normalize tags to string[] for EditableSectionItem
+          const rawItemData = (item.data || {}) as Record<string, any>;
+          const itemData = mergeItemData(key, rawItemData);
+          const tagsTextVal = Array.isArray(itemData.tags)
+            ? itemData.tags.join(", ")
+            : (typeof itemData.tags === "string" ? itemData.tags : (itemData.tagsText || ""));
           let tagsArr: string[] | undefined = undefined;
           if (Array.isArray(itemData.tags)) {
             tagsArr = itemData.tags.map((t: any) => String(t).trim()).filter((t: string) => t.length > 0);
@@ -326,8 +332,16 @@ export function ArticleModule() {
             id: item.id,
             is_active: item.is_active,
             is_featured: item.is_featured,
+            title: itemData.title || "",
+            author: itemData.author || "",
+            slug: itemData.slug || "",
+            date: itemData.date || "",
+            image: itemData.image || "",
+            content: itemData.content || "",
+            excerpt: itemData.excerpt || "",
             ...itemData,
             tags: tagsArr,
+            tagsText: tagsTextVal,
           };
         });
 
@@ -560,6 +574,11 @@ export function ArticleModule() {
         dataPayload.subheading1 = sec.subheading1?.trim() || null;
         dataPayload.subheading2 = sec.subheading2?.trim() || null;
         dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "content") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
       } else if (sec.section_key === "cta") {
         dataPayload.preview = omitEmptyKeys({
           text: sec.ctaPreviewText?.trim() || null,
@@ -605,7 +624,9 @@ export function ArticleModule() {
           itemData.content = item.content?.trim() || null;
           itemData.date = item.date?.trim() || null;
           itemData.slug = item.slug?.trim() || null;
-          itemData.tags = Array.isArray(item.tags) ? item.tags.map((t) => t.trim()).filter((t) => t.length > 0) : null;
+          itemData.tags = item.tagsText !== undefined
+            ? (item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null)
+            : (Array.isArray(item.tags) ? item.tags : null);
           itemData.image = item.image?.trim() || null;
           itemData.author = item.author?.trim() || null;
           itemData.featured = item.featured || false;
@@ -634,17 +655,18 @@ export function ArticleModule() {
         }
       });
 
-      // Handle deleted items
-      const deletedPromises = deletedItemIds.map(async (id) => {
-        if (id > 0) {
-          await requestJson(`/article-sections/${sectionId}/items/${id}`, {
+      // Handle deleted items scoped to sectionId
+      const sectionDeletedItems = deletedItemIds.filter((d) => d.sectionId === sectionId);
+      const deletedPromises = sectionDeletedItems.map(async (d) => {
+        if (d.itemId > 0) {
+          await requestJson(`/article-sections/${d.sectionId}/items/${d.itemId}`, {
             method: "DELETE",
           });
         }
       });
 
       await Promise.all([...savePromises, ...deletedPromises]);
-      setDeletedItemIds([]);
+      setDeletedItemIds((prev) => prev.filter((d) => d.sectionId !== sectionId));
 
       setSuccessText(`Section "${sec.label}" saved successfully.`);
       await loadPage(selectedPage.slug);
@@ -663,8 +685,14 @@ export function ArticleModule() {
     if (activeSectionIndex === -1) return;
     
     const sec = managedSections[activeSectionIndex];
-    const itemIds = sec.items.map((item) => item.id).filter((id): id is number => !!id && id > 0);
-    setDeletedItemIds((prev) => [...prev, ...itemIds]);
+    if (sec.id) {
+      const secId = sec.id;
+      const itemsToDelete = sec.items
+        .map((item) => item.id)
+        .filter((id): id is number => !!id && id > 0)
+        .map((id) => ({ sectionId: secId, itemId: id }));
+      setDeletedItemIds((prev) => [...prev, ...itemsToDelete]);
+    }
 
     setManagedSections((current) =>
       current.map((s, idx) => {
@@ -717,6 +745,7 @@ export function ArticleModule() {
       row_id: `temp-${Date.now()}`,
       is_active: true,
       is_featured: false,
+      ...getItemSchema(activeTab),
     };
 
     setManagedSections((current) =>
@@ -759,9 +788,10 @@ export function ArticleModule() {
   }
 
   function removeManagedSectionItem(sectionIndex: number, itemIndex: number) {
-    const item = managedSections[sectionIndex].items[itemIndex];
-    if (item.id && item.id > 0) {
-      setDeletedItemIds((prev) => [...prev, item.id]);
+    const sec = managedSections[sectionIndex];
+    const item = sec.items[itemIndex];
+    if (item.id && item.id > 0 && sec.id) {
+      setDeletedItemIds((prev) => [...prev, { sectionId: sec.id!, itemId: item.id! }]);
     }
     setManagedSections((current) =>
       current.map((s, idx) => {
@@ -1212,10 +1242,10 @@ export function ArticleModule() {
                                   onChange={(v) => updateManagedSectionItem(itemIndex, "image", v)}
                                 />
                                 <InputField
-                                  label="Tags"
+                                  label="Tags (comma separated)"
                                   placeholder="AI Agents, Automation, Business Systems"
-                                  value={item.tags?.join(", ") || ""}
-                                  onChange={(v) => updateManagedSectionItem(itemIndex, "tags", v.split(",").map((tag) => tag.trim()))}
+                                  value={item.tagsText || (Array.isArray(item.tags) ? item.tags.join(", ") : "")}
+                                  onChange={(v) => updateManagedSectionItem(itemIndex, "tagsText", v)}
                                 />
                                 <TextareaField
                                   label="Content"

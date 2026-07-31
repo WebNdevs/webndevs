@@ -12,6 +12,8 @@ import {
 import { API_BASE_URL } from "../../config/api.config";
 import { clearStoredAuth, fetchAuthenticatedUser, getStoredToken, setStoredToken, TOKEN_KEYS } from "../auth";
 import { Pill, Tabs, Card, Button as CustomButton, ConfirmModal } from "../components/blocks";
+import { getSectionSchema, getItemSchema, mergeSectionData, mergeItemData } from "../../data/schema";
+
 
 type PageStatus = "published" | "draft";
 
@@ -71,6 +73,7 @@ type EditableSectionItem = {
   id?: number;
   title?: string;
   description?: string;
+  tag?: string;
   value?: string;
   icon?: string;
   href?: string;
@@ -98,10 +101,14 @@ type EditableSectionItem = {
   is_active: boolean;
   is_featured: boolean;
   // Comparison
-  leftHeading?: string;
-  rightHeading?: string;
-  leftPointsText?: string;
-  rightPointsText?: string;
+  comparison?: {
+    leftHeading?: string;
+    rightHeading?: string;
+    leftPoints?: string[];
+    rightPoints?: string[];
+    leftPointsText?: string;
+    rightPointsText?: string;
+  };
 };
 
 type EditableManagedSection = {
@@ -180,7 +187,7 @@ export function ServiceModule() {
   const [selectedPage, setSelectedPage] = useState<ServicePageModel | null>(null);
   const [activeTab, setActiveTab] = useState<string>("publishing_workflow");
   const [managedSections, setManagedSections] = useState<EditableManagedSection[]>([]);
-  const [deletedItemIds, setDeletedItemIds] = useState<number[]>([]);
+  const [deletedItemIds, setDeletedItemIds] = useState<{ sectionId: number; itemId: number }[]>([]);
   
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -221,7 +228,7 @@ export function ServiceModule() {
 
   const authHeaders = useMemo(() => {
     return {
-      "Service-Type": "application/json",
+      "Content-Type": "application/json",
       ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
     };
   }, [adminToken]);
@@ -308,6 +315,24 @@ export function ServiceModule() {
             itemData.title = item.title?.trim() || null;
             itemData.value = item.value?.trim() || null;
             itemData.url = item.url?.trim() || null;
+          } else if (sec.section_key === "comparison") {
+            itemData.title = item.title?.trim() || null;
+            itemData.description = item.description?.trim() || null;
+            itemData.tag = item.tag?.trim() || null;
+            itemData.comparison = omitEmptyKeys({
+                leftHeading: item.comparison?.leftHeading,
+                rightHeading: item.comparison?.rightHeading,
+                leftPoints:
+                    item.comparison?.leftPointsText
+                        ?.split("\n")
+                        .map(s=>s.trim())
+                        .filter(Boolean),
+                rightPoints:
+                    item.comparison?.rightPointsText
+                        ?.split("\n")
+                        .map(s=>s.trim())
+                        .filter(Boolean),
+            });
           } else if (sec.section_key === "result") {
             itemData.title = item.title?.trim() || null;
             itemData.category = item.category?.trim() || null;
@@ -323,28 +348,13 @@ export function ServiceModule() {
             itemData.rating = item.rating || 5;
             itemData.photo_url = item.photo_url?.trim() || null;
             itemData.role = item.role?.trim() || null;
-          } else if (sec.section_key === "comparison") {
-            rawJson.comparison = omitEmptyKeys({
-              title: sec.title?.trim() || null,
-              tag: sec.tag?.trim() || null,
-              description: sec.description?.trim() || null,
-            });
-          } else if (sec.section_key === "directory") {
-            rawJson.directory = omitEmptyKeys({
-              tag: sec.tag?.trim() || null,
-              subheading1: sec.subheading1?.trim() || null,
-              subheading2: sec.subheading2?.trim() || null,
-              subtext: sec.subtext?.trim() || null,
-              items: cleanedItems.length > 0 ? cleanedItems : null,
-            });
-          } else if (sec.section_key === "benefits") {
-              rawJson.benefits = omitEmptyKeys({
-              tag: sec.tag?.trim() || null,
-              subheading1: sec.subheading1?.trim() || null,
-              subheading2: sec.subheading2?.trim() || null,
-              subtext: sec.subtext?.trim() || null,
-              items: cleanedItems.length > 0 ? cleanedItems : null,
-            });
+          } else if (sec.section_key === "directory" || sec.section_key === "benefits") {
+            itemData.icon = item.icon?.trim() || null;
+            itemData.title = item.title?.trim() || null;
+            itemData.description = item.description?.trim() || null;
+            itemData.badge = item.badge?.trim() || null;
+            itemData.url = item.url?.trim() || item.href?.trim() || null;
+            itemData.tags = item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : (Array.isArray(item.tags) ? item.tags : null);
           } else if (sec.section_key === "faq") {
             itemData.question = item.question?.trim() || null;
             itemData.answer = item.answer?.trim() || null;
@@ -374,6 +384,22 @@ export function ServiceModule() {
           subheading2: sec.subheading2?.trim() || null,
           subtext: sec.subtext?.trim() || null,
         });
+      } else if (sec.section_key === "comparison") {
+        rawJson.comparison = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+        });
+      } else if (sec.section_key === "data") {
+        rawJson.data = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+        });
       } else if (sec.section_key === "whyus") {
         rawJson.whyus = omitEmptyKeys({
           tag: sec.tag?.trim() || null,
@@ -381,12 +407,6 @@ export function ServiceModule() {
           subheading2: sec.subheading2?.trim() || null,
           subtext: sec.subtext?.trim() || null,
           items: cleanedItems.length > 0 ? cleanedItems : null,
-        });
-      } else if (sec.section_key === "comparison") {
-        rawJson.comparison = omitEmptyKeys({
-          title: sec.title?.trim() || null,
-          tag: sec.tag?.trim() || null,
-          description: sec.description?.trim() || null,
         });
       } else if (sec.section_key === "process") {
         rawJson.process = omitEmptyKeys({
@@ -415,13 +435,21 @@ export function ServiceModule() {
           rawJson.stats = cleanedItems;
         }
       } else if (sec.section_key === "result") {
-        if (cleanedItems.length > 0) {
-          rawJson.result = cleanedItems;
-        }
+        rawJson.result = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+        });
       } else if (sec.section_key === "review") {
-        if (cleanedItems.length > 0) {
-          rawJson.review = cleanedItems;
-        }
+        rawJson.review = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+        });
       } else if (sec.section_key === "techspec") {
         rawJson.techspec = omitEmptyKeys({
           techtag: sec.techtag?.trim() || null,
@@ -455,10 +483,6 @@ export function ServiceModule() {
           subtext: sec.subtext?.trim() || null,
           items: cleanedItems.length > 0 ? cleanedItems : null,
         });
-      } else if (sec.section_key === "data") {
-        if (cleanedItems.length > 0) {
-          rawJson.data = cleanedItems;
-        }
       } else if (sec.section_key === "cta") {
         rawJson.cta = omitEmptyKeys({
           preview: omitEmptyKeys({
@@ -504,21 +528,43 @@ export function ServiceModule() {
       const apiSections = pageData.sections || [];
       const initialManagedSections = SECTION_KEYS.map((key) => {
         const match = apiSections.find((s) => s.section_key === key);
-        const data = (match?.data || {}) as Record<string, any>;
+        const data = mergeSectionData(key, (match?.data || {}) as Record<string, any>);
         
         // Map database section items to local layout fields
         const items = (match?.items || []).map((item) => {
-          const itemData = (item.data || {}) as Record<string, any>;
+          const rawItemData = (item.data || {}) as Record<string, any>;
+          const itemData = mergeItemData(key, rawItemData);
+          const urlVal = itemData.url || itemData.href || "";
+          const tagsTextVal = Array.isArray(itemData.tags)
+            ? itemData.tags.join(", ")
+            : (typeof itemData.tags === "string" ? itemData.tags : (itemData.tagsText || ""));
+          const resultsTextVal = Array.isArray(itemData.results)
+            ? itemData.results.join("\n")
+            : (typeof itemData.results === "string" ? itemData.results : (itemData.resultsText || ""));
+
           return {
             row_id: `item-${item.id}`,
             id: item.id,
             is_active: item.is_active,
             is_featured: item.is_featured,
             ...itemData,
-            tagsText: Array.isArray(itemData.tags) ? itemData.tags.join(", ") : "",
-            resultsText: Array.isArray(itemData.results) ? itemData.results.join("\n") : "",
-            leftPointsText: Array.isArray(itemData.leftPoints) ? itemData.leftPoints.join("\n") : "",
-            rightPointsText: Array.isArray(itemData.rightPoints) ? itemData.rightPoints.join("\n") : "",
+            url: urlVal,
+            href: urlVal,
+            tagsText: tagsTextVal,
+            resultsText: resultsTextVal,
+            service: itemData.service || "",
+            comparison: {
+              leftHeading: itemData.comparison?.leftHeading || "",
+              rightHeading: itemData.comparison?.rightHeading || "",
+              leftPoints: Array.isArray(itemData.comparison?.leftPoints) ? itemData.comparison.leftPoints : [],
+              rightPoints: Array.isArray(itemData.comparison?.rightPoints) ? itemData.comparison.rightPoints : [],
+              leftPointsText: Array.isArray(itemData.comparison?.leftPoints)
+                ? itemData.comparison.leftPoints.join("\n")
+                : (typeof itemData.comparison?.leftPoints === "string" ? itemData.comparison.leftPoints : (itemData.comparison?.leftPointsText || "")),
+              rightPointsText: Array.isArray(itemData.comparison?.rightPoints)
+                ? itemData.comparison.rightPoints.join("\n")
+                : (typeof itemData.comparison?.rightPoints === "string" ? itemData.comparison.rightPoints : (itemData.comparison?.rightPointsText || "")),
+            },
           };
         });
 
@@ -564,7 +610,11 @@ export function ServiceModule() {
           techHeading1: techspec.techHeading1 || "",
           techHeading2: techspec.techHeading2 || "",
           techSubtext: techspec.techSubtext || "",
-          techTagsText: Array.isArray(techspec.tags) ? techspec.tags.join(", ") : "",
+          techTagsText: Array.isArray(techspec.tags)
+            ? techspec.tags.join(", ")
+            : typeof techspec.tags === "string"
+            ? techspec.tags
+            : (techspec.techTagsText || ""),
         };
       });
 
@@ -773,15 +823,36 @@ export function ServiceModule() {
         dataPayload.subheading1 = sec.subheading1?.trim() || null;
         dataPayload.subheading2 = sec.subheading2?.trim() || null;
         dataPayload.subtext = sec.subtext?.trim() || null;
-      } else if (sec.section_key === "directory" || sec.section_key === "benefits" ) {
+      } else if (sec.section_key === "comparison") {
         dataPayload.tag = sec.tag?.trim() || null;
         dataPayload.subheading1 = sec.subheading1?.trim() || null;
         dataPayload.subheading2 = sec.subheading2?.trim() || null;
         dataPayload.subtext = sec.subtext?.trim() || null;
-      } else if (sec.section_key === "comparison") {
-        dataPayload.title = sec.title?.trim() || null;
+      } else if (sec.section_key === "benefits") {
         dataPayload.tag = sec.tag?.trim() || null;
-        dataPayload.description = sec.description?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "result") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "review") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "data") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "directory") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
       } else if (sec.section_key === "process") {
         dataPayload.tag = sec.tag?.trim() || null;
         dataPayload.subheading1 = sec.subheading1?.trim() || null;
@@ -798,6 +869,11 @@ export function ServiceModule() {
             url: sec.processCtaFullUrl?.trim() || null,
           }),
         });
+      } else if (sec.section_key === "stats") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
       } else if (sec.section_key === "techspec") {
         dataPayload.techtag = sec.techtag?.trim() || null;
         dataPayload.techHeading1 = sec.techHeading1?.trim() || null;
@@ -859,17 +935,31 @@ export function ServiceModule() {
           itemData.number = item.number?.trim() || null;
           itemData.description = item.description?.trim() || null;
           itemData.duration = item.duration?.trim() || null;
+        } else if (sec.section_key === "comparison") {
+          itemData.title = item.title?.trim() || null;
+          itemData.description = item.description?.trim() || null;
+          itemData.tag = item.tag?.trim() || null;
+          itemData.comparison = omitEmptyKeys({
+            leftHeading: item.comparison?.leftHeading?.trim() || null,
+            rightHeading: item.comparison?.rightHeading?.trim() || null,
+            leftPoints: item.comparison?.leftPointsText
+              ? item.comparison.leftPointsText.split("\n").map(s => s.trim()).filter(Boolean)
+              : (Array.isArray(item.comparison?.leftPoints) && item.comparison.leftPoints.length > 0 ? item.comparison.leftPoints : null),
+            rightPoints: item.comparison?.rightPointsText
+              ? item.comparison.rightPointsText.split("\n").map(s => s.trim()).filter(Boolean)
+              : (Array.isArray(item.comparison?.rightPoints) && item.comparison.rightPoints.length > 0 ? item.comparison.rightPoints : null),
+          });
         } else if (sec.section_key === "stats") {
           itemData.icon = item.icon?.trim() || null;
           itemData.title = item.title?.trim() || null;
           itemData.value = item.value?.trim() || null;
-          itemData.url = item.url?.trim() || null;
+          itemData.url = item.url?.trim() || item.href?.trim() || null;
         } else if (sec.section_key === "result") {
           itemData.title = item.title?.trim() || null;
           itemData.category = item.category?.trim() || null;
           itemData.description = item.description?.trim() || null;
-          itemData.results = item.resultsText ? item.resultsText.split("\n").map((s) => s.trim()).filter(Boolean) : null;
-          itemData.tags = item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null;
+          itemData.results = item.resultsText !== undefined ? (item.resultsText ? item.resultsText.split("\n").map((s) => s.trim()).filter(Boolean) : null) : (Array.isArray(item.results) ? item.results : null);
+          itemData.tags = item.tagsText !== undefined ? (item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null) : (Array.isArray(item.tags) ? item.tags : null);
           itemData.badge = item.badge?.trim() || null;
           itemData.url = item.url?.trim() || null;
         } else if (sec.section_key === "review") {
@@ -879,6 +969,13 @@ export function ServiceModule() {
           itemData.rating = item.rating || 5;
           itemData.photo_url = item.photo_url?.trim() || null;
           itemData.role = item.role?.trim() || null;
+        } else if (sec.section_key === "directory" || sec.section_key === "benefits") {
+          itemData.icon = item.icon?.trim() || null;
+          itemData.title = item.title?.trim() || null;
+          itemData.description = item.description?.trim() || null;
+          itemData.badge = item.badge?.trim() || null;
+          itemData.url = item.url?.trim() || item.href?.trim() || null;
+          itemData.tags = item.tagsText !== undefined ? (item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null) : (Array.isArray(item.tags) ? item.tags : null);
         } else if (sec.section_key === "faq") {
           itemData.question = item.question?.trim() || null;
           itemData.answer = item.answer?.trim() || null;
@@ -888,6 +985,11 @@ export function ServiceModule() {
         } else {
           itemData.title = item.title?.trim() || null;
           itemData.description = item.description?.trim() || null;
+          Object.keys(item).forEach((k) => {
+            if (!["row_id", "id", "is_active", "is_featured", "title", "description"].includes(k) && (item as any)[k] !== undefined) {
+              itemData[k] = (item as any)[k];
+            }
+          });
         }
 
         const itemPayload = {
@@ -910,17 +1012,18 @@ export function ServiceModule() {
         }
       });
 
-      // Handle deleted items
-      const deletedPromises = deletedItemIds.map(async (id) => {
-        if (id > 0) {
-          await requestJson(`/service-sections/${sectionId}/items/${id}`, {
+      // Handle deleted items scoped to sectionId
+      const sectionDeletedItems = deletedItemIds.filter((d) => d.sectionId === sectionId);
+      const deletedPromises = sectionDeletedItems.map(async (d) => {
+        if (d.itemId > 0) {
+          await requestJson(`/service-sections/${d.sectionId}/items/${d.itemId}`, {
             method: "DELETE",
           });
         }
       });
 
       await Promise.all([...savePromises, ...deletedPromises]);
-      setDeletedItemIds([]);
+      setDeletedItemIds((prev) => prev.filter((d) => d.sectionId !== sectionId));
 
       setSuccessText(`Section "${sec.label}" saved successfully.`);
       await loadPage(selectedPage.slug);
@@ -939,8 +1042,14 @@ export function ServiceModule() {
     if (activeSectionIndex === -1) return;
     
     const sec = managedSections[activeSectionIndex];
-    const itemIds = sec.items.map((item) => item.id).filter((id): id is number => !!id && id > 0);
-    setDeletedItemIds((prev) => [...prev, ...itemIds]);
+    if (sec.id) {
+      const secId = sec.id;
+      const itemsToDelete = sec.items
+        .map((item) => item.id)
+        .filter((id): id is number => !!id && id > 0)
+        .map((id) => ({ sectionId: secId, itemId: id }));
+      setDeletedItemIds((prev) => [...prev, ...itemsToDelete]);
+    }
 
     setManagedSections((current) =>
       current.map((s, idx) => {
@@ -1010,6 +1119,7 @@ export function ServiceModule() {
       row_id: `temp-${Date.now()}`,
       is_active: true,
       is_featured: false,
+      ...getItemSchema(activeTab),
     };
 
     setManagedSections((current) =>
@@ -1052,9 +1162,10 @@ export function ServiceModule() {
   }
 
   function removeManagedSectionItem(sectionIndex: number, itemIndex: number) {
-    const item = managedSections[sectionIndex].items[itemIndex];
-    if (item.id && item.id > 0) {
-      setDeletedItemIds((prev) => [...prev, item.id]);
+    const sec = managedSections[sectionIndex];
+    const item = sec.items[itemIndex];
+    if (item.id && item.id > 0 && sec.id) {
+      setDeletedItemIds((prev) => [...prev, { sectionId: sec.id!, itemId: item.id! }]);
     }
     setManagedSections((current) =>
       current.map((s, idx) => {
@@ -1373,7 +1484,7 @@ export function ServiceModule() {
                         />
                       </div>
                     </div>
-                  ) : activeTab === "whyus" || activeTab === "result" || activeTab === "review" || activeTab === "data" ? (
+                  ) : activeTab === "whyus" || activeTab === "result" || activeTab === "review" || activeTab === "data" || activeTab === "directory" || activeTab === "benefits" || activeTab === "comparison" ? (
                     <div className="flex flex-col gap-lg mb-lg">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
                         <InputField
@@ -1402,62 +1513,6 @@ export function ServiceModule() {
                           value={activeManagedSection.subtext}
                           rows={3}
                           onChange={(value) => updateSectionHeader("subtext", value)}
-                        />
-                      </div>
-                    </div>
-                  ) : activeTab === "directory" || activeTab === "benefits" ? (
-                    <div className="flex flex-col gap-lg mb-lg">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
-                        <InputField
-                          label="Section Tag"
-                          placeholder="e.g. WHY US"
-                          value={activeManagedSection.tag}
-                          onChange={(value) => updateSectionHeader("tag", value)}
-                        />
-                        <InputField
-                          label="Subheading 1"
-                          placeholder="e.g. Why Choose Us"
-                          value={activeManagedSection.subheading1}
-                          onChange={(value) => updateSectionHeader("subheading1", value)}
-                        />
-                        <InputField
-                          label="Subheading 2"
-                          placeholder="e.g. The Best Choice"
-                          value={activeManagedSection.subheading2}
-                          onChange={(value) => updateSectionHeader("subheading2", value)}
-                        />
-                      </div>
-                      <div className="w-full">
-                        <TextareaField
-                          label="Subtext"
-                          placeholder="Explain this section..."
-                          value={activeManagedSection.subtext}
-                          rows={3}
-                          onChange={(value) => updateSectionHeader("subtext", value)}
-                        />
-                      </div>
-                    </div>
-                  ) : activeTab === "comparison" ? (
-                    <div className="border-t border-border-secondary pt-md mt-md flex flex-col gap-lg bg-bg-faint p-lg rounded-corner-lg border border-border-primary">
-                      <p className="font-semibold text-label-sm text-text-primary">Comparison Table details</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                        <InputField
-                          label="Title"
-                          placeholder="ChatGPT vs Claude"
-                          value={activeManagedSection.title || ""}
-                          onChange={(value) => updateSectionHeader("title", value)}
-                        />
-                        <InputField
-                          label="Short Description"
-                          placeholder="ChatGPT is a language model that uses machine learning to generate human-like text..."
-                          value={activeManagedSection.description || ""}
-                          onChange={(value) => updateSectionHeader("description", value)}
-                        />
-                        <InputField
-                          label="Tag"
-                          placeholder="Artificial Intelligence"
-                          value={activeManagedSection.tag || ""}
-                          onChange={(value) => updateSectionHeader("tag", value)}
                         />
                       </div>
                     </div>
@@ -1549,7 +1604,7 @@ export function ServiceModule() {
                           value={activeManagedSection.techtag || ""}
                           onChange={(value) => updateSectionHeader("techtag", value)}
                         />
-                        <InputField
+                        <TextareaField
                           label="Tech Tags (comma separated)"
                           placeholder="React, Next.js, Tailwind"
                           value={activeManagedSection.techTagsText || ""}
@@ -1829,35 +1884,59 @@ export function ServiceModule() {
                                 />
                               </div>
                             ) : activeManagedSection.section_key === "comparison" ? (
-                              <div className="flex flex-col gap-lg">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
-                                  <InputField
-                                    label="leftHeading"
-                                    placeholder="Other Approach"
-                                    value={item.leftHeading || ""}
-                                    onChange={(v) => updateManagedSectionItem(itemIndex, "leftHeading", v)}
-                                  />
-                                  <InputField
-                                    label="rightHeading"
-                                    placeholder="The WebNDevs Way"
-                                    value={item.rightHeading || ""}
-                                    onChange={(v) => updateManagedSectionItem(itemIndex, "rightHeading", v)}
-                                  />
-                                </div>
-                                <TextareaField
-                                  label="Left Points (one per line)"
-                                  placeholder="Point 1&#10;Point 2"
-                                  value={item.leftPointsText || ""}
-                                  rows={4}
-                                  onChange={(v) => updateManagedSectionItem(itemIndex, "leftPointsText", v)}
-                                />
-                                <TextareaField
-                                  label="Right Points (one per line)"
-                                  placeholder="Point 1&#10;Point 2"
-                                  value={item.rightPointsText || ""}
-                                  rows={4}
-                                  onChange={(v) => updateManagedSectionItem(itemIndex, "rightPointsText", v)}
-                                />
+                               <div className="border-t border-border-secondary pt-md mt-md flex flex-col gap-lg bg-bg-faint p-lg rounded-corner-lg border border-border-primary">
+                               <div className="flex flex-col gap-lg">
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                                   <InputField
+                                     label="Title"
+                                     placeholder="ChatGPT vs Claude"
+                                     value={item.title || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "title", v)}
+                                   />
+                                   <TextareaField
+                                     label="Short description"
+                                     placeholder="ChatGPT is a language model that uses machine learning to generate human-like text..."
+                                     value={item.description || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "description", v)}
+                                   />
+                                   <InputField
+                                     label="Tag"
+                                     placeholder="Artificial Intelligence"
+                                     value={item.tag || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "tag", v)}
+                                   />
+                                 </div>
+                               </div>
+                               <div className="flex flex-col gap-lg">
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                                   <InputField
+                                     label="Left Column Heading"
+                                     placeholder="Traditional Approach"
+                                     value={item?.comparison?.leftHeading || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "comparison", {...item.comparison, leftHeading: v})}
+                                   />
+                                   <InputField
+                                     label="Right Column Heading"
+                                     placeholder="The WebNDevs Way"
+                                     value={item?.comparison?.rightHeading || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "comparison", {...item.comparison, rightHeading: v})}
+                                   />
+                                 </div>
+                                 <TextareaField
+                                   label="Left Points (one per line)"
+                                   placeholder="Point 1&#10;Point 2"
+                                   value={item?.comparison?.leftPointsText || ""}
+                                   rows={4}
+                                   onChange={(v) => updateManagedSectionItem(itemIndex, "comparison", {...item.comparison, leftPointsText: v})}
+                                 />
+                                 <TextareaField
+                                   label="Right Points (one per line)"
+                                   placeholder="Point 1&#10;Point 2"
+                                   value={item?.comparison?.rightPointsText || ""}
+                                   rows={4}
+                                   onChange={(v) => updateManagedSectionItem(itemIndex, "comparison", {...item.comparison, rightPointsText: v})}
+                                 />
+                               </div>
                               </div>
                             ) : activeManagedSection.section_key === "stats" ? (
                               <div className="grid grid-cols-1 md:grid-cols-4 gap-lg">

@@ -101,7 +101,7 @@ export function ShortCTA({ variant = "full", preview, full} : ShortCTAProps) {
     return(
       <div className="text-center mt-12 ">
         { preview && (
-          <Link href={preview.url} passHref legacyBehavior={false}>
+          <Link href={preview.url}>
             <DSButton className="text-xl font-medium" asChild>
               <span>
                 {preview.text}

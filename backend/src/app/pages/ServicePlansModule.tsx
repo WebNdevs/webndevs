@@ -4,6 +4,8 @@ import { CheckCircle2, Edit, Plus, RefreshCw, Save, Trash2 } from "lucide-react"
 import { API_BASE_URL } from "../../config/api.config";
 import { clearStoredAuth, getStoredToken, setStoredToken } from "../auth";
 import { Pill, Tabs, Card, Button, ConfirmModal } from "../components/blocks";
+import { getSectionSchema, getItemSchema, mergeSectionData, mergeItemData } from "../../data/schema";
+
 
 type ApiResponse<T> = {
   success: boolean;
@@ -423,54 +425,23 @@ const SECTION_DEFINITIONS: Array<{ key: SectionKey; label: string }> = [
   { key: "cta", label: "CTA Section" },
 ];
 
-function emptySectionItem(): EditableSectionItem {
-  return {
-    title: "",
-    description: "",
-    value: "",
-    question: "",
-    answer: "",
-    name: "",
-    role: "",
-    quote: "",
-    metric: "",
-    author_name: "",
-    author_title: "",
-    company: "",
-    content: "",
-    rating: "5",
-    category: "",
-    results: "",
-    technologies: "",
-    icon: "",
-    number: "",
-    project_url: "",
-    // New fields
-    keywords: "",
-    image: "",
-    path: "",
-    tag: "",
-    title1: "",
-    title2: "",
-    href: "",
-    preview_text: "",
-    preview_url: "",
-    full_text: "",
-    full_description: "",
-    full_url: "",
-  };
+function emptySectionItem(sectionKey?: string): EditableSectionItem {
+  return getItemSchema(sectionKey || "default") as EditableSectionItem;
 }
 
 function defaultManagedSections(): EditableManagedSection[] {
-  return SECTION_DEFINITIONS.map((section) => ({
-    section_key: section.key,
-    heading: "",
-    subheading: "",
-    tag: "",
-    subtext: "",
-    is_active: false,
-    items: [emptySectionItem()],
-  }));
+  return SECTION_DEFINITIONS.map((section) => {
+    const schema = getSectionSchema(section.key);
+    return {
+      section_key: section.key,
+      heading: schema.subheading1 || schema.heading || "",
+      subheading: schema.subheading2 || schema.subheading || "",
+      tag: schema.tag || "",
+      subtext: schema.subtext || "",
+      is_active: false,
+      items: [emptySectionItem(section.key)],
+    };
+  });
 }
 
 function toEditablePlan(plan: ServicePlan): EditablePlan {
@@ -630,36 +601,37 @@ function keyFromName(value: string): string {
     .replace(/-+/g, "-");
 }
 
-function toEditableSectionItem(item: Record<string, any> | undefined): EditableSectionItem {
+function toEditableSectionItem(item: Record<string, any> | undefined, sectionKey?: string): EditableSectionItem {
+  const merged = mergeItemData(sectionKey || "default", item || {});
   return {
-    title: item?.title ?? "",
-    description: item?.description ?? "",
-    value: item?.value ?? "",
-    question: item?.question ?? "",
-    answer: item?.answer ?? "",
-    name: item?.name ?? "",
-    role: item?.role ?? "",
-    quote: item?.quote ?? "",
-    metric: item?.metric ?? "",
-    author_name: item?.author_name ?? item?.name ?? "",
-    author_title: item?.author_title ?? item?.role ?? "",
-    company: item?.company ?? item?.metric ?? "",
-    content: item?.content ?? item?.quote ?? "",
+    ...merged,
+    title: item?.title ?? merged.title ?? "",
+    description: item?.description ?? merged.description ?? "",
+    value: item?.value ?? merged.value ?? "",
+    question: item?.question ?? merged.question ?? "",
+    answer: item?.answer ?? merged.answer ?? "",
+    name: item?.name ?? merged.name ?? "",
+    role: item?.role ?? merged.role ?? "",
+    quote: item?.quote ?? merged.quote ?? "",
+    metric: item?.metric ?? merged.metric ?? "",
+    author_name: item?.author_name ?? item?.name ?? merged.author_name ?? "",
+    author_title: item?.author_title ?? item?.role ?? merged.author_title ?? "",
+    company: item?.company ?? item?.metric ?? merged.company ?? "",
+    content: item?.content ?? item?.quote ?? merged.content ?? "",
     rating: item?.rating ? String(item.rating) : "5",
-    category: item?.category ?? item?.name ?? "",
+    category: item?.category ?? item?.name ?? merged.category ?? "",
     results: Array.isArray(item?.results) ? item.results.join("\n") : item?.results ?? item?.value ?? "",
     technologies: Array.isArray(item?.technologies) ? item.technologies.join(", ") : item?.technologies ?? item?.metric ?? "",
-    icon: item?.icon ?? item?.value ?? "",
-    number: item?.number ?? "",
-    project_url: item?.project_url ?? item?.url ?? "",
-    // New fields
+    icon: item?.icon ?? item?.value ?? merged.icon ?? "",
+    number: item?.number ?? merged.number ?? "",
+    project_url: item?.project_url ?? item?.url ?? merged.url ?? "",
     keywords: Array.isArray(item?.keywords) ? item.keywords.join(", ") : item?.keywords ?? "",
-    image: item?.image ?? "",
-    path: item?.path ?? "",
-    tag: item?.tag ?? "",
-    title1: item?.title1 ?? "",
-    title2: item?.title2 ?? "",
-    href: item?.href ?? "",
+    image: item?.image ?? merged.image ?? "",
+    path: item?.path ?? merged.path ?? "",
+    tag: item?.tag ?? merged.tag ?? "",
+    title1: item?.title1 ?? merged.title1 ?? "",
+    title2: item?.title2 ?? merged.title2 ?? "",
+    href: item?.href ?? merged.href ?? "",
     preview_text: item?.preview_text ?? item?.preview?.text ?? "",
     preview_url: item?.preview_url ?? item?.preview?.url ?? "",
     full_text: item?.full_text ?? item?.full?.text ?? "",

@@ -102,6 +102,7 @@ export function LadderCard({icon, title, number, description, text, align} : Lad
 
 
 export function LadderSection({items} : {items: LadderCardProps[]}) {
+  if (!items) return null;
   return (
     <div className="relative">
       {/* Timeline Line */}

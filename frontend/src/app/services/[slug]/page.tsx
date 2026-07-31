@@ -1,12 +1,23 @@
-import NotFoundPage from "@/views/NotFound";
-import { ServicePages } from "@/data/services";
+import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { DynamicService, DynamicServiceProps } from "@/components/sections/dynamic-service-section";
-import { generateSEO } from "@/data/seo";
+import { DynamicService } from "@/components/sections/dynamic-service-section";
+import { generateSEOFromCMS } from "@/data/seo";
+import { getPage, getModule } from "@/data/content";
+
+async function resolveServicePage(slug: string) {
+  const pathname = `/services/${slug}`;
+  return (
+    (await getPage("service", pathname)) ||
+    (await getPage("service", slug)) ||
+    (await getPage("service", `/${slug}`))
+  );
+}
 
 export async function generateStaticParams() {
-  return ServicePages.map((item) => ({
-    slug: item.slug,
+  const pages = await getModule("service");
+
+  return pages.map((item) => ({
+    slug: (item.slug || "").replace(/^\/+/, ""),
   }));
 }
 
@@ -14,24 +25,12 @@ export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const service = await resolveServicePage(slug);
 
-  const service = ServicePages.find(
-    (item) => item.slug === slug
+  return generateSEOFromCMS(
+    { title: "Service Not Found", description: "", path: `/services/${slug}`, keywords: [] },
+    service
   );
-
-  if (!service) {
-    return {
-      title: "Service Not Found",
-    };
-  }
-
-  return generateSEO({
-    title: service.seo.title,
-    description: service.seo.description,
-    keywords: service.seo.keywords,
-    image: service.seo.image,
-    path: `/services/${service.slug}`,
-  });
 }
 
 type Props = {
@@ -42,14 +41,11 @@ type Props = {
 
 export default async function Page({ params }: Props) {
   const { slug } = await params;
+  const page = await resolveServicePage(slug);
 
-  const service = ServicePages.find(
-    (item) => item.slug === slug
-  );
-
-  if (!service) {
-    return <NotFoundPage />;
+  if (!page) {
+    notFound();
   }
 
-  return <DynamicService section={service as DynamicServiceProps["section"]} />;
+  return <DynamicService page={page} />;
 }

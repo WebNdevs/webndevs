@@ -12,6 +12,8 @@ import {
 import { API_BASE_URL } from "../../config/api.config";
 import { clearStoredAuth, fetchAuthenticatedUser, getStoredToken, setStoredToken, TOKEN_KEYS } from "../auth";
 import { Pill, Tabs, Card, Button as CustomButton, ConfirmModal, Input } from "../components/blocks";
+import { getSectionSchema, getItemSchema, mergeSectionData, mergeItemData } from "../../data/schema";
+
 
 type PageStatus = "published" | "draft";
 
@@ -71,14 +73,19 @@ type EditableSectionItem = {
   href?: string;
   question?: string;
   answer?: string;
+  tag?: string;
   tags?: string[];
   tagsText?: string;
   badge?: string;
   // Comparison
-  leftHeading?: string;
-  rightHeading?: string;
-  leftPointsText?: string;
-  rightPointsText?: string;
+  comparison?: {
+    leftHeading?: string;
+    rightHeading?: string;
+    leftPoints?: string[];
+    rightPoints?: string[];
+    leftPointsText?: string;
+    rightPointsText?: string;
+  };
   is_active: boolean;
   is_featured: boolean;
 };
@@ -135,7 +142,7 @@ export function DataHubModule() {
   const [selectedPage, setSelectedPage] = useState<DataHubPageModel | null>(null);
   const [activeTab, setActiveTab] = useState<string>("publishing_workflow");
   const [managedSections, setManagedSections] = useState<EditableManagedSection[]>([]);
-  const [deletedItemIds, setDeletedItemIds] = useState<number[]>([]);
+  const [deletedItemIds, setDeletedItemIds] = useState<{ sectionId: number; itemId: number }[]>([]);
   
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -176,7 +183,7 @@ export function DataHubModule() {
 
   const authHeaders = useMemo(() => {
     return {
-      "DataHub-Type": "application/json",
+      "Content-Type": "application/json",
       ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
     };
   }, [adminToken]);
@@ -247,7 +254,23 @@ export function DataHubModule() {
       const cleanedItems = sec.items
         .map((item) => {
           const itemData: Record<string, any> = {};
-          if (sec.section_key === "featured" || sec.section_key === "directory" || sec.section_key === "benefits") {
+          if (sec.section_key === "featured") {
+            itemData.icon = item.icon?.trim() || null;
+            itemData.title = item.title?.trim() || null;
+            itemData.description = item.description?.trim() || null;
+            itemData.href = item.href?.trim() || null;
+            itemData.is_featured = item.is_featured;
+            itemData.badge = item.badge?.trim() || null;
+            itemData.tags = item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : (Array.isArray(item.tags) ? item.tags : null);
+          } else if (sec.section_key === "directory") {
+            itemData.icon = item.icon?.trim() || null;
+            itemData.title = item.title?.trim() || null;
+            itemData.description = item.description?.trim() || null;
+            itemData.href = item.href?.trim() || null;
+            itemData.is_featured = item.is_featured;
+            itemData.badge = item.badge?.trim() || null;
+            itemData.tags = item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : (Array.isArray(item.tags) ? item.tags : null);
+          } else if (sec.section_key === "benefits") {
             itemData.icon = item.icon?.trim() || null;
             itemData.title = item.title?.trim() || null;
             itemData.description = item.description?.trim() || null;
@@ -260,10 +283,23 @@ export function DataHubModule() {
             itemData.title = item.title?.trim() || null;
             itemData.value = item.value?.trim() || null;
           } else if (sec.section_key === "comparison") {
-            itemData.leftHeading = item.leftHeading?.trim() || null;
-            itemData.rightHeading = item.rightHeading?.trim() || null;
-            itemData.leftPoints = item.leftPointsText ? item.leftPointsText.split("\n").map((s) => s.trim()).filter(Boolean) : null;
-            itemData.rightPoints = item.rightPointsText ? item.rightPointsText.split("\n").map((s) => s.trim()).filter(Boolean) : null;
+            itemData.title = item.title?.trim() || null;
+            itemData.description = item.description?.trim() || null;
+            itemData.tag = item.tag?.trim() || null;
+            itemData.comparison = omitEmptyKeys({
+                leftHeading: item.comparison?.leftHeading,
+                rightHeading: item.comparison?.rightHeading,
+                leftPoints:
+                    item.comparison?.leftPointsText
+                        ?.split("\n")
+                        .map(s=>s.trim())
+                        .filter(Boolean),
+                rightPoints:
+                    item.comparison?.rightPointsText
+                        ?.split("\n")
+                        .map(s=>s.trim())
+                        .filter(Boolean),
+            });
           } else if (sec.section_key === "faq") {
             itemData.question = item.question?.trim() || null;
             itemData.answer = item.answer?.trim() || null;
@@ -298,14 +334,24 @@ export function DataHubModule() {
           subtext: sec.subtext?.trim() || null,
           items: cleanedItems.length > 0 ? cleanedItems : null,
         });
-      } else if (sec.section_key === "comparison") {
-        rawJson.comparison = omitEmptyKeys({
-          title: sec.title?.trim() || null,
-          tag: sec.tag?.trim() || null,
-          description: sec.description?.trim() || null,
-        });
       } else if (sec.section_key === "directory") {
         rawJson.directory = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+        });
+      } else if (sec.section_key === "benefits") {
+        rawJson.benefits = omitEmptyKeys({
+          tag: sec.tag?.trim() || null,
+          subheading1: sec.subheading1?.trim() || null,
+          subheading2: sec.subheading2?.trim() || null,
+          subtext: sec.subtext?.trim() || null,
+          items: cleanedItems.length > 0 ? cleanedItems : null,
+        });
+      } else if (sec.section_key === "comparison") {
+        rawJson.comparison = omitEmptyKeys({
           tag: sec.tag?.trim() || null,
           subheading1: sec.subheading1?.trim() || null,
           subheading2: sec.subheading2?.trim() || null,
@@ -316,15 +362,6 @@ export function DataHubModule() {
         if (cleanedItems.length > 0) {
           rawJson.stats = cleanedItems;
         }
-      } else if (sec.section_key === "benefits") {
-        rawJson.benefits = omitEmptyKeys({
-          tag: sec.tag?.trim() || null,
-          subheading1: sec.subheading1?.trim() || null,
-          subheading2: sec.subheading2?.trim() || null,
-          subtext: sec.subtext?.trim() || null,
-          items: cleanedItems.length > 0 ? cleanedItems : null,
-
-        });
       } else if (sec.section_key === "faq") {
         rawJson.faq = omitEmptyKeys({
           tag: sec.tag?.trim() || null,
@@ -378,20 +415,38 @@ export function DataHubModule() {
       const apiSections = pageData.sections || [];
       const initialManagedSections = SECTION_KEYS.map((key) => {
         const match = apiSections.find((s) => s.section_key === key);
-        const data = (match?.data || {}) as Record<string, any>;
+        const data = mergeSectionData(key, (match?.data || {}) as Record<string, any>);
         
         // Map database section items to local layout fields
         const items = (match?.items || []).map((item) => {
-          const itemData = (item.data || {}) as Record<string, any>;
+          const rawItemData = (item.data || {}) as Record<string, any>;
+          const itemData = mergeItemData(key, rawItemData);
+          const hrefVal = itemData.href || itemData.url || "";
+          const tagsTextVal = Array.isArray(itemData.tags)
+            ? itemData.tags.join(", ")
+            : (typeof itemData.tags === "string" ? itemData.tags : (itemData.tagsText || ""));
+
           return {
             row_id: `item-${item.id}`,
             id: item.id,
             is_active: item.is_active,
             is_featured: item.is_featured,
             ...itemData,
-            tagsText: Array.isArray(itemData.tags) ? itemData.tags.join(", ") : "",
-            leftPointsText: Array.isArray(itemData.leftPoints) ? itemData.leftPoints.join("\n") : "",
-            rightPointsText: Array.isArray(itemData.rightPoints) ? itemData.rightPoints.join("\n") : "",
+            href: hrefVal,
+            url: hrefVal,
+            tagsText: tagsTextVal,
+            comparison: {
+              leftHeading: itemData.comparison?.leftHeading || "",
+              rightHeading: itemData.comparison?.rightHeading || "",
+              leftPoints: Array.isArray(itemData.comparison?.leftPoints) ? itemData.comparison.leftPoints : [],
+              rightPoints: Array.isArray(itemData.comparison?.rightPoints) ? itemData.comparison.rightPoints : [],
+              leftPointsText: Array.isArray(itemData.comparison?.leftPoints)
+                ? itemData.comparison.leftPoints.join("\n")
+                : (typeof itemData.comparison?.leftPoints === "string" ? itemData.comparison.leftPoints : (itemData.comparison?.leftPointsText || "")),
+              rightPointsText: Array.isArray(itemData.comparison?.rightPoints)
+                ? itemData.comparison.rightPoints.join("\n")
+                : (typeof itemData.comparison?.rightPoints === "string" ? itemData.comparison.rightPoints : (itemData.comparison?.rightPointsText || "")),
+            },
           };
         });
 
@@ -412,7 +467,6 @@ export function DataHubModule() {
           subheading: data.subheading || "",
           tag: data.tag || "",
           subtext: data.subtext || "",
-          is_featured: match ? Boolean(match.is_visible) : true,
           is_active: match ? Boolean(match.is_visible) : true,
           items,
 
@@ -625,15 +679,31 @@ export function DataHubModule() {
         dataPayload.subheading1 = sec.subheading1?.trim() || null;
         dataPayload.subheading2 = sec.subheading2?.trim() || null;
         dataPayload.subtext = sec.subtext?.trim() || null;
-      } else if (sec.section_key === "featured" || sec.section_key === "directory" || sec.section_key === "benefits" ) {
+      } else if (sec.section_key === "featured") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "benefits") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "directory") {
         dataPayload.tag = sec.tag?.trim() || null;
         dataPayload.subheading1 = sec.subheading1?.trim() || null;
         dataPayload.subheading2 = sec.subheading2?.trim() || null;
         dataPayload.subtext = sec.subtext?.trim() || null;
       } else if (sec.section_key === "comparison") {
-        dataPayload.title = sec.title?.trim() || null;
         dataPayload.tag = sec.tag?.trim() || null;
-        dataPayload.description = sec.description?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
+      } else if (sec.section_key === "stats") {
+        dataPayload.tag = sec.tag?.trim() || null;
+        dataPayload.subheading1 = sec.subheading1?.trim() || null;
+        dataPayload.subheading2 = sec.subheading2?.trim() || null;
+        dataPayload.subtext = sec.subtext?.trim() || null;
       } else if (sec.section_key === "faq") {
         dataPayload.tag = sec.tag?.trim() || null;
         dataPayload.subheading1 = sec.subheading1?.trim() || null;
@@ -684,22 +754,39 @@ export function DataHubModule() {
           itemData.description = item.description?.trim() || null;
           itemData.badge = item.badge?.trim() || null;
           itemData.href = item.href?.trim() || null;
-          itemData.tags = item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null;
+          itemData.url = item.href?.trim() || null;
+          itemData.tags = item.tagsText !== undefined ? (item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null) : (Array.isArray(item.tags) ? item.tags : null);
         } else if (sec.section_key === "stats") {
           itemData.icon = item.icon?.trim() || null;
           itemData.title = item.title?.trim() || null;
           itemData.value = item.value?.trim() || null;
+          itemData.href = item.href?.trim() || null;
+          itemData.url = item.href?.trim() || null;
         } else if (sec.section_key === "comparison") {
-          itemData.leftHeading = item.leftHeading?.trim() || null;
-          itemData.rightHeading = item.rightHeading?.trim() || null;
-          itemData.leftPoints = item.leftPointsText ? item.leftPointsText.split("\n").map((s) => s.trim()).filter(Boolean) : null;
-          itemData.rightPoints = item.rightPointsText ? item.rightPointsText.split("\n").map((s) => s.trim()).filter(Boolean) : null;
+          itemData.title = item.title?.trim() || null;
+          itemData.description = item.description?.trim() || null;
+          itemData.tag = item.tag?.trim() || null;
+          itemData.comparison = omitEmptyKeys({
+            leftHeading: item.comparison?.leftHeading?.trim() || null,
+            rightHeading: item.comparison?.rightHeading?.trim() || null,
+            leftPoints: item.comparison?.leftPointsText
+              ? item.comparison.leftPointsText.split("\n").map(s => s.trim()).filter(Boolean)
+              : (Array.isArray(item.comparison?.leftPoints) && item.comparison.leftPoints.length > 0 ? item.comparison.leftPoints : null),
+            rightPoints: item.comparison?.rightPointsText
+              ? item.comparison.rightPointsText.split("\n").map(s => s.trim()).filter(Boolean)
+              : (Array.isArray(item.comparison?.rightPoints) && item.comparison.rightPoints.length > 0 ? item.comparison.rightPoints : null),
+          });
         } else if (sec.section_key === "faq") {
           itemData.question = item.question?.trim() || null;
           itemData.answer = item.answer?.trim() || null;
         } else {
           itemData.title = item.title?.trim() || null;
           itemData.description = item.description?.trim() || null;
+          Object.keys(item).forEach((k) => {
+            if (!["row_id", "id", "is_active", "is_featured", "title", "description"].includes(k) && (item as any)[k] !== undefined) {
+              itemData[k] = (item as any)[k];
+            }
+          });
         }
 
         const itemPayload = {
@@ -722,17 +809,18 @@ export function DataHubModule() {
         }
       });
 
-      // Handle deleted items
-      const deletedPromises = deletedItemIds.map(async (id) => {
-        if (id > 0) {
-          await requestJson(`/datahub-sections/${sectionId}/items/${id}`, {
+      // Handle deleted items scoped to sectionId
+      const sectionDeletedItems = deletedItemIds.filter((d) => d.sectionId === sectionId);
+      const deletedPromises = sectionDeletedItems.map(async (d) => {
+        if (d.itemId > 0) {
+          await requestJson(`/datahub-sections/${d.sectionId}/items/${d.itemId}`, {
             method: "DELETE",
           });
         }
       });
 
       await Promise.all([...savePromises, ...deletedPromises]);
-      setDeletedItemIds([]);
+      setDeletedItemIds((prev) => prev.filter((d) => d.sectionId !== sectionId));
 
       setSuccessText(`Section "${sec.label}" saved successfully.`);
       await loadPage(selectedPage.slug);
@@ -751,8 +839,14 @@ export function DataHubModule() {
     if (activeSectionIndex === -1) return;
     
     const sec = managedSections[activeSectionIndex];
-    const itemIds = sec.items.map((item) => item.id).filter((id): id is number => !!id && id > 0);
-    setDeletedItemIds((prev) => [...prev, ...itemIds]);
+    if (sec.id) {
+      const secId = sec.id;
+      const itemsToDelete = sec.items
+        .map((item) => item.id)
+        .filter((id): id is number => !!id && id > 0)
+        .map((id) => ({ sectionId: secId, itemId: id }));
+      setDeletedItemIds((prev) => [...prev, ...itemsToDelete]);
+    }
 
     setManagedSections((current) =>
       current.map((s, idx) => {
@@ -806,6 +900,7 @@ export function DataHubModule() {
       row_id: `temp-${Date.now()}`,
       is_active: true,
       is_featured: false,
+      ...getItemSchema(activeTab),
     };
 
     setManagedSections((current) =>
@@ -848,9 +943,10 @@ export function DataHubModule() {
   }
 
   function removeManagedSectionItem(sectionIndex: number, itemIndex: number) {
-    const item = managedSections[sectionIndex].items[itemIndex];
-    if (item.id && item.id > 0) {
-      setDeletedItemIds((prev) => [...prev, item.id]);
+    const sec = managedSections[sectionIndex];
+    const item = sec.items[itemIndex];
+    if (item.id && item.id > 0 && sec.id) {
+      setDeletedItemIds((prev) => [...prev, { sectionId: sec.id!, itemId: item.id! }]);
     }
     setManagedSections((current) =>
       current.map((s, idx) => {
@@ -1201,30 +1297,6 @@ export function DataHubModule() {
                         />
                       </div>
                     </div>
-                  ) : activeTab === "comparison" ? (
-                    <div className="border-t border-border-secondary pt-md mt-md flex flex-col gap-lg bg-bg-faint p-lg rounded-corner-lg border border-border-primary">
-                      <p className="font-semibold text-label-sm text-text-primary">Comparison Table details</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                        <InputField
-                          label="Title"
-                          placeholder="ChatGPT vs Claude"
-                          value={activeManagedSection.title || ""}
-                          onChange={(value) => updateSectionHeader("title", value)}
-                        />
-                        <InputField
-                          label="Short Description"
-                          placeholder="ChatGPT is a language model that uses machine learning to generate human-like text..."
-                          value={activeManagedSection.description || ""}
-                          onChange={(value) => updateSectionHeader("description", value)}
-                        />
-                        <InputField
-                          label="Tag"
-                          placeholder="Artificial Intelligence"
-                          value={activeManagedSection.tag || ""}
-                          onChange={(value) => updateSectionHeader("tag", value)}
-                        />
-                      </div>
-                    </div>
                   ) : activeTab === "faq" ? (
                     <div className="flex flex-col gap-lg mb-lg">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
@@ -1437,35 +1509,59 @@ export function DataHubModule() {
                                 />
                               </div>
                             ) : activeManagedSection.section_key === "comparison" ? (
-                              <div className="flex flex-col gap-lg">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
-                                  <InputField
-                                    label="leftHeading"
-                                    placeholder="Other Approach"
-                                    value={item.leftHeading || ""}
-                                    onChange={(v) => updateManagedSectionItem(itemIndex, "leftHeading", v)}
-                                  />
-                                  <InputField
-                                    label="rightHeading"
-                                    placeholder="The WebNDevs Way"
-                                    value={item.rightHeading || ""}
-                                    onChange={(v) => updateManagedSectionItem(itemIndex, "rightHeading", v)}
-                                  />
-                                </div>
-                                <TextareaField
-                                  label="Left Points (one per line)"
-                                  placeholder="Point 1&#10;Point 2"
-                                  value={item.leftPointsText || ""}
-                                  rows={4}
-                                  onChange={(v) => updateManagedSectionItem(itemIndex, "leftPointsText", v)}
-                                />
-                                <TextareaField
-                                  label="Right Points (one per line)"
-                                  placeholder="Point 1&#10;Point 2"
-                                  value={item.rightPointsText || ""}
-                                  rows={4}
-                                  onChange={(v) => updateManagedSectionItem(itemIndex, "rightPointsText", v)}
-                                />
+                               <div className="border-t border-border-secondary pt-md mt-md flex flex-col gap-lg bg-bg-faint p-lg rounded-corner-lg border border-border-primary">
+                               <div className="flex flex-col gap-lg">
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                                   <InputField
+                                     label="Title"
+                                     placeholder="ChatGPT vs Claude"
+                                     value={item.title || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "title", v)}
+                                   />
+                                   <TextareaField
+                                     label="Short description"
+                                     placeholder="ChatGPT is a language model that uses machine learning to generate human-like text..."
+                                     value={item.description || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "description", v)}
+                                   />
+                                   <InputField
+                                     label="Tag"
+                                     placeholder="Artificial Intelligence"
+                                     value={item.tag || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "tag", v)}
+                                   />
+                                 </div>
+                               </div>
+                               <div className="flex flex-col gap-lg">
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                                   <InputField
+                                     label="Left Column Heading"
+                                     placeholder="Traditional Approach"
+                                     value={item?.comparison?.leftHeading || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "comparison", {...item.comparison, leftHeading: v})}
+                                   />
+                                   <InputField
+                                     label="Right Column Heading"
+                                     placeholder="The WebNDevs Way"
+                                     value={item?.comparison?.rightHeading || ""}
+                                     onChange={(v) => updateManagedSectionItem(itemIndex, "comparison", {...item.comparison, rightHeading: v})}
+                                   />
+                                 </div>
+                                 <TextareaField
+                                   label="Left Points (one per line)"
+                                   placeholder="Point 1&#10;Point 2"
+                                   value={item?.comparison?.leftPointsText || ""}
+                                   rows={4}
+                                   onChange={(v) => updateManagedSectionItem(itemIndex, "comparison", {...item.comparison, leftPointsText: v})}
+                                 />
+                                 <TextareaField
+                                   label="Right Points (one per line)"
+                                   placeholder="Point 1&#10;Point 2"
+                                   value={item?.comparison?.rightPointsText || ""}
+                                   rows={4}
+                                   onChange={(v) => updateManagedSectionItem(itemIndex, "comparison", {...item.comparison, rightPointsText: v})}
+                                 />
+                               </div>
                               </div>
                             ) : (
                               /* Default Generic Card layout */

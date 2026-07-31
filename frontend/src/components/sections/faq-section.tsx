@@ -1,16 +1,12 @@
-import { getHome } from '@/data/homedata';
-import { HeaderSection } from '../cards/header-card';
-import { ShortCTA } from './cta-section';
-import { FAQCard, FAQItemProps } from '../cards/faq-card';
-import { PageHero, PageHeroProps } from './pagehero';
+import { FAQItemProps } from '../cards/faq-card';
+import { getPage } from '@/data/content';
+import { ContentSections } from './content-sections';
 
+export async function FAQSection() {
+  const page = await getPage("content", "/faq");
+  if (!page) return null;
 
-export function FAQSection() {
-  const section = getHome('faq')
-
-  if(!section) return null;
-
-  const faqItems = (section.items || []) as FAQItemProps[];
+  const faqItems = ((page.faq as { items?: FAQItemProps[] } | undefined)?.items || []);
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -26,21 +22,14 @@ export function FAQSection() {
 
   return (
     <section id="faq" className="py-20 px-6 bg-[#0B0F14]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      <div className="max-w-4xl mx-auto">
-        <PageHero {...section.hero as PageHeroProps} />
-        {/* Section Header */}
-        <HeaderSection {...section} />
-
-        {/* FAQ Accordion */}
-        <FAQCard items={faqItems} />
-
-        {/* Still Have Questions */}
-        <ShortCTA {...section?.cta} />
-        
+      {faqItems.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
+      <div className="max-w-7xl mx-auto">
+        <ContentSections page={page} />
       </div>
     </section>
   )

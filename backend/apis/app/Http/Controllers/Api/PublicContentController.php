@@ -138,7 +138,6 @@ class PublicContentController extends Controller
                 [
                     'hero',
                     'header',
-                    'comparison',
                     'techspec',
                     'cta',
                 ],
