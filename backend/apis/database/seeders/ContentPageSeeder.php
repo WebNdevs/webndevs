@@ -10,9 +10,116 @@ class ContentPageSeeder extends Seeder
 {
     public function run(): void
     {
+<<<<<<< HEAD
         // 1. Create Home page
         $homePage = ContentPage::query()->updateOrCreate(
             ['slug' => '/'],
+=======
+        $admin = User::query()->where('email', 'admin@wnd.local')->first();
+
+        // Create Home page
+        $homePage = $this->createOrGetPage('home', 'Home', 'WND Digital Agency | AI-Powered Programmatic SEO', 'Digital agency delivering design, development, and growth. AI-powered programmatic SEO services.', $admin?->id);
+        $this->createHomePageSections($homePage->id, $admin?->id);
+
+        // Create Portfolio page
+        $portfolioPage = $this->createOrGetPage('portfolio', 'Portfolio', 'Our Portfolio | WebNDevs', 'Explore our successful projects and case studies.', $admin?->id);
+        $this->createPortfolioPageSections($portfolioPage->id, $admin?->id);
+
+        // Create Testimonials page
+        $testimonialsPage = $this->createOrGetPage('testimonials', 'Testimonials', 'Client Testimonials | WebNDevs', 'Read what our clients say about working with WebNDevs.', $admin?->id);
+        $this->createTestimonialsPageSections($testimonialsPage->id, $admin?->id);
+
+        // Create FAQ page
+        $faqPage = $this->createOrGetPage('faq', 'FAQ', 'Frequently Asked Questions | WebNDevs', 'Find answers to common questions about our services.', $admin?->id);
+        $this->createFaqPageSections($faqPage->id, $admin?->id);
+
+        // Create Services page
+        $servicesPage = $this->createOrGetPage('services', 'Services', 'Our Services | WebNDevs', 'Explore our comprehensive digital services.', $admin?->id);
+        $this->createServicesPageSections($servicesPage->id, $admin?->id);
+
+        // Create Data Hub page - just menu tiles linking to other modules
+        $dataHubPage = $this->createOrGetPage('data', 'Data Hub', 'Data Hub | WebNDevs', 'Explore tools, industries, solutions, and comparisons.', $admin?->id);
+        $this->createDataHubPageSections($dataHubPage->id, $admin?->id);
+    }
+
+    private function createOrGetPage(string $slug, string $title, string $seoTitle, string $seoDescription, ?int $adminId): ContentPage
+    {
+<<<<<<< Updated upstream
+        return ContentPage::query()->updateOrCreate(
+            ['slug' => $slug],
+=======
+        // Hero section
+        $this->createSection($pageId, 'hero', 'hero', [
+            'tag' => $heroTag,
+            'title1' => $heroTitle,
+            'title2' => '& Insights',
+            'description' => $heroDesc,
+        ]);
+
+        // Header section
+        $this->createSection($pageId, 'header', 'header', [
+            'tag' => 'RESOURCES',
+            'subheading1' => 'Our Collection',
+            'subheading2' => 'Of Expert Contents',
+            'subtext' => 'Learn how we design, build, and optimize products.',
+        ]);
+
+        // Why Choose Us section
+        $this->createSection($pageId, 'whyus', 'items', [
+            'tag' => "Why Us?",
+            'subheading1' => "Why Choose",
+            'subheading2' => "WebNDevs?",
+            'subtext' => "We're not just another agency. We're the reliable digital partner you can count on for the long haul.",
+            'items' => [
+                [
+                    'icon' => "Users",
+                    'title' => "One Team for Everything",
+                    'description' => "No more coordinating between designers, developers, and marketers. We handle it all seamlessly under one roof.",
+                ],
+            ]        
+            ]);
+
+        // Comparison section
+        $this->createSection($pageId, 'comparison', 'comparison', [
+            'leftHeading' => "Traditional Approach",
+            'rightHeading' => "The WebNDevs Way",
+            'leftPoints' => [
+                "Hire separate freelancers for each task",
+                "Manage multiple contracts and invoices",
+                "Hope everyone communicates properly",
+                "Deal with inconsistent quality and delays",
+                "Rebuild from scratch when you need changes",
+            ],
+            'rightPoints' => [
+                "One expert team handles everything",
+                "Single point of contact, simple billing",
+                "Seamless collaboration built into our process",
+                "Consistent quality and on-time delivery",
+                "Scalable solutions that grow with you",
+            ],
+        ]);
+
+        // Process section
+        $this->createSection($pageId, 'process', 'process', [
+            'tag' => "Our Process",
+            'subheading1' => "From Idea to Launch in",
+            'subheading2' => "5 Simple Steps",
+            'subtext' => "Our proven process ensures your project is delivered on time, on budget, and exceeds expectations.",
+            'items' => [
+                [
+                    'number' => '01',
+                    'icon' => 'Search',
+                    'title' => 'Discover',
+                    'description' => 'We start by understanding your business, goals, and challenges. A quick call helps us map out exactly what you need.',
+                    'duration' => 'Timeline: 1-2 days'
+                ],
+            ],
+        ]);
+
+        //Stats section
+        $this->createSection($pageId, 'stats', 'stats', [
+>>>>>>> Stashed changes
+>>>>>>> 7b791a2 (sql changes)
             [
                 'title' => 'Home',
                 'slug' => '/',
