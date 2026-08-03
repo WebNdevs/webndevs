@@ -4,199 +4,190 @@ namespace Database\Seeders;
 
 use App\Models\ContentPage;
 use App\Models\ContentSection;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class ContentPageSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create Home page
-        $homePage = ContentPage::query()->updateOrCreate(
+        $admin = User::query()->where('email', 'admin@wnd.local')->first();
+
+        // Single complete seeding data for Content Module: "/" (Home)
+        $page = ContentPage::query()->updateOrCreate(
             ['slug' => '/'],
             [
                 'title' => 'Home',
-                'slug' => '/',
                 'status' => 'published',
-                'meta_title' => 'WebNDevs | Digital Agency & Software Solutions',
-                'meta_description' => 'Digital agency delivering design, development, and growth. AI-powered programmatic SEO services.',
-                'meta_keywords' => 'WebNDevs, Software, Development, Agency',
+                'seo_title' => 'WND Digital Agency | AI-Powered Software & Web Solutions',
+                'seo_description' => 'Digital agency delivering custom web development, design, and growth. AI-powered programmatic SEO services.',
+                'meta_keywords' => 'WebNDevs, Software Agency, Digital Agency, Web Development',
+                'updated_by' => $admin?->id,
             ]
         );
-        $this->seedPageSections($homePage->id, 'OUR HOME', 'WebNDevs', 'Tech guides and insights from our team.');
 
-        // 2. Create DataHub page
-        $datahubPage = ContentPage::query()->updateOrCreate(
-            ['slug' => '/datahub'],
-            [
-                'title' => 'DataHub',
-                'slug' => '/datahub',
-                'status' => 'published',
-                'meta_title' => 'Our DataHub | WebNDevs',
-                'meta_description' => 'Explore customer success stories and software project outcomes.',
-                'meta_keywords' => 'Case Studies, Software engineering, Success Stories',
-            ]
-        );
-        $this->seedPageSections($datahubPage->id, 'DATAHUB', 'Client Success Stories', 'Detailed outcomes of our software and development projects.');
-    }
+        // Seed all sections cleanly aligned with Content Module structure
+        $this->createSection($page->id, 'hero', 'hero', 0, [
+            'tag' => 'WEBSITE & DIGITAL PRODUCTS',
+            'title1' => 'Digital Products &',
+            'title2' => 'Software Solutions',
+            'description' => 'We design, build, and scale modern web applications and AI-driven growth engines for businesses worldwide.',
+        ], $admin?->id);
 
-    private function seedPageSections(int $pageId, string $heroTag, string $heroTitle, string $heroDesc): void
-    {
-        // Hero section
-        $this->createSection($pageId, 'hero', 'hero', [
-            'tag' => $heroTag,
-            'title1' => $heroTitle,
-            'title2' => '& Insights',
-            'description' => $heroDesc,
-        ]);
+        $this->createSection($page->id, 'header', 'header', 1, [
+            'tag' => 'OUR OFFERINGS',
+            'subheading1' => 'End-to-End Digital',
+            'subheading2' => 'Agency Services',
+            'subtext' => 'From initial concept to full-scale deployment, our team builds robust software aligned with your business goals.',
+        ], $admin?->id);
 
-        // Header section
-        $this->createSection($pageId, 'header', 'header', [
-            'tag' => 'RESOURCES',
-            'subheading1' => 'Our Collection',
-            'subheading2' => 'Of Expert Contents',
-            'subtext' => 'Learn how we design, build, and optimize products.',
-        ]);
-
-        // Why Choose Us section
-        $this->createSection($pageId, 'whyus', 'items', [
-            'tag' => 'Why Us?',
+        $this->createSection($page->id, 'whyus', 'items', 2, [
+            'tag' => 'WHY US',
             'subheading1' => 'Why Choose',
             'subheading2' => 'WebNDevs?',
-            'subtext' => "We're not just another agency. We're the reliable digital partner you can count on for the long haul.",
+            'subtext' => 'We deliver production-grade software with speed, precision, and long-term support.',
             'items' => [
                 [
                     'icon' => 'Users',
-                    'title' => 'One Team for Everything',
-                    'description' => 'No more coordinating between designers, developers, and marketers. We handle it all seamlessly under one roof.',
+                    'title' => 'Unified Core Team',
+                    'description' => 'Designers, engineers, and growth marketers working together under one roof.',
+                ],
+                [
+                    'icon' => 'Zap',
+                    'title' => 'Rapid Execution',
+                    'description' => 'Agile sprints designed to launch robust MVPs and features on schedule.',
                 ],
             ]
-        ]);
+        ], $admin?->id);
 
-        // Comparison section
-        $this->createSection($pageId, 'content', 'comparison', [
+        $this->createSection($page->id, 'comparison', 'comparison', 3, [
+            'tag' => 'THE DIFFERENCE',
+            'subheading1' => 'Traditional Agency',
+            'subheading2' => 'VS The WebNDevs Way',
+            'subtext' => 'See how our systematic engineering approach compares to fragmented freelancer workflows.',
             'leftHeading' => 'Traditional Approach',
             'rightHeading' => 'The WebNDevs Way',
             'leftPoints' => [
-                'Hire separate freelancers for each task',
-                'Manage multiple contracts and invoices',
-                'Hope everyone communicates properly',
-                'Deal with inconsistent quality and delays',
-                'Rebuild from scratch when you need changes',
+                'Uncoordinated freelancers & delayed communication',
+                'Inconsistent code standards and technical debt',
+                'Fragile deployments without automated tests',
             ],
             'rightPoints' => [
-                'One expert team handles everything',
-                'Single point of contact, simple billing',
-                'Seamless collaboration built into our process',
-                'Consistent quality and on-time delivery',
-                'Scalable solutions that grow with you',
+                'Single dedicated engineering team and point of contact',
+                'Strict CI/CD pipelines and modular codebase standards',
+                'Long-term maintainability with comprehensive documentation',
             ],
-        ]);
+        ], $admin?->id);
 
-        // Process section
-        $this->createSection($pageId, 'process', 'process', [
-            'tag' => 'Our Process',
-            'subheading1' => 'From Idea to Launch in',
-            'subheading2' => '5 Simple Steps',
-            'subtext' => 'Our proven process ensures your project is delivered on time, on budget, and exceeds expectations.',
+        $this->createSection($page->id, 'process', 'process', 4, [
+            'tag' => 'OUR PROCESS',
+            'subheading1' => 'From Discovery to',
+            'subheading2' => 'Production Launch',
+            'subtext' => 'Our 5-step engineering framework ensures predictable delivery and zero deployment surprises.',
             'items' => [
                 [
                     'number' => '01',
                     'icon' => 'Search',
-                    'title' => 'Discover',
-                    'description' => 'We start by understanding your business, goals, and challenges. A quick call helps us map out exactly what you need.',
-                    'duration' => 'Timeline: 1-2 days'
+                    'title' => 'Discovery & Architecture',
+                    'description' => 'Requirements gathering, system design, and tech stack alignment.',
+                    'duration' => '1-2 Days'
+                ],
+                [
+                    'number' => '02',
+                    'icon' => 'Code',
+                    'title' => 'Agile Sprint Execution',
+                    'description' => 'Iterative development sprints with continuous review demos.',
+                    'duration' => '2-3 Weeks'
                 ],
             ],
-        ]);
+        ], $admin?->id);
 
-        // Stats section
-        $this->createSection($pageId, 'stats', 'stats', [
-            [ 'value' => '50+', 'title' => 'Projects Completed' ],
-            [ 'value' => '98%', 'title' => 'Client Satisfaction' ],
-            [ 'value' => '2.5x', 'title' => 'Average ROI Increase' ],
-            [ 'value' => '24/7', 'title' => 'Support Available' ],
-        ]);
+        $this->createSection($page->id, 'stats', 'stats', 5, [
+            'tag' => 'BY THE NUMBERS',
+            'subheading1' => 'Proven Impact',
+            'subheading2' => '& Metrics',
+            'subtext' => 'Quantifiable results delivered across client engineering projects.',
+            'items' => [
+                [ 'value' => '150+', 'title' => 'Projects Shipped' ],
+                [ 'value' => '99.9%', 'title' => 'Uptime Guarantee' ],
+                [ 'value' => '3.5x', 'title' => 'Average Performance Lift' ],
+            ]
+        ], $admin?->id);
 
-        // Result section
-        $this->createSection($pageId, 'result', 'result', [
-            [
-                'title' => 'Sabzithela',
-                'category' => 'E-Commerce',
-                'badge' => 'featured',
-                'description' => 'Designed and developed an online grocery platform for fresh vegetables, fruits, and daily essentials, enabling customers to conveniently order farm-fresh produce with a seamless shopping experience.',
-                'results' => [
-                    'Simplified online grocery ordering process',
-                    'Responsive shopping experience across all devices',
-                    'Enhanced customer convenience with home delivery'
-                ],
-                'tags' => ['E-Commerce', 'WordPress', 'Online Grocery'],
-                'url' => 'https://sabzithela.com'
-            ],
-        ]);
-
-        // Review section
-        $this->createSection($pageId, 'review', 'review', [
-            [
-                'name' => 'Ankit Sharma',
-                'company' => 'Sabzithela',
-                'content' => 'WebNDevs built a fast, user-friendly grocery platform that perfectly matches our business needs. The shopping experience is seamless, and customers appreciate how easy it is to browse and order fresh produce online.',
-                'rating' => 5,
-                'photo_url' => null,
-                'role' => 'Founder, Sabzithela',
-            ],
-        ]);
-
-        // Technologies section
-        $this->createSection($pageId, 'technologies', 'technologies', [
-            'techtag' => 'Tech Specs',
-            'techHeading1' => 'Our Technology',
-            'techHeading2' => 'Stack & Expertise',
-            'techSubtext' => 'We use modern frameworks, cloud platforms, AI services, and development tools to build secure, scalable, and future-ready digital products.',
-            'tags' => [
-                'Next.js',
-                'React',
-                'TypeScript',
-                'Laravel',
-            ],
-        ]);
-
-        // FAQ section
-        $this->createSection($pageId, 'faq', 'faq', [
-            'tag' => 'FAQs',
-            'subheading1' => 'Frequently Asked',
-            'subheading2' => 'Questions',
-            'subtext' => 'Answers to common questions about our services and development process.',
+        $this->createSection($page->id, 'result', 'result', 6, [
+            'tag' => 'CASE STUDY',
+            'subheading1' => 'Featured Client',
+            'subheading2' => 'Success Story',
+            'subtext' => 'High-impact platforms built and scaled by WebNDevs.',
             'items' => [
                 [
-                    'question' => 'Do you provide end-to-end project development?',
-                    'answer' => 'Yes. From discovery and UI/UX design to development, deployment, testing, and ongoing maintenance, we manage the complete project lifecycle.'
-                ],
-            ],
-        ]);
+                    'title' => 'Enterprise E-Commerce Engine',
+                    'category' => 'E-Commerce',
+                    'badge' => 'Featured Case Study',
+                    'description' => 'Architected a multi-vendor digital marketplace with sub-second page loads and automated inventory sync.',
+                    'url' => 'https://webndevs.com',
+                ]
+            ]
+        ], $admin?->id);
 
-        // Data section
-        $this->createSection($pageId, 'data', 'data', [
-            [
-                'title' => "Don't Hesitate To Reach Out to Us",
-                'description' => "Thank you for expressing your interest in webndevs.com. Whether you're looking for web development projects, graphic design, digital marketing, or other technology solutions, we're here to assist you. Our team is eager to share its expertise and help bring your ideas to life. Let's collaborate and create something amazing together."
-            ],
-        ]);
+        $this->createSection($page->id, 'review', 'review', 7, [
+            'tag' => 'TESTIMONIALS',
+            'subheading1' => 'What Our Clients',
+            'subheading2' => 'Say About Us',
+            'subtext' => 'Feedback from founders and engineering leaders.',
+            'items' => [
+                [
+                    'name' => 'Alex Rivera',
+                    'company' => 'TechScale Inc.',
+                    'role' => 'CTO',
+                    'content' => 'WebNDevs transformed our legacy application into a high-performance modern web app ahead of schedule.',
+                    'rating' => 5,
+                ]
+            ]
+        ], $admin?->id);
 
-        // CTA section
-        $this->createSection($pageId, 'cta', 'cta', [
+        $this->createSection($page->id, 'technologies', 'technologies', 8, [
+            'tag' => 'TECH STACK',
+            'subheading1' => 'Modern Technologies',
+            'subheading2' => 'We Specialize In',
+            'subtext' => 'Production-ready frameworks and infrastructure powering our solutions.',
+            'tags' => ['React', 'Next.js', 'TypeScript', 'Laravel', 'PostgreSQL', 'Docker', 'Tailwind CSS']
+        ], $admin?->id);
+
+        $this->createSection($page->id, 'faq', 'faq', 9, [
+            'tag' => 'FAQ',
+            'subheading1' => 'Frequently Asked',
+            'subheading2' => 'Questions',
+            'subtext' => 'Common questions about our digital agency services.',
+            'items' => [
+                [
+                    'question' => 'How do you manage project timelines and deliverables?',
+                    'answer' => 'We run 2-week agile sprints with dedicated Slack channels, staging environments, and weekly progress demos.'
+                ]
+            ]
+        ], $admin?->id);
+
+        $this->createSection($page->id, 'data', 'data', 10, [
+            'tag' => 'OVERVIEW',
+            'subheading1' => 'Comprehensive Content',
+            'subheading2' => 'Directory Data',
+            'subtext' => 'Structured directory data serving frontend modules.',
+        ], $admin?->id);
+
+        $this->createSection($page->id, 'cta', 'cta', 11, [
             'preview' => [
-                'text' => 'Talk to an Expert',
+                'text' => 'Schedule a Discovery Call',
                 'url' => '/contact',
             ],
             'full' => [
-                'description' => "Have a project in mind? Let's discuss how we can build it together.",
-                'text' => 'Get in Touch',
+                'text' => 'Build Your Next Project With Us',
+                'description' => 'Ready to build high-performance web applications? Contact our engineering team today.',
                 'url' => '/contact',
-            ],
-        ]);
+            ]
+        ], $admin?->id);
     }
 
-    private function createSection(int $pageId, string $sectionKey, string $sectionType, array $data): ContentSection
+    private function createSection(int $pageId, string $sectionKey, string $sectionType, int $sortOrder, array $data, ?int $adminId): ContentSection
     {
         return ContentSection::query()->updateOrCreate(
             [
@@ -205,23 +196,10 @@ class ContentPageSeeder extends Seeder
             ],
             [
                 'section_type' => $sectionType,
-                'is_visible' => true,
-                'sort_order' => match($sectionKey) {
-                    'hero' => 0,
-                    'header' => 1,
-                    'whyus' => 2,
-                    'comparison' => 3,
-                    'process' => 4,
-                    'stats' => 5,
-                    'result' => 6,
-                    'review' => 7,
-                    'technologies' => 8,
-                    'faq' => 9,
-                    'data' => 10,
-                    'cta' => 11,
-                    default => 12
-                },
                 'data' => $data,
+                'is_visible' => true,
+                'sort_order' => $sortOrder,
+                'updated_by' => $adminId,
             ]
         );
     }

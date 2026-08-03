@@ -4,79 +4,72 @@ namespace Database\Seeders;
 
 use App\Models\ArticlePage;
 use App\Models\ArticleSection;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class ArticlePageSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create Blogs page
-        $blogsPage = ArticlePage::query()->updateOrCreate(
+        $admin = User::query()->where('email', 'admin@wnd.local')->first();
+
+        // Single complete seeding data for Article Module: "/blogs" (Blogs)
+        $page = ArticlePage::query()->updateOrCreate(
             ['slug' => '/blogs'],
             [
                 'title' => 'Blogs',
-                'slug' => '/blogs',
                 'status' => 'published',
-                'seo_title' => 'Our Blog | WebNDevs',
-                'seo_description' => 'Read our latest articles, insights, and tech tutorials.',
-                'meta_keywords' => 'Blog, Development, Technology',
+                'seo_title' => 'Our Blogs & Insights | Article Module',
+                'seo_description' => 'Read our latest technical articles, software architecture tutorials, and web development insights.',
+                'meta_keywords' => 'Blogs, Articles, Tech Tutorials, WebNDevs',
+                'updated_by' => $admin?->id,
             ]
         );
 
-        $this->seedPageSections($blogsPage->id, 'OUR BLOG', 'Blogs & Insights', 'Tech guides and insights from our team.');
+        // Seed all sections cleanly aligned with Article Module structure
+        $this->createSection($page->id, 'hero', 'hero', 0, [
+            'tag' => 'ARTICLE DIRECTORY',
+            'title1' => 'Software Engineering',
+            'title2' => '& Tech Blog',
+            'description' => 'In-depth tutorials, system architecture deep dives, and modern web application development insights.',
+        ], $admin?->id);
 
-        // 2. Create Case Studies page
-        $caseStudiesPage = ArticlePage::query()->updateOrCreate(
-            ['slug' => '/case-studies'],
-            [
-                'title' => 'Case Studies',
-                'slug' => '/case-studies',
-                'status' => 'published',
-                'seo_title' => 'Our Case Studies | WebNDevs',
-                'seo_description' => 'Explore customer success stories and software project outcomes.',
-                'meta_keywords' => 'Case Studies, Software engineering, Success Stories',
+        $this->createSection($page->id, 'header', 'header', 1, [
+            'tag' => 'ARTICLE COLLECTION',
+            'subheading1' => 'Latest Published',
+            'subheading2' => 'Articles & Tutorials',
+            'subtext' => 'Stay updated with practical engineering guides written by our senior developers.',
+        ], $admin?->id);
+
+        $this->createSection($page->id, 'content', 'content', 2, [
+            'tag' => 'FEATURED ARTICLES',
+            'subheading1' => 'Featured Engineering',
+            'subheading2' => 'Posts & Guides',
+            'subtext' => 'Read our top technical guides covering Next.js, Laravel, Docker, and system design patterns.',
+            'items' => [
+                [
+                    'title' => 'Building High-Performance Programmatic SEO Engines with Laravel & React',
+                    'category' => 'Engineering',
+                    'description' => 'A step-by-step architectural breakdown of scaling dynamic pages using React state and Laravel backend compilers.',
+                    'url' => '/blogs/programmatic-seo-engine',
+                ],
             ]
-        );
+        ], $admin?->id);
 
-        $this->seedPageSections($caseStudiesPage->id, 'CASE STUDIES', 'Client Success Stories', 'Detailed outcomes of our software and development projects.');
-    }
-
-    private function seedPageSections(int $pageId, string $heroTag, string $heroTitle, string $heroDesc): void
-    {
-        // Hero section
-        $this->createSection($pageId, 'hero', 'hero', [
-            'tag' => $heroTag,
-            'title1' => $heroTitle,
-            'title2' => '& Insights',
-            'description' => $heroDesc,
-        ]);
-
-        // Header section
-        $this->createSection($pageId, 'header', 'items', [
-            'tag' => 'RESOURCES',
-            'subheading1' => 'Our Collection',
-            'subheading2' => 'Of Expert Articles',
-            'subtext' => 'Learn how we design, build, and optimize products.',
-        ]);
-
-        // Content section (Empty default items)
-        $this->createSection($pageId, 'content', 'items', []);
-
-        // CTA section
-        $this->createSection($pageId, 'cta', 'cta', [
+        $this->createSection($page->id, 'cta', 'cta', 3, [
             'preview' => [
-                'text' => 'Talk to an Expert',
-                'url' => '/contact',
+                'text' => 'Subscribe to Newsletter',
+                'url' => '/subscribe',
             ],
             'full' => [
-                'description' => 'Have a project in mind? Let\'s discuss how we can build it together.',
-                'text' => 'Get in Touch',
-                'url' => '/contact',
-            ],
-        ]);
+                'text' => 'Stay Ahead in Web Engineering',
+                'description' => 'Subscribe to get our weekly software architecture articles delivered to your inbox.',
+                'url' => '/subscribe',
+            ]
+        ], $admin?->id);
     }
 
-    private function createSection(int $pageId, string $sectionKey, string $sectionType, array $data): ArticleSection
+    private function createSection(int $pageId, string $sectionKey, string $sectionType, int $sortOrder, array $data, ?int $adminId): ArticleSection
     {
         return ArticleSection::query()->updateOrCreate(
             [
@@ -85,15 +78,10 @@ class ArticlePageSeeder extends Seeder
             ],
             [
                 'section_type' => $sectionType,
-                'is_visible' => true,
-                'sort_order' => match($sectionKey) {
-                    'hero' => 0,
-                    'header' => 1,
-                    'content' => 2,
-                    'cta' => 3,
-                    default => 4
-                },
                 'data' => $data,
+                'is_visible' => true,
+                'sort_order' => $sortOrder,
+                'updated_by' => $adminId,
             ]
         );
     }
