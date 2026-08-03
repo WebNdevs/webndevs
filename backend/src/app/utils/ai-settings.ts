@@ -219,7 +219,7 @@ function buildPrompt(prompt: string, context?: string): string {
   return fullPrompt;
 }
 
-function getMockContent(prompt: string, context?: string): string {
+function getMockContent(prompt: string, _context?: string): string {
   // Return contextual mock content based on the prompt
   const promptLower = prompt.toLowerCase();
   

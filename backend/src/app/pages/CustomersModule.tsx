@@ -7,7 +7,6 @@ import {
   SelectField,
   Modal,
   Avatar,
-  Tabs,
 } from "@figma/astraui";
 import {
   Plus,

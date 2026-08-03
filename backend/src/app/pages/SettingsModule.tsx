@@ -1,27 +1,20 @@
-import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Badge, Button, InputField, SelectField, TextareaField } from "@figma/astraui";
 import { 
   Eye, EyeOff, Send, Check, RefreshCw, Database, BarChart2, Megaphone, Plus, X, Sparkles,
-  Settings as SettingsIcon, HardDrive, Clock, Link2, Users, Shield, Download, Upload, Search,
-  Trash2, AlertTriangle, ChevronRight, History, Zap, Image, Wifi, Edit2, UserPlus, Trash, Key as KeyIcon
+  Settings as SettingsIcon, HardDrive, Link2, Users, Shield, Download, Search,
+  Trash2, AlertTriangle, History, Image, Edit2, UserPlus, Trash
 } from "lucide-react";
 import { getStoredToken } from "../auth";
 import { API_BASE_URL } from "../../config/api.config";
-import { setStoredAiKey, type AiProvider } from "../utils/ai-settings";
+import { setStoredAiKey } from "../utils/ai-settings";
 import { TokenStatus } from "../components/TokenStatus";
-import { useUsers, type User, type PaginatedUsers } from "../hooks/useUsers";
+import { useUsers, type User } from "../hooks/useUsers";
 import { LoadingGame } from "../components/LoadingGame";
 
 type TabKey = "general" | "smtp" | "api-keys" | "email-templates" | "security" | 
               "site-ctas" | "analytics" | "seeder" | "ai-settings" | "media-storage" | 
               "cache" | "backups" | "webhooks" | "user-management" | "audit-logs";
-
-type ApiResponse<T> = {
-  success: boolean;
-  message: string;
-  data: T;
-  errors: Record<string, string[]> | string[] | [];
-};
 
 type SettingsPayload = {
   general: {
@@ -254,10 +247,10 @@ function MaskedKeyField({ label, value, onChange }: { label: string; value: stri
 }
 
 // Site-wide CTA type
-type CtaEntry = { pageType: string; text: string; url: string };
+export type CtaEntry = { pageType: string; text: string; url: string };
 
 // Analytics config type
-type AnalyticsConfig = {
+export type AnalyticsConfig = {
   googleAnalyticsId: string;
   plausibleDomain: string;
   plausibleApiKey: string;
@@ -295,7 +288,7 @@ export function SettingsModule() {
 
   // Seeder state
   const [seederForm, setSeederForm] = useState({ name: "Admin", email: "admin@webndevs.com", password: "", passwordConfirm: "" });
-  const [seederResult, setSeederResult] = useState<"" | "success" | "error">("");
+  const [_seederResult, setSeederResult] = useState<"" | "success" | "error">("");
   const [isSeeding, setIsSeeding] = useState(false);
 
   // Cache state
@@ -670,7 +663,7 @@ export function SettingsModule() {
       } else {
         setErrorText(result.message || "AI connection failed.");
       }
-    } catch (error) {
+    } catch (_error) {
       setErrorText("Failed to test AI connection.");
     }
   }
@@ -830,7 +823,7 @@ export function SettingsModule() {
 
 // ============ USER MANAGEMENT SECTION ============
 function UsersManagementSection() {
-  const { users, isLoading, error, refetch } = useUsers();
+  const { users, isLoading, error: _error, refetch } = useUsers();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);

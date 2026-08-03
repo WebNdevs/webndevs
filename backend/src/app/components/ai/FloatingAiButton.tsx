@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Sparkles, Loader2 } from "lucide-react";
 
 type FloatingAiButtonProps = {

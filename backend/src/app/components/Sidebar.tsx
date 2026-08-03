@@ -22,15 +22,10 @@ import {
   PanelLeftOpen,
   LogOut,
   Package,
-  Building2,
   Link2,
-  Lightbulb,
-  BarChart2,
   Sparkles,
   Navigation,
   Search,
-  Trophy,
-  Gift,
 } from "lucide-react";
 
 import { Button } from "./blocks";
@@ -46,7 +41,7 @@ export interface UserInfo {
 
 interface NavItem {
   path: string;
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>;
   label: string;
   exact?: boolean;
   permission?: string;

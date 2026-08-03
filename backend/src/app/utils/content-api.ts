@@ -109,7 +109,7 @@ export type ContentPage = {
   sections: ContentSection[];
 };
 
-type ApiResponse<T> = {
+export type ApiResponse<T> = {
   success: boolean;
   message: string;
   data: T;

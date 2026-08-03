@@ -1,13 +1,11 @@
 import { Badge, Button } from "@figma/astraui";
 import {
-  TrendingUp,
   Users,
   FileText,
   DollarSign,
   Package,
   Briefcase,
   AlertTriangle,
-  CheckCircle,
   ArrowRight,
   BarChart3,
 } from "lucide-react";

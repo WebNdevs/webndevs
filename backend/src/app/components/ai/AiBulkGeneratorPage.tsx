@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, X, Play, Loader2, CheckCircle, XCircle, Clock, Trash2 } from "lucide-react";
+import { Plus, X, Play, Loader2, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import { AiJobStatusTracker } from "./AiJobStatusTracker";
 
 type BulkJobInput = {

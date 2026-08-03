@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Button } from "@figma/astraui";
 import { Sparkles, Loader2, Check, AlertCircle } from "lucide-react";
 
 type GenerateState = "idle" | "loading" | "streaming" | "done" | "error";

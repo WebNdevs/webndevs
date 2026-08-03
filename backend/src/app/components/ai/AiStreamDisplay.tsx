@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { Sparkles } from "lucide-react";
 
 type AiStreamDisplayProps = {
   content: string;

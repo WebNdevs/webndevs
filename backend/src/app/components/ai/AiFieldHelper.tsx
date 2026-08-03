@@ -25,7 +25,7 @@ export function AiFieldHelper({
   entityType = "tool",
   onApply,
   apiBase = "/api/v1",
-  placeholder,
+  placeholder: _placeholder,
   suggestions = [],
 }: AiFieldHelperProps) {
   const [isGenerating, setIsGenerating] = useState(false);

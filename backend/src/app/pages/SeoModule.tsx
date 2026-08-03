@@ -11,7 +11,6 @@ import {
   Pencil,
   Check,
   AlertCircle,
-  Sparkles,
   Globe,
   Code,
   ExternalLink,

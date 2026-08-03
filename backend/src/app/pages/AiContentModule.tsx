@@ -17,9 +17,7 @@ import {
   Link,
   RefreshCw,
   Eye,
-  Zap,
   TrendingUp,
-  FileText,
 } from "lucide-react";
 
 // ---------- AI Bulk Generator ----------

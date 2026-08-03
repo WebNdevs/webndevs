@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Badge, InputField, SelectField, TextareaField } from "@figma/astraui";
+import { Badge, InputField, TextareaField } from "@figma/astraui";
 import {
   Globe,
   Pencil,
@@ -12,7 +12,7 @@ import {
 import { API_BASE_URL } from "../../config/api.config";
 import { clearStoredAuth, fetchAuthenticatedUser, getStoredToken, setStoredToken, TOKEN_KEYS } from "../auth";
 import { Pill, Tabs, Card, Button as CustomButton, ConfirmModal } from "../components/blocks";
-import { getSectionSchema, getItemSchema, mergeSectionData, mergeItemData } from "../../data/schema";
+import { getItemSchema, mergeSectionData, mergeItemData } from "../../data/schema";
 
 
 type PageStatus = "published" | "draft";
@@ -189,7 +189,7 @@ export function ServiceModule() {
   const [managedSections, setManagedSections] = useState<EditableManagedSection[]>([]);
   const [deletedItemIds, setDeletedItemIds] = useState<{ sectionId: number; itemId: number }[]>([]);
   
-  const [isLoading, setIsLoading] = useState(false);
+  const [_isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [successText, setSuccessText] = useState("");

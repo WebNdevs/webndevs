@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Badge, InputField, SelectField, Modal, SwitchField } from "@figma/astraui";
-import { Plus, Download, RefreshCw, ChevronRight, Globe, Eye, Pencil, Trash2, Copy, Search } from "lucide-react";
+import { Plus, Download, RefreshCw, ChevronRight, Globe, Eye, Pencil, Trash2, Copy } from "lucide-react";
 
 type SitemapEntry = {
   id: string;

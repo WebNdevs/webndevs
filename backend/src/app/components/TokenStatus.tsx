@@ -1,4 +1,4 @@
-import { RefreshCw, Clock, AlertTriangle, XCircle, LogIn, Lock } from "lucide-react";
+import { RefreshCw, Clock, LogIn, Lock } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { API_BASE_URL } from "../../config/api.config";
 import { useAuthListener } from "../context/AuthContext";

@@ -1,5 +1,4 @@
 import { FormEvent, useMemo, useState } from "react";
-import { Badge, InputField } from "@figma/astraui";
 import { Mail, Lock, ShieldCheck, AlertCircle, CheckCircle } from "lucide-react";
 import { setStoredToken } from "../auth";
 import { API_BASE_URL } from "../../config/api.config";

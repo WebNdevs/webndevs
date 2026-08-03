@@ -4,7 +4,7 @@ import { CheckCircle2, Edit, Plus, RefreshCw, Save, Trash2 } from "lucide-react"
 import { API_BASE_URL } from "../../config/api.config";
 import { clearStoredAuth, getStoredToken, setStoredToken } from "../auth";
 import { Pill, Tabs, Card, Button, ConfirmModal } from "../components/blocks";
-import { getSectionSchema, getItemSchema, mergeSectionData, mergeItemData } from "../../data/schema";
+import { getSectionSchema, getItemSchema, mergeItemData } from "../../data/schema";
 
 
 type ApiResponse<T> = {
@@ -650,7 +650,7 @@ function splitKeywordsToArray(value: string): string[] | null {
     .map((item) => {
       let cleaned = item.trim();
       cleaned = cleaned.replace(/^['"]|['"]$/g, "");
-      cleaned = cleaned.replace(/[\/\\|]/g, "").trim();
+      cleaned = cleaned.replace(/[/\\|]/g, "").trim();
       return cleaned;
     })
     .filter(Boolean);
@@ -667,7 +667,7 @@ function splitResultsToArray(value: string): string[] | null {
     .map((item) => {
       let cleaned = item.trim();
       cleaned = cleaned.replace(/^['"]|['"]$/g, "");
-      cleaned = cleaned.replace(/[\/\\|]/g, "").trim();
+      cleaned = cleaned.replace(/[/\\|]/g, "").trim();
       return cleaned;
     })
     .filter(Boolean);
@@ -699,7 +699,7 @@ function omitEmptyKeys(obj: Record<string, any>): Record<string, any> {
 }
 
 function cleanSectionItem(sectionKey: SectionKey, item: EditableSectionItem): Record<string, any> {
-  let raw: Record<string, any> = {};
+  let raw: Record<string, any>;
 
   if (sectionKey === "seo") {
     raw = {
@@ -788,7 +788,7 @@ export function ServicePlansModule() {
   const [selectedSectionVersionId, setSelectedSectionVersionId] = useState("");
   const [offers, setOffers] = useState<EditableOffer[]>([]);
   const [categories, setCategories] = useState<EditableCategory[]>([]);
-  const [mediaFolders, setMediaFolders] = useState<MediaFolderNode[]>([]);
+  const [_mediaFolders, setMediaFolders] = useState<MediaFolderNode[]>([]);
   const [mediaAssets, setMediaAssets] = useState<EditableMediaAsset[]>([]);
   const [categorySearch, setCategorySearch] = useState("");
   const [mediaSearch, setMediaSearch] = useState("");

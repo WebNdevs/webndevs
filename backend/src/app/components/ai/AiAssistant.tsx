@@ -17,7 +17,7 @@ type AiAssistantProps = {
   className?: string;
 };
 
-const SYSTEM_PROMPT = `You are an AI writing assistant for a content management system. Your role is to help users fill in form fields by generating content based on their requests. 
+const _SYSTEM_PROMPT = `You are an AI writing assistant for a content management system. Your role is to help users fill in form fields by generating content based on their requests. 
 
 Guidelines:
 - Ask clarifying questions if the request is vague
@@ -116,7 +116,7 @@ Please respond as a helpful AI assistant. Keep responses focused and actionable.
       };
       setMessages((prev) => [...prev, assistantMessage]);
 
-    } catch (error) {
+    } catch (_error) {
       const errorMessage: AiMessage = {
         role: "assistant",
         content: "I'm sorry, I encountered an error. Please try again.",
