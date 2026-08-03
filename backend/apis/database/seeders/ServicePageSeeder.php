@@ -18,6 +18,7 @@ class ServicePageSeeder extends Seeder
             ['slug' => '/web-development'],
             [
                 'title' => 'Web Development',
+                'slug' => '/web-development',
                 'status' => 'published',
                 'seo_title' => 'Web Development Services | Service Module',
                 'seo_description' => 'Custom web application development, frontend engineering, and backend API integration services.',
@@ -56,7 +57,7 @@ class ServicePageSeeder extends Seeder
                         'Custom React / Vite Single-Page Application',
                         'RESTful API Backend setup with Laravel',
                         'Basic CI/CD pipeline and deployment configuration',
-                    ]
+                    ],
                 ],
                 [
                     'title' => 'Enterprise Full-Stack Sprint',
@@ -67,9 +68,9 @@ class ServicePageSeeder extends Seeder
                         'Next.js Server-Side Rendering & Programmatic SEO',
                         'Advanced database design with migration suites',
                         '24/7 Monitoring & uptime guarantee',
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ], $admin?->id);
 
         $this->createSection($page->id, 'cta', 'cta', 3, [
@@ -81,7 +82,7 @@ class ServicePageSeeder extends Seeder
                 'text' => 'Start Your Web Development Project',
                 'description' => 'Discuss your web development specifications with our lead software architects today.',
                 'url' => '/contact',
-            ]
+            ],
         ], $admin?->id);
     }
 

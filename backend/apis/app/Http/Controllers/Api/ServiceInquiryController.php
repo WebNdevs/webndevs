@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreServiceInquiryRequest;
 use App\Models\ServiceInquiry;
+use App\Services\SettingsService;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ServiceInquiryController extends Controller
 {
@@ -13,8 +16,9 @@ class ServiceInquiryController extends Controller
         $validated = $request->validated();
 
         // 1. Honeypot check for spam bots
-        if (!empty($validated['address'])) {
-            \Illuminate\Support\Facades\Log::warning("Spam bot detected via honeypot field from email: " . ($validated['email'] ?? 'unknown'));
+        if (! empty($validated['address'])) {
+            Log::warning('Spam bot detected via honeypot field from email: '.($validated['email'] ?? 'unknown'));
+
             // Return success to deceive the spammer/bot
             return $this->success(null, 'Inquiry submitted successfully.', 201);
         }
@@ -38,8 +42,8 @@ class ServiceInquiryController extends Controller
         ]);
 
         // Dynamically load SMTP settings if configured in settings
-        $smtp = \App\Services\SettingsService::getSmtp();
-        if (!empty($smtp['host'])) {
+        $smtp = SettingsService::getSmtp();
+        if (! empty($smtp['host'])) {
             config([
                 'mail.mailers.smtp.transport' => 'smtp',
                 'mail.mailers.smtp.host' => $smtp['host'],
@@ -54,25 +58,25 @@ class ServiceInquiryController extends Controller
         }
 
         // Retrieve support email to send notifications to, fallback to sales@webndevs.com
-        $supportEmail = \App\Services\SettingsService::get('general', 'support_email');
+        $supportEmail = SettingsService::get('general', 'support_email');
         if (empty($supportEmail) || $supportEmail === 'support@webndevs.local') {
             $supportEmail = 'sales@webndevs.com';
         }
 
         // Compile mail content
-        $subject = "WebNDevs - New Project Inquiry: " . $inquiry->name;
+        $subject = 'WebNDevs - New Project Inquiry: '.$inquiry->name;
         $body = "You have received a new service inquiry from your website.\n\n"
-              . "Name: " . $inquiry->name . "\n"
-              . "Email: " . $inquiry->email . "\n"
-              . "Phone: " . ($inquiry->phone ?? 'N/A') . "\n"
-              . "Service: " . $inquiry->service_slug . "\n"
-              . "Project Brief: \n" . $inquiry->project_brief . "\n";
+              .'Name: '.$inquiry->name."\n"
+              .'Email: '.$inquiry->email."\n"
+              .'Phone: '.($inquiry->phone ?? 'N/A')."\n"
+              .'Service: '.$inquiry->service_slug."\n"
+              ."Project Brief: \n".$inquiry->project_brief."\n";
 
         $mailErrors = [];
 
         // 1. Send inquiry notification to admin
         try {
-            \Illuminate\Support\Facades\Mail::send('emails.inquiry_notification', [
+            Mail::send('emails.inquiry_notification', [
                 'name' => $inquiry->name,
                 'email' => $inquiry->email,
                 'phone' => $inquiry->phone,
@@ -82,14 +86,14 @@ class ServiceInquiryController extends Controller
                 $message->to($supportEmail)->subject($subject);
             });
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Failed to send admin notification email: " . $e->getMessage());
+            Log::error('Failed to send admin notification email: '.$e->getMessage());
             $mailErrors['admin'] = $e->getMessage();
         }
 
         // 2. Send confirmation email to customer
         try {
-            $customerSubject = "We have received your inquiry - WebNDevs";
-            \Illuminate\Support\Facades\Mail::send('emails.customer_confirmation', [
+            $customerSubject = 'We have received your inquiry - WebNDevs';
+            Mail::send('emails.customer_confirmation', [
                 'name' => $inquiry->name,
                 'service_slug' => $inquiry->service_slug,
                 'project_brief' => $inquiry->project_brief,
@@ -98,14 +102,14 @@ class ServiceInquiryController extends Controller
                 $message->to($inquiry->email)->subject($customerSubject);
             });
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Failed to send customer confirmation email: " . $e->getMessage());
+            Log::error('Failed to send customer confirmation email: '.$e->getMessage());
             $mailErrors['customer'] = $e->getMessage();
         }
 
         $responseData = [
             'inquiry' => $inquiry,
         ];
-        if (!empty($mailErrors)) {
+        if (! empty($mailErrors)) {
             $responseData['mail_errors'] = $mailErrors;
         }
 

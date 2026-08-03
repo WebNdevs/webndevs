@@ -23,6 +23,7 @@ class PublicContentController extends Controller
         'data',
         'cta',
     ];
+
     public function index(): JsonResponse
     {
         $pages = ContentPage::query()
@@ -56,7 +57,7 @@ class PublicContentController extends Controller
             foreach ($page->sectionItems as $section) {
 
                 if (
-                    !in_array(
+                    ! in_array(
                         $section->section_key,
                         self::ALLOWED_SECTION_KEYS,
                         true
@@ -98,7 +99,7 @@ class PublicContentController extends Controller
             return '/';
         }
 
-        return '/' . trim($slug, '/');
+        return '/'.trim($slug, '/');
     }
 
     private function compileSection(
@@ -109,7 +110,7 @@ class PublicContentController extends Controller
             : [];
         unset($sectionData['variant']);
         $items = $section->items
-            ->map(function ($item) use ($section) {
+            ->map(function ($item) {
 
                 $itemData = is_array($item->data)
                     ? $item->data
@@ -161,11 +162,11 @@ class PublicContentController extends Controller
             $sectionData
         );
 
-        if (!empty($header)) {
+        if (! empty($header)) {
             $compiled['header'] = $header;
         }
 
-        if (!empty($items)) {
+        if (! empty($items)) {
             $compiled['items'] = $items;
         }
 
@@ -177,7 +178,7 @@ class PublicContentController extends Controller
                 $sectionData['cta']
             );
 
-            if (!empty($cta)) {
+            if (! empty($cta)) {
                 $compiled['cta'] = $cta;
             }
         }
@@ -198,7 +199,7 @@ class PublicContentController extends Controller
 
         foreach ($sectionData as $key => $value) {
             if (
-                !in_array(
+                ! in_array(
                     $key,
                     $reservedKeys,
                     true
@@ -217,20 +218,16 @@ class PublicContentController extends Controller
         array $sectionData
     ): array {
         return $this->removeEmptyValues([
-            'tag' =>
-                $sectionData['tag']
+            'tag' => $sectionData['tag']
                 ?? null,
 
-            'subheading1' =>
-                $sectionData['subheading1']
+            'subheading1' => $sectionData['subheading1']
                 ?? null,
 
-            'subheading2' =>
-                $sectionData['subheading2']
+            'subheading2' => $sectionData['subheading2']
                 ?? null,
 
-            'subtext' =>
-                $sectionData['subtext']
+            'subtext' => $sectionData['subtext']
                 ?? null,
         ]);
     }

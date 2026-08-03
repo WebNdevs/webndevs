@@ -18,10 +18,10 @@ class CorsMiddleware
         $allowedOrigins = (array) config('cors.allowed_origins', []);
 
         $origin = (string) $request->headers->get('Origin', '');
-        
+
         // Allow all origins in local development (APP_ENV=local)
         $isLocal = app()->environment('local');
-        
+
         // Check if origin is in allowed list or if we're in local dev mode
         $allowedOrigin = null;
         if ($isLocal) {
@@ -38,7 +38,7 @@ class CorsMiddleware
             'Access-Control-Max-Age' => '86400',
             'Vary' => 'Origin',
         ];
-        
+
         if ($allowedOrigin && $allowedOrigin !== '*') {
             $headers['Access-Control-Allow-Origin'] = $allowedOrigin;
         }
@@ -49,6 +49,7 @@ class CorsMiddleware
             if ($allowedOrigin === '*') {
                 $response->headers->set('Access-Control-Allow-Origin', '*');
             }
+
             return $response;
         }
 
@@ -56,7 +57,7 @@ class CorsMiddleware
         foreach ($headers as $key => $value) {
             $response->headers->set($key, $value);
         }
-        
+
         // For local development, allow all origins on actual responses too
         if ($allowedOrigin === '*') {
             $response->headers->set('Access-Control-Allow-Origin', '*');

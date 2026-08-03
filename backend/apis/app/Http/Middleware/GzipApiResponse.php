@@ -33,7 +33,7 @@ class GzipApiResponse
 
         $response->setContent($compressed);
         $response->headers->set('Content-Encoding', 'gzip');
-        $response->headers->set('Vary', trim($response->headers->get('Vary', '') . ', Accept-Encoding', ', '));
+        $response->headers->set('Vary', trim($response->headers->get('Vary', '').', Accept-Encoding', ', '));
         $response->headers->set('Content-Length', (string) strlen($compressed));
 
         return $response;

@@ -11,9 +11,7 @@ use Illuminate\Http\Request;
 
 class ContentGapController extends Controller
 {
-    public function __construct(private readonly ContentGapAnalyzerService $analyzer)
-    {
-    }
+    public function __construct(private readonly ContentGapAnalyzerService $analyzer) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -45,7 +43,7 @@ class ContentGapController extends Controller
 
     public function bulkGenerate(BulkGenerateContentGapRequest $request): JsonResponse
     {
-        $data    = $request->validated();
+        $data = $request->validated();
         $created = $this->analyzer->analyzeAndStore($data['entity_type'], $data['entity_id']);
 
         return $this->success(['created' => $created], "Generated {$created} content gap(s).");

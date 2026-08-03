@@ -7,7 +7,6 @@ use App\Http\Requests\StoreContentSectionRequest;
 use App\Http\Requests\UpdateContentSectionRequest;
 use App\Models\ContentPage;
 use App\Models\ContentSection;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ContentSectionController extends Controller
@@ -30,6 +29,7 @@ class ContentSectionController extends Controller
 
         $section = DB::transaction(function () use ($validated, $contentPage, $request) {
             $nextOrder = ($contentPage->sectionItems()->max('sort_order') ?? 0) + 1;
+
             return ContentSection::query()->create([
                 'content_page_id' => $contentPage->id,
                 'section_key' => $validated['section_key'],

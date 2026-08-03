@@ -60,7 +60,7 @@ class SolutionController extends Controller
 
     public function store(StoreSolutionRequest $request): JsonResponse
     {
-        $data    = $request->validated();
+        $data = $request->validated();
         $toolIds = $data['tool_ids'] ?? [];
         unset($data['tool_ids']);
 
@@ -74,7 +74,7 @@ class SolutionController extends Controller
 
     public function update(UpdateSolutionRequest $request, Solution $solution): JsonResponse
     {
-        $data    = $request->validated();
+        $data = $request->validated();
         $toolIds = $data['tool_ids'] ?? null;
         unset($data['tool_ids']);
 

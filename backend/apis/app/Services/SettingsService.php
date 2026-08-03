@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\AppSetting;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -11,24 +10,24 @@ class SettingsService
 {
     /** @var array|null */
     private static $cache = null;
-    
+
     /** @var int|null */
     private static $cacheTime = null;
 
     public static function get(string $groupKey, ?string $key = null, $default = null)
     {
         $settings = self::getGroup($groupKey);
-        
+
         if ($key === null) {
             return $settings;
         }
-        
+
         return $settings[$key] ?? $default;
     }
 
     public static function getGroup(string $groupKey): array
     {
-        if (self::$cache !== null && self::$cacheTime !== null && 
+        if (self::$cache !== null && self::$cacheTime !== null &&
             (time() - self::$cacheTime) < 300) {
             return self::$cache[$groupKey] ?? [];
         }
@@ -36,11 +35,11 @@ class SettingsService
         try {
             $setting = AppSetting::query()->where('group_key', $groupKey)->first();
             $value = $setting ? $setting->value : [];
-            
+
             self::$cache = self::$cache ?? [];
             self::$cache[$groupKey] = $value;
             self::$cacheTime = time();
-            
+
             return $value;
         } catch (\Exception $e) {
             return [];
@@ -96,19 +95,20 @@ class SettingsService
             'data' => $data,
         ]);
 
-        if (!$enabled) {
+        if (! $enabled) {
             Log::info('Webhook skipped - not enabled');
+
             return;
         }
 
         $urls = self::getWebhookUrls();
         $secret = self::get('webhooks', 'secret', '');
-        
+
         Log::info('Webhook dispatching', [
             'urls_count' => count($urls),
             'urls' => $urls,
         ]);
-        
+
         foreach ($urls as $url) {
             try {
                 $payload = [
@@ -130,13 +130,13 @@ class SettingsService
                         'X-Webhook-Event' => $event,
                     ])
                     ->send('POST', $url, ['body' => json_encode($payload)]);
-                    
+
                 Log::info('Webhook sent', [
                     'url' => $url,
                     'status' => $response->status(),
                 ]);
             } catch (\Exception $e) {
-                Log::warning("Webhook failed for {$url}: " . $e->getMessage());
+                Log::warning("Webhook failed for {$url}: ".$e->getMessage());
             }
         }
     }

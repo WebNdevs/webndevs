@@ -84,6 +84,7 @@ class User extends Authenticatable
         }
 
         $permissions = $this->permissions ?? [];
+
         return in_array($permission, $permissions, true);
     }
 

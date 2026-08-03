@@ -17,6 +17,7 @@ class GenerateContentJob implements ShouldQueue
     use SerializesModels;
 
     public int $timeout = 180;
+
     public int $tries = 2;
 
     public function __construct(private readonly array $payload)

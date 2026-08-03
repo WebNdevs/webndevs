@@ -18,6 +18,7 @@ class DataHubPageSeeder extends Seeder
             ['slug' => '/tools'],
             [
                 'title' => 'Tools',
+                'slug' => '/tools',
                 'status' => 'published',
                 'seo_title' => 'Developer Tools & Utilities | DataHub',
                 'seo_description' => 'Explore curated developer tools, utilities, and programmatic integrations.',
@@ -63,7 +64,7 @@ class DataHubPageSeeder extends Seeder
                     'href' => '/tools/web-vitals-audit',
                     'is_featured' => true,
                 ],
-            ]
+            ],
         ], $admin?->id);
 
         $this->createSection($page->id, 'cta', 'cta', 3, [
@@ -75,7 +76,7 @@ class DataHubPageSeeder extends Seeder
                 'text' => 'Need a Custom Internal Tool or Calculator?',
                 'description' => 'We engineer custom web utilities, ROI calculators, and enterprise dashboards.',
                 'url' => '/contact',
-            ]
+            ],
         ], $admin?->id);
     }
 

@@ -15,7 +15,7 @@ class AutoScanInternalLinksRequest extends FormRequest
     {
         return [
             'entity_type' => ['required', 'string', 'max:100'],
-            'entity_id'   => ['required', 'integer', 'min:1'],
+            'entity_id' => ['required', 'integer', 'min:1'],
         ];
     }
 }

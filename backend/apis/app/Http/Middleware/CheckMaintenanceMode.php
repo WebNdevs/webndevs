@@ -39,7 +39,7 @@ class CheckMaintenanceMode
         }
 
         // Only check maintenance mode for public routes
-        if (!$this->isPublicRoute($request)) {
+        if (! $this->isPublicRoute($request)) {
             return $next($request);
         }
 
@@ -57,10 +57,10 @@ class CheckMaintenanceMode
 
     private function isPublicRoute(Request $request): bool
     {
-        $path = '/' . ltrim($request->path(), '/');
-        
+        $path = '/'.ltrim($request->path(), '/');
+
         // Allow settings and auth routes for maintenance page functionality
-        if (str_starts_with($path, '/api/settings') || 
+        if (str_starts_with($path, '/api/settings') ||
             str_starts_with($path, '/api/v1/auth') ||
             str_starts_with($path, '/api/health')) {
             return false;
@@ -78,7 +78,7 @@ class CheckMaintenanceMode
     private function isAdminRoute(Request $request): bool
     {
         // Check if this is an admin/settings route
-        return $request->is('api/settings/*') || 
+        return $request->is('api/settings/*') ||
                $request->is('api/admin/*') ||
                $request->is('api/v1/auth/me');
     }

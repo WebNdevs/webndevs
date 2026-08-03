@@ -201,7 +201,7 @@ class SettingsController extends Controller
 
     public function show(string $tab): JsonResponse
     {
-        if (!in_array($tab, self::TAB_KEYS, true)) {
+        if (! in_array($tab, self::TAB_KEYS, true)) {
             return $this->error('Invalid settings tab.', ['tab' => ['Unsupported settings tab.']], 422);
         }
 
@@ -225,7 +225,7 @@ class SettingsController extends Controller
 
     public function update(UpdateAppSettingsRequest $request, string $tab): JsonResponse
     {
-        if (!in_array($tab, self::TAB_KEYS, true)) {
+        if (! in_array($tab, self::TAB_KEYS, true)) {
             return $this->error('Invalid settings tab.', ['tab' => ['Unsupported settings tab.']], 422);
         }
 
@@ -249,14 +249,15 @@ class SettingsController extends Controller
 
             return $this->success($this->resolveTabValues($tab), 'Settings updated.');
         } catch (\Exception $e) {
-            Log::error("Settings update failed for tab {$tab}: " . $e->getMessage());
-            return $this->error('Failed to update settings: ' . $e->getMessage(), [], 500);
+            Log::error("Settings update failed for tab {$tab}: ".$e->getMessage());
+
+            return $this->error('Failed to update settings: '.$e->getMessage(), [], 500);
         }
     }
 
     public function test(Request $request, string $tab): JsonResponse
     {
-        if (!in_array($tab, self::TAB_KEYS, true)) {
+        if (! in_array($tab, self::TAB_KEYS, true)) {
             return $this->error('Invalid settings tab.', ['tab' => ['Unsupported settings tab.']], 422);
         }
 
@@ -276,7 +277,7 @@ class SettingsController extends Controller
 
     public function reset(Request $request, string $tab): JsonResponse
     {
-        if (!in_array($tab, self::TAB_KEYS, true)) {
+        if (! in_array($tab, self::TAB_KEYS, true)) {
             return $this->error('Invalid settings tab.', ['tab' => ['Unsupported settings tab.']], 422);
         }
 
@@ -376,7 +377,8 @@ class SettingsController extends Controller
 
             return $this->success(['cleared' => $cacheType], 'Cache cleared successfully.');
         } catch (\Exception $e) {
-            Log::error('Cache clear failed: ' . $e->getMessage());
+            Log::error('Cache clear failed: '.$e->getMessage());
+
             return $this->error('Failed to clear cache.', [], 500);
         }
     }
@@ -396,8 +398,8 @@ class SettingsController extends Controller
                 $backupData['settings'][$tab] = $this->resolveTabValues($tab);
             }
 
-            $filename = 'backup_' . now()->format('Y-m-d_His') . '.json';
-            Storage::disk('local')->put('backups/' . $filename, json_encode($backupData, JSON_PRETTY_PRINT));
+            $filename = 'backup_'.now()->format('Y-m-d_His').'.json';
+            Storage::disk('local')->put('backups/'.$filename, json_encode($backupData, JSON_PRETTY_PRINT));
 
             // Update last backup info
             $backupSettings = $this->resolveTabValues('backups');
@@ -413,12 +415,13 @@ class SettingsController extends Controller
 
             return $this->success([
                 'filename' => $filename,
-                'path' => 'backups/' . $filename,
+                'path' => 'backups/'.$filename,
                 'size' => strlen(json_encode($backupData)),
             ], 'Backup created successfully.');
         } catch (\Exception $e) {
-            Log::error('Backup failed: ' . $e->getMessage());
-            return $this->error('Failed to create backup: ' . $e->getMessage(), [], 500);
+            Log::error('Backup failed: '.$e->getMessage());
+
+            return $this->error('Failed to create backup: '.$e->getMessage(), [], 500);
         }
     }
 
@@ -428,7 +431,7 @@ class SettingsController extends Controller
             $setting = AppSetting::query()->where('group_key', $tab)->first();
             $stored = $setting ? $setting->value : null;
         } catch (\Exception $e) {
-            Log::warning("Failed to load settings for tab {$tab}: " . $e->getMessage());
+            Log::warning("Failed to load settings for tab {$tab}: ".$e->getMessage());
             $stored = null;
         }
 
@@ -442,7 +445,7 @@ class SettingsController extends Controller
         $sensitiveKeys = self::SENSITIVE_TABS[$tab] ?? [];
 
         foreach ($sensitiveKeys as $key) {
-            if (isset($values[$key]) && !empty($values[$key])) {
+            if (isset($values[$key]) && ! empty($values[$key])) {
                 $values[$key] = '********';
             }
         }
@@ -489,7 +492,7 @@ class SettingsController extends Controller
 
     private function testSmtp(?string $testEmail): JsonResponse
     {
-        if (!$testEmail) {
+        if (! $testEmail) {
             return $this->error('Test email address is required.', ['email' => ['Required for SMTP test.']], 422);
         }
 
@@ -510,7 +513,7 @@ class SettingsController extends Controller
                 'message' => 'SMTP settings appear valid. A test email would be sent.',
             ], 'SMTP connection test ready.');
         } catch (\Exception $e) {
-            return $this->error('SMTP test failed: ' . $e->getMessage(), [], 500);
+            return $this->error('SMTP test failed: '.$e->getMessage(), [], 500);
         }
     }
 
@@ -520,9 +523,9 @@ class SettingsController extends Controller
             $aiSettings = $this->resolveTabValues('ai-settings');
             $apiKeys = $this->resolveTabValues('api-keys');
 
-            $hasKey = !empty($apiKeys['claude_api_key']) || !empty($apiKeys['openai_api_key']);
+            $hasKey = ! empty($apiKeys['claude_api_key']) || ! empty($apiKeys['openai_api_key']);
 
-            if (!$hasKey) {
+            if (! $hasKey) {
                 return $this->error('No AI API key configured.', [], 400);
             }
 
@@ -532,7 +535,7 @@ class SettingsController extends Controller
                 'status' => 'configured',
             ], 'AI settings are configured.');
         } catch (\Exception $e) {
-            return $this->error('AI connection test failed: ' . $e->getMessage(), [], 500);
+            return $this->error('AI connection test failed: '.$e->getMessage(), [], 500);
         }
     }
 
@@ -551,7 +554,7 @@ class SettingsController extends Controller
                 'events_count' => count(array_filter($webhookSettings['events'])),
             ], 'Webhook settings are configured.');
         } catch (\Exception $e) {
-            return $this->error('Webhook test failed: ' . $e->getMessage(), [], 500);
+            return $this->error('Webhook test failed: '.$e->getMessage(), [], 500);
         }
     }
 }

@@ -6,9 +6,9 @@ class EntityOverviewPrompt extends BasePrompt
 {
     public function buildPrompt(array $context): string
     {
-        $name     = $context['entity_name'] ?? $context['entity_type'] ?? 'the entity';
-        $category = $context['category']    ?? 'integration tool';
-        $audience = $context['audience']    ?? 'businesses and developers';
+        $name = $context['entity_name'] ?? $context['entity_type'] ?? 'the entity';
+        $category = $context['category'] ?? 'integration tool';
+        $audience = $context['audience'] ?? 'businesses and developers';
 
         return <<<PROMPT
 Write a comprehensive overview of {$name} for a programmatic SEO page on a digital agency website.

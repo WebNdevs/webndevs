@@ -1,10 +1,10 @@
 <?php
 
+use App\Services\SitemapGeneratorService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schedule;
-use App\Services\SitemapGeneratorService;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());

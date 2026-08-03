@@ -5,6 +5,9 @@ namespace Tests\Feature;
 use App\Models\ContentItem;
 use App\Models\ContentPage;
 use App\Models\ContentSection;
+use App\Models\Service;
+use App\Models\ServicePageContent;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -62,7 +65,7 @@ class ContentJsonStorageTest extends TestCase
             'status' => 'published',
         ]);
 
-        $response = $this->getJson('/api/v1/content-pages/' . urlencode('/datahub'));
+        $response = $this->getJson('/api/v1/content-pages/'.urlencode('/datahub'));
 
         $response->assertOk();
         $response->assertJsonPath('data.slug', '/datahub');
@@ -86,17 +89,17 @@ class ContentJsonStorageTest extends TestCase
         ]);
 
         // Test fetching sections list
-        $responseList = $this->getJson('/api/v1/content-pages/' . urlencode('/datahub') . '/sections');
+        $responseList = $this->getJson('/api/v1/content-pages/'.urlencode('/datahub').'/sections');
         $responseList->assertOk();
 
         // Test fetching single section
-        $responseShow = $this->getJson('/api/v1/content-pages/' . urlencode('/datahub') . '/sections/' . $section->id);
+        $responseShow = $this->getJson('/api/v1/content-pages/'.urlencode('/datahub').'/sections/'.$section->id);
         $responseShow->assertOk();
     }
 
     public function test_service_page_sections_sync_retains_nested_metadata(): void
     {
-        $service = \App\Models\Service::create([
+        $service = Service::create([
             'name' => 'Web Design',
             'slug' => 'web-design',
             'category' => 'Design',
@@ -119,13 +122,13 @@ class ContentJsonStorageTest extends TestCase
                             'heading' => 'Nested Heading',
                             'subheading' => 'Nested Subheading',
                             'subtext' => 'Nested Subtext',
-                        ]
-                    ]
-                ]
-            ]
+                        ],
+                    ],
+                ],
+            ],
         ];
 
-        $user = \App\Models\User::create([
+        $user = User::create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
             'password' => bcrypt('password'),
@@ -135,8 +138,8 @@ class ContentJsonStorageTest extends TestCase
         $response = $this->actingAs($user, 'sanctum')->putJson("/api/v1/services/{$service->slug}/sections", $payload);
 
         $response->assertOk();
-        
-        $stored = \App\Models\ServicePageContent::where('service_id', $service->id)
+
+        $stored = ServicePageContent::where('service_id', $service->id)
             ->where('section_key', 'solutions')
             ->first();
 
@@ -160,7 +163,7 @@ class ContentJsonStorageTest extends TestCase
             'title' => null,
         ];
 
-        $user = \App\Models\User::create([
+        $user = User::create([
             'name' => 'Admin User',
             'email' => 'admin2@example.com',
             'password' => bcrypt('password'),

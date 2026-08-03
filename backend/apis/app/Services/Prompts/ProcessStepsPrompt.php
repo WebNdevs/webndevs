@@ -7,7 +7,7 @@ class ProcessStepsPrompt extends BasePrompt
     public function buildPrompt(array $context): string
     {
         $name = $context['entity_name'] ?? 'the tool';
-        $goal = $context['goal']        ?? 'implement an automation workflow';
+        $goal = $context['goal'] ?? 'implement an automation workflow';
 
         return <<<PROMPT
 Write a 5-step implementation process for using {$name} to {$goal}.

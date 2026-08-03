@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Search, X, Eye, EyeOff } from "lucide-react";
 
 // ==========================================
@@ -37,12 +37,17 @@ export function BadgeButton({
 // ==========================================
 // 2. Button Component
 // ==========================================
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children?: React.ReactNode;
   variant?: "primary" | "secondary" | "danger" | "neutral" | "subtle";
   size?: "small" | "medium" | "large";
   isLoading?: boolean;
   iconStart?: React.ReactNode;
   iconEnd?: React.ReactNode;
+  className?: string;
+  disabled?: boolean;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  type?: "button" | "submit" | "reset";
 }
 
 export function Button({

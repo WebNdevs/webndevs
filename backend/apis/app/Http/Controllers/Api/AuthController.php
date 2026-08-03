@@ -56,7 +56,7 @@ class AuthController extends Controller
     {
         $user = $request->user();
         $token = $request->user()?->currentAccessToken();
-        
+
         return $this->success([
             'user' => [
                 'id' => $user->id,
@@ -84,8 +84,8 @@ class AuthController extends Controller
     {
         $user = $request->user();
         $token = $user?->currentAccessToken();
-        
-        if (!$token) {
+
+        if (! $token) {
             return $this->error('No active token.', [], 401);
         }
 
@@ -113,8 +113,8 @@ class AuthController extends Controller
     {
         $user = $request->user();
         $currentToken = $user?->currentAccessToken();
-        
-        if (!$user) {
+
+        if (! $user) {
             return $this->error('Not authenticated.', [], 401);
         }
 
@@ -136,7 +136,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $user = $request->user();
-        
+
         // Delete all user's tokens (logout from all devices)
         if ($request->input('logout_all', false)) {
             $user?->tokens()->delete();
@@ -162,12 +162,12 @@ class AuthController extends Controller
     private function createAuthToken(User $user): array
     {
         $expiresAt = now()->addHours(self::TOKEN_EXPIRY_HOURS);
-        
+
         $tokenResult = $user->createToken('api-token');
         $token = $tokenResult->accessToken;
         $token->expires_at = $expiresAt;
         $token->save();
-        
+
         return [
             'token' => $tokenResult->plainTextToken,
             'expires_at' => $expiresAt->toIso8601String(),

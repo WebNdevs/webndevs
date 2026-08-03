@@ -51,8 +51,8 @@ class AppSetting extends Model
     public static function getValue(string $groupKey, string $key, $default = null)
     {
         $setting = self::where('group_key', $groupKey)->first();
-        
-        if (!$setting || !isset($setting->value[$key])) {
+
+        if (! $setting || ! isset($setting->value[$key])) {
             return $default;
         }
 
@@ -63,7 +63,7 @@ class AppSetting extends Model
     public static function setValue(string $groupKey, string $key, mixed $value, ?int $userId = null): void
     {
         $setting = self::where('group_key', $groupKey)->first();
-        
+
         if ($setting) {
             $currentValue = $setting->value;
             $currentValue[$key] = $value;

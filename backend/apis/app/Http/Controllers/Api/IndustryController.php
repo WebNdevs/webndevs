@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreIndustryRequest;
 use App\Http\Requests\UpdateIndustryRequest;
 use App\Http\Resources\IndustryResource;
+use App\Http\Resources\SolutionResource;
 use App\Http\Resources\ToolResource;
 use App\Models\CaseStudy;
 use App\Models\Industry;
@@ -122,7 +123,7 @@ class IndustryController extends Controller
             ->get();
 
         return $this->success(
-            \App\Http\Resources\SolutionResource::collection($solutions),
+            SolutionResource::collection($solutions),
             'Industry solutions fetched.'
         );
     }

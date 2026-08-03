@@ -12,7 +12,7 @@ class CheckPermission
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized.',
@@ -21,7 +21,7 @@ class CheckPermission
             ], 401);
         }
 
-        if (!$user->hasPermission($permission)) {
+        if (! $user->hasPermission($permission)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Forbidden.',

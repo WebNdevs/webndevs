@@ -12,7 +12,7 @@ class DataHubSection extends Model
     use HasFactory;
 
     protected $table = 'datahub_sections';
-    
+
     protected $fillable = [
         'datahub_page_id',
         'section_key',

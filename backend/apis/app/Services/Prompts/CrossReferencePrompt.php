@@ -8,15 +8,15 @@ class CrossReferencePrompt extends BasePrompt
     {
         $entityA = $context['entity_a_name'] ?? 'Tool A';
         $entityB = $context['entity_b_name'] ?? 'Tool B';
-        $section = $context['section_key']   ?? 'overview';
+        $section = $context['section_key'] ?? 'overview';
 
         $sectionLabels = [
-            'overview'          => 'an overview of how these two work together',
-            'use_cases'         => '5-7 specific use cases where combining them delivers ROI',
+            'overview' => 'an overview of how these two work together',
+            'use_cases' => '5-7 specific use cases where combining them delivers ROI',
             'integration_guide' => 'a step-by-step integration setup guide',
-            'faq'               => '8 frequently asked questions about using them together',
-            'benefits'          => 'the key business benefits of combining them',
-            'the_problem'       => 'the specific business problem this combination solves (150 words)',
+            'faq' => '8 frequently asked questions about using them together',
+            'benefits' => 'the key business benefits of combining them',
+            'the_problem' => 'the specific business problem this combination solves (150 words)',
             'how_they_work_together' => 'a technical and practical explanation of the integration (300 words)',
             'implementation_overview' => "WND's typical implementation approach and timeline (200 words)",
         ];

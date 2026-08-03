@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreServicePageRequest;
 use App\Http\Requests\UpdateServicePageRequest;
+use App\Models\ServiceItem;
 use App\Models\ServicePage;
 use App\Models\ServiceSection;
-use App\Models\ServiceItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -28,13 +28,13 @@ class ServicePageController extends Controller
                 if ($pathKey === 'home' || $pathKey === 'homepage') {
                     $pathKey = '/';
                 }
-                if ($pathKey !== '/' && !str_starts_with($pathKey, '/')) {
-                    $pathKey = '/' . $pathKey;
+                if ($pathKey !== '/' && ! str_starts_with($pathKey, '/')) {
+                    $pathKey = '/'.$pathKey;
                 }
 
                 $sections = [];
                 foreach ($page->sectionItems as $section) {
-                    if (!$section->is_visible) {
+                    if (! $section->is_visible) {
                         continue;
                     }
                     $serialized = $this->serializeSection($section);
@@ -44,6 +44,7 @@ class ServicePageController extends Controller
 
                 $formatted[$pathKey] = $sections;
             }
+
             return $this->success($formatted, 'Compiled service pages fetched.');
         }
 
@@ -58,7 +59,7 @@ class ServicePageController extends Controller
         $page = DB::transaction(function () use ($validated, $sections, $request) {
             $page = ServicePage::query()->create([
                 ...collect($validated)->except('sections')->toArray(),
-                'updated_by' => $request->user()?->id
+                'updated_by' => $request->user()?->id,
             ]);
 
             foreach ($sections as $index => $section) {
@@ -92,7 +93,7 @@ class ServicePageController extends Controller
         DB::transaction(function () use ($servicePage, $validated, $sections, $request) {
             $servicePage->update([
                 ...collect($validated)->except('sections')->toArray(),
-                'updated_by' => $request->user()?->id
+                'updated_by' => $request->user()?->id,
             ]);
 
             if (is_array($sections)) {

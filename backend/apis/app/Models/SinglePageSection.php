@@ -12,7 +12,7 @@ class SinglePageSection extends Model
     use HasFactory;
 
     protected $table = 'singlepage_sections';
-    
+
     protected $fillable = [
         'singlepage_page_id',
         'section_key',

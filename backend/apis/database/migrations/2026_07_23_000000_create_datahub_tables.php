@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('datahub_pages')) {
+        if (! Schema::hasTable('datahub_pages')) {
             Schema::create('datahub_pages', function (Blueprint $table) {
                 $table->id();
                 $table->string('title');
@@ -22,7 +22,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('datahub_sections')) {
+        if (! Schema::hasTable('datahub_sections')) {
             Schema::create('datahub_sections', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
@@ -38,7 +38,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('datahub_section_items')) {
+        if (! Schema::hasTable('datahub_section_items')) {
             Schema::create('datahub_section_items', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('datahub_section_id')->constrained('datahub_sections')->cascadeOnDelete();

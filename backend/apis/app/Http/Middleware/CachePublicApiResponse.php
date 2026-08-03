@@ -18,7 +18,7 @@ class CachePublicApiResponse
 
         $store = (string) config('cache.public_api_store', 'redis');
         $ttlSeconds = max((int) config('cache.public_api_ttl_seconds', 900), 60);
-        $cacheKey = 'api:public:' . sha1($request->fullUrl());
+        $cacheKey = 'api:public:'.sha1($request->fullUrl());
 
         try {
             $cached = Cache::store($store)->get($cacheKey);

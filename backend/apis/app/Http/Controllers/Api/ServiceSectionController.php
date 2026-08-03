@@ -7,7 +7,6 @@ use App\Http\Requests\StoreServiceSectionRequest;
 use App\Http\Requests\UpdateServiceSectionRequest;
 use App\Models\ServicePage;
 use App\Models\ServiceSection;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ServiceSectionController extends Controller
@@ -30,6 +29,7 @@ class ServiceSectionController extends Controller
 
         $section = DB::transaction(function () use ($validated, $servicePage, $request) {
             $nextOrder = ($servicePage->sectionItems()->max('sort_order') ?? 0) + 1;
+
             return ServiceSection::query()->create([
                 'service_page_id' => $servicePage->id,
                 'section_key' => $validated['section_key'],

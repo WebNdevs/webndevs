@@ -11,9 +11,7 @@ use Illuminate\Http\Request;
 
 class InternalLinkController extends Controller
 {
-    public function __construct(private readonly InternalLinkService $internalLinkService)
-    {
-    }
+    public function __construct(private readonly InternalLinkService $internalLinkService) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -48,7 +46,7 @@ class InternalLinkController extends Controller
 
     public function autoScan(AutoScanInternalLinksRequest $request): JsonResponse
     {
-        $data    = $request->validated();
+        $data = $request->validated();
         $created = $this->internalLinkService->scanEntity($data['entity_type'], $data['entity_id']);
 
         return $this->success(['created' => $created], "Created {$created} internal link suggestion(s).");

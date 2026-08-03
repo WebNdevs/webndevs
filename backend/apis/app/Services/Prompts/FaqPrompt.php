@@ -6,7 +6,7 @@ class FaqPrompt extends BasePrompt
 {
     public function buildPrompt(array $context): string
     {
-        $name    = $context['entity_name']   ?? $context['entity_type'] ?? 'the topic';
+        $name = $context['entity_name'] ?? $context['entity_type'] ?? 'the topic';
         $entity2 = isset($context['entity_b_name']) ? " and {$context['entity_b_name']}" : '';
 
         return <<<PROMPT

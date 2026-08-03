@@ -18,6 +18,7 @@ class SinglePagePageSeeder extends Seeder
             ['slug' => '/crm-solutions'],
             [
                 'title' => 'CRM Solutions',
+                'slug' => '/crm-solutions',
                 'category_slug' => 'solutions',
                 'status' => 'published',
                 'seo_title' => 'CRM Solutions & Integration | SinglePage Module',
@@ -58,7 +59,7 @@ class SinglePagePageSeeder extends Seeder
                     'title' => 'Automated Email Sequences',
                     'description' => 'Triggered lead nurturing sequences integrated directly with your transactional mail provider.',
                 ],
-            ]
+            ],
         ], $admin?->id);
 
         $this->createSection($page->id, 'cta', 'cta', 3, [
@@ -70,7 +71,7 @@ class SinglePagePageSeeder extends Seeder
                 'text' => 'Build a Custom CRM for Your Operations',
                 'description' => 'Consult with our CRM specialists to design a customer platform tailored to your workflow.',
                 'url' => '/contact',
-            ]
+            ],
         ], $admin?->id);
     }
 

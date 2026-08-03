@@ -6,9 +6,9 @@ class MetaSeoPrompt extends BasePrompt
 {
     public function buildPrompt(array $context): string
     {
-        $name     = $context['entity_name']    ?? $context['entity_type'] ?? 'the page';
-        $pageType = $context['page_type']      ?? 'integration';
-        $keyword  = $context['focus_keyword']  ?? "{$name} integration";
+        $name = $context['entity_name'] ?? $context['entity_type'] ?? 'the page';
+        $pageType = $context['page_type'] ?? 'integration';
+        $keyword = $context['focus_keyword'] ?? "{$name} integration";
 
         return <<<PROMPT
 Generate SEO metadata for a {$pageType} page about {$name}.

@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Middleware\CheckPermission;
-use App\Http\Middleware\CorsMiddleware;
-use App\Http\Middleware\ClampPerPage;
 use App\Http\Middleware\CachePublicApiResponse;
+use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\ClampPerPage;
+use App\Http\Middleware\CorsMiddleware;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\GzipApiResponse;

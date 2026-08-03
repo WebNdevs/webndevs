@@ -13,6 +13,7 @@ use App\Services\Prompts\FaqPrompt;
 use App\Services\Prompts\InternalLinksPrompt;
 use App\Services\Prompts\MetaSeoPrompt;
 use App\Services\Prompts\ProcessStepsPrompt;
+use App\Services\Prompts\PromptInterface;
 use App\Services\Prompts\SolutionPagePrompt;
 use App\Services\Prompts\UseCasesPrompt;
 use Illuminate\Support\Arr;
@@ -21,21 +22,19 @@ class ContentGeneratorService
 {
     /** Maps template keys to their prompt class. */
     private array $promptTemplates = [
-        'entity_overview'    => EntityOverviewPrompt::class,
-        'cross_reference'    => CrossReferencePrompt::class,
-        'use_cases'          => UseCasesPrompt::class,
-        'faq'                => FaqPrompt::class,
-        'process_steps'      => ProcessStepsPrompt::class,
-        'seo_meta'           => MetaSeoPrompt::class,
-        'solution_page'      => SolutionPagePrompt::class,
-        'comparison'         => ComparisonPrompt::class,
-        'internal_links'     => InternalLinksPrompt::class,
-        'content_gap_score'  => ContentGapPrompt::class,
+        'entity_overview' => EntityOverviewPrompt::class,
+        'cross_reference' => CrossReferencePrompt::class,
+        'use_cases' => UseCasesPrompt::class,
+        'faq' => FaqPrompt::class,
+        'process_steps' => ProcessStepsPrompt::class,
+        'seo_meta' => MetaSeoPrompt::class,
+        'solution_page' => SolutionPagePrompt::class,
+        'comparison' => ComparisonPrompt::class,
+        'internal_links' => InternalLinksPrompt::class,
+        'content_gap_score' => ContentGapPrompt::class,
     ];
 
-    public function __construct(private readonly ClaudeAIService $claudeAIService)
-    {
-    }
+    public function __construct(private readonly ClaudeAIService $claudeAIService) {}
 
     /**
      * Main entry point — builds the prompt from template, calls AI, logs the job.
@@ -43,7 +42,7 @@ class ContentGeneratorService
     public function generate(array $payload): array
     {
         $template = Arr::get($payload, 'prompt_template', 'default');
-        $prompt   = $payload['prompt'] ?? $this->buildPrompt($template, $payload);
+        $prompt = $payload['prompt'] ?? $this->buildPrompt($template, $payload);
 
         $jobId = isset($payload['job_id']) ? (int) $payload['job_id'] : null;
         $job = $jobId ? ContentGenerationJob::query()->find($jobId) : null;
@@ -57,12 +56,12 @@ class ContentGeneratorService
         } else {
             // Create a pending job record first so we have the ID for token tracking
             $job = ContentGenerationJob::create([
-                'entity_type'     => $payload['entity_type'],
-                'entity_id'       => $payload['entity_id'],
-                'section_key'     => $payload['section_key'],
+                'entity_type' => $payload['entity_type'],
+                'entity_id' => $payload['entity_id'],
+                'section_key' => $payload['section_key'],
                 'prompt_template' => $template,
-                'prompt_used'     => $prompt,
-                'status'          => 'processing',
+                'prompt_used' => $prompt,
+                'status' => 'processing',
             ]);
         }
 
@@ -70,19 +69,19 @@ class ContentGeneratorService
 
         $job->update([
             'generated_content' => $response['content'],
-            'tokens_input'      => $response['tokens_input'],
-            'tokens_output'     => $response['tokens_output'],
-            'model_used'        => $response['model'],
-            'status'            => 'completed',
+            'tokens_input' => $response['tokens_input'],
+            'tokens_output' => $response['tokens_output'],
+            'model_used' => $response['model'],
+            'status' => 'completed',
         ]);
 
         return [
-            'job_id'        => $job->id,
-            'content'       => $job->generated_content,
-            'tokens_input'  => $job->tokens_input,
+            'job_id' => $job->id,
+            'content' => $job->generated_content,
+            'tokens_input' => $job->tokens_input,
             'tokens_output' => $job->tokens_output,
-            'model'         => $job->model_used,
-            'cached'        => $response['cached'] ?? false,
+            'model' => $job->model_used,
+            'cached' => $response['cached'] ?? false,
         ];
     }
 
@@ -93,30 +92,32 @@ class ContentGeneratorService
     public function buildPrompt(string $template, array $ctx): string
     {
         if (isset($this->promptTemplates[$template])) {
-            /** @var \App\Services\Prompts\PromptInterface $prompt */
+            /** @var PromptInterface $prompt */
             $prompt = app($this->promptTemplates[$template]);
+
             return $prompt->buildPrompt($ctx);
         }
 
         return match ($template) {
             'case_study_summary' => $this->caseStudySummaryPrompt($ctx),
-            'freshness_review'   => $this->freshnessReviewPrompt($ctx),
-            default              => $this->defaultPrompt($ctx),
+            'freshness_review' => $this->freshnessReviewPrompt($ctx),
+            default => $this->defaultPrompt($ctx),
         };
     }
 
     // Kept inline — not in the public prompt-template registry
     private function caseStudySummaryPrompt(array $ctx): string
     {
-        $client    = $ctx['client_name'] ?? 'the client';
-        $industry  = $ctx['industry'] ?? 'their industry';
-        $tools     = implode(', ', (array) ($ctx['tools'] ?? ['the tools used']));
+        $client = $ctx['client_name'] ?? 'the client';
+        $industry = $ctx['industry'] ?? 'their industry';
+        $tools = implode(', ', (array) ($ctx['tools'] ?? ['the tools used']));
         $challenge = $ctx['challenge'] ?? 'a significant operational challenge';
-        $metrics   = $ctx['metrics'] ?? [];
+        $metrics = $ctx['metrics'] ?? [];
         $metricsText = '';
         foreach ($metrics as $m) {
             $metricsText .= "- {$m['label']}: {$m['before']} → {$m['after']}\n";
         }
+
         return <<<PROMPT
 Write a compelling results summary for a case study.
 
@@ -140,9 +141,10 @@ PROMPT;
     // P4-AI-18
     private function freshnessReviewPrompt(array $ctx): string
     {
-        $pageTitle   = $ctx['page_title'] ?? 'the page';
+        $pageTitle = $ctx['page_title'] ?? 'the page';
         $lastUpdated = $ctx['last_updated'] ?? 'over 90 days ago';
-        $content     = mb_substr($ctx['page_content'] ?? '', 0, 2000);
+        $content = mb_substr($ctx['page_content'] ?? '', 0, 2000);
+
         return <<<PROMPT
 Review the following page content for freshness and accuracy issues.
 Page: "{$pageTitle}" (last updated: {$lastUpdated})

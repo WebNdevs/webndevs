@@ -46,4 +46,17 @@ class DataHubPage extends Model
     {
         return $this->hasMany(DataHubSection::class, 'datahub_page_id')->orderBy('sort_order')->orderBy('id');
     }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $field = $field ?? $this->getRouteKeyName();
+        if ($field === 'slug') {
+            $normalizedSlug = '/'.ltrim($value, '/');
+            $rawSlug = ltrim($value, '/');
+
+            return $this->whereIn('slug', [$value, $normalizedSlug, $rawSlug])->firstOrFail();
+        }
+
+        return parent::resolveRouteBinding($value, $field);
+    }
 }

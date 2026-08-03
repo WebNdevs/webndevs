@@ -13,6 +13,7 @@ use App\Services\ServicePlanSyncService;
 use App\Services\SettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ServiceController extends Controller
 {
@@ -112,7 +113,7 @@ class ServiceController extends Controller
         );
 
         // Dispatch webhook for service created
-        \Illuminate\Support\Facades\Log::info('Webhook dispatch triggered: service.created', [
+        Log::info('Webhook dispatch triggered: service.created', [
             'service_id' => $service->id,
             'service_name' => $service->name,
         ]);
@@ -297,7 +298,7 @@ class ServiceController extends Controller
                         'eyebrow' => 'Our Services',
                         'headline' => $service->name,
                         'subheadline' => $service->description ?? '',
-                        'description' => 'Professional ' . strtolower($service->name) . ' services tailored to your needs.',
+                        'description' => 'Professional '.strtolower($service->name).' services tailored to your needs.',
                         'cta_primary' => 'Get Started',
                         'cta_secondary' => 'Learn More',
                         'hero_image_url' => null,
@@ -369,7 +370,7 @@ class ServiceController extends Controller
                 ServicePageContent::query()->create([
                     'service_id' => $service->id,
                     'section_key' => $section['section_key'],
-                    'content_key' => $section['section_key'] . '_item_' . $itemIndex,
+                    'content_key' => $section['section_key'].'_item_'.$itemIndex,
                     'label' => $section['heading'],
                     'subheading' => $section['subheading'] ?? null,
                     'content_type' => 'json',
@@ -386,7 +387,7 @@ class ServiceController extends Controller
                 ServicePageContent::query()->create([
                     'service_id' => $service->id,
                     'section_key' => $section['section_key'],
-                    'content_key' => $section['section_key'] . '_item_0',
+                    'content_key' => $section['section_key'].'_item_0',
                     'label' => $section['heading'],
                     'subheading' => $section['subheading'] ?? null,
                     'content_type' => 'json',

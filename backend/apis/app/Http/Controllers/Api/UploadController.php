@@ -16,10 +16,10 @@ class UploadController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            
+
             $path = Storage::disk('public')->putFile('uploads', $file);
-            $url = '/storage/' . $path;
-            
+            $url = '/storage/'.$path;
+
             return response()->json([
                 'success' => true,
                 'message' => 'Image uploaded successfully.',

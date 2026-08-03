@@ -15,7 +15,7 @@ class InternalLinkService
     public function scanEntity(string $entityType, int $entityId): int
     {
         $suggestions = $this->buildSuggestions($entityType, $entityId);
-        $created     = 0;
+        $created = 0;
 
         foreach ($suggestions as $suggestion) {
             $exists = InternalLink::query()
@@ -31,13 +31,13 @@ class InternalLinkService
 
             InternalLink::create([
                 'source_entity_type' => $entityType,
-                'source_entity_id'   => $entityId,
+                'source_entity_id' => $entityId,
                 'target_entity_type' => $suggestion['target_type'],
-                'target_entity_id'   => $suggestion['target_id'],
-                'anchor_text'        => $suggestion['anchor_text'],
-                'context_snippet'    => $suggestion['context_snippet'],
-                'is_confirmed'       => false,
-                'is_auto_generated'  => true,
+                'target_entity_id' => $suggestion['target_id'],
+                'anchor_text' => $suggestion['anchor_text'],
+                'context_snippet' => $suggestion['context_snippet'],
+                'is_confirmed' => false,
+                'is_auto_generated' => true,
             ]);
             $created++;
         }
@@ -48,10 +48,10 @@ class InternalLinkService
     private function buildSuggestions(string $entityType, int $entityId): array
     {
         return match ($entityType) {
-            Tool::class     => $this->suggestionsForTool($entityId),
+            Tool::class => $this->suggestionsForTool($entityId),
             Industry::class => $this->suggestionsForIndustry($entityId),
             Solution::class => $this->suggestionsForSolution($entityId),
-            default         => $this->fallbackSuggestions(),
+            default => $this->fallbackSuggestions(),
         };
     }
 
@@ -69,7 +69,7 @@ class InternalLinkService
             ->where('status', 'published')
             ->where(function ($q) use ($toolId) {
                 $q->where(fn ($q2) => $q2->where('entity_a_type', Tool::class)->where('entity_a_id', $toolId))
-                  ->orWhere(fn ($q2) => $q2->where('entity_b_type', Tool::class)->where('entity_b_id', $toolId));
+                    ->orWhere(fn ($q2) => $q2->where('entity_b_type', Tool::class)->where('entity_b_id', $toolId));
             })
             ->get()
             ->flatMap(function ($page) use ($toolId) {
@@ -80,6 +80,7 @@ class InternalLinkService
                 if ($page->entity_b_type === Industry::class && $page->entity_b_id !== $toolId) {
                     $ids[] = $page->entity_b_id;
                 }
+
                 return $ids;
             })
             ->unique();
@@ -92,10 +93,10 @@ class InternalLinkService
 
         foreach ($industries as $industry) {
             $suggestions[] = [
-                'target_type'    => Industry::class,
-                'target_id'      => $industry->id,
-                'anchor_text'    => "{$tool->name} for {$industry->name}",
-                'context_snippet'=> "How {$tool->name} is used in the {$industry->name} industry — use cases, integrations, and workflows.",
+                'target_type' => Industry::class,
+                'target_id' => $industry->id,
+                'anchor_text' => "{$tool->name} for {$industry->name}",
+                'context_snippet' => "How {$tool->name} is used in the {$industry->name} industry — use cases, integrations, and workflows.",
             ];
         }
 
@@ -111,10 +112,10 @@ class InternalLinkService
 
             foreach ($relatedTools as $related) {
                 $suggestions[] = [
-                    'target_type'    => Tool::class,
-                    'target_id'      => $related->id,
-                    'anchor_text'    => "{$related->name} vs {$tool->name}",
-                    'context_snippet'=> "Compare {$tool->name} and {$related->name} — features, pricing, and integration capabilities.",
+                    'target_type' => Tool::class,
+                    'target_id' => $related->id,
+                    'anchor_text' => "{$related->name} vs {$tool->name}",
+                    'context_snippet' => "Compare {$tool->name} and {$related->name} — features, pricing, and integration capabilities.",
                 ];
             }
         }
@@ -128,10 +129,10 @@ class InternalLinkService
 
         foreach ($solutions as $solution) {
             $suggestions[] = [
-                'target_type'    => Solution::class,
-                'target_id'      => $solution->id,
-                'anchor_text'    => "{$tool->name} in {$solution->name}",
-                'context_snippet'=> "See how {$tool->name} is integrated as part of the {$solution->name} solution stack.",
+                'target_type' => Solution::class,
+                'target_id' => $solution->id,
+                'anchor_text' => "{$tool->name} in {$solution->name}",
+                'context_snippet' => "See how {$tool->name} is integrated as part of the {$solution->name} solution stack.",
             ];
         }
 
@@ -152,7 +153,7 @@ class InternalLinkService
             ->where('status', 'published')
             ->where(function ($q) use ($industryId) {
                 $q->where(fn ($q2) => $q2->where('entity_a_type', Industry::class)->where('entity_a_id', $industryId))
-                  ->orWhere(fn ($q2) => $q2->where('entity_b_type', Industry::class)->where('entity_b_id', $industryId));
+                    ->orWhere(fn ($q2) => $q2->where('entity_b_type', Industry::class)->where('entity_b_id', $industryId));
             })
             ->get()
             ->flatMap(function ($page) {
@@ -163,6 +164,7 @@ class InternalLinkService
                 if ($page->entity_b_type === Tool::class) {
                     $ids[] = $page->entity_b_id;
                 }
+
                 return $ids;
             })
             ->unique();
@@ -176,10 +178,10 @@ class InternalLinkService
 
         foreach ($tools as $tool) {
             $suggestions[] = [
-                'target_type'    => Tool::class,
-                'target_id'      => $tool->id,
-                'anchor_text'    => "{$tool->name} for {$industry->name}",
-                'context_snippet'=> "How {$tool->name} serves {$industry->name} businesses — industry-specific use cases and integrations.",
+                'target_type' => Tool::class,
+                'target_id' => $tool->id,
+                'anchor_text' => "{$tool->name} for {$industry->name}",
+                'context_snippet' => "How {$tool->name} serves {$industry->name} businesses — industry-specific use cases and integrations.",
             ];
         }
 
@@ -192,10 +194,10 @@ class InternalLinkService
 
         foreach ($solutions as $solution) {
             $suggestions[] = [
-                'target_type'    => Solution::class,
-                'target_id'      => $solution->id,
-                'anchor_text'    => "{$solution->name} for {$industry->name}",
-                'context_snippet'=> "Complete {$industry->name} solution: {$solution->name} — tools, workflows, and integration guides.",
+                'target_type' => Solution::class,
+                'target_id' => $solution->id,
+                'anchor_text' => "{$solution->name} for {$industry->name}",
+                'context_snippet' => "Complete {$industry->name} solution: {$solution->name} — tools, workflows, and integration guides.",
             ];
         }
 
@@ -209,10 +211,10 @@ class InternalLinkService
 
             foreach ($featuredTools as $tool) {
                 $suggestions[] = [
-                    'target_type'    => Tool::class,
-                    'target_id'      => $tool->id,
-                    'anchor_text'    => $tool->name,
-                    'context_snippet'=> "Explore how {$tool->name} can benefit {$industry->name} operations.",
+                    'target_type' => Tool::class,
+                    'target_id' => $tool->id,
+                    'anchor_text' => $tool->name,
+                    'context_snippet' => "Explore how {$tool->name} can benefit {$industry->name} operations.",
                 ];
             }
         }
@@ -231,19 +233,19 @@ class InternalLinkService
 
         foreach ($solution->tools->take(8) as $tool) {
             $suggestions[] = [
-                'target_type'    => Tool::class,
-                'target_id'      => $tool->id,
-                'anchor_text'    => $tool->name,
-                'context_snippet'=> "{$tool->name} is a core component of the {$solution->name} solution stack.",
+                'target_type' => Tool::class,
+                'target_id' => $tool->id,
+                'anchor_text' => $tool->name,
+                'context_snippet' => "{$tool->name} is a core component of the {$solution->name} solution stack.",
             ];
         }
 
         if ($solution->industry) {
             $suggestions[] = [
-                'target_type'    => Industry::class,
-                'target_id'      => $solution->industry_id,
-                'anchor_text'    => "{$solution->industry->name} solutions",
-                'context_snippet'=> "{$solution->name} is designed specifically for {$solution->industry->name} businesses.",
+                'target_type' => Industry::class,
+                'target_id' => $solution->industry_id,
+                'anchor_text' => "{$solution->industry->name} solutions",
+                'context_snippet' => "{$solution->name} is designed specifically for {$solution->industry->name} businesses.",
             ];
         }
 
@@ -258,10 +260,10 @@ class InternalLinkService
             ->limit(5)
             ->get(['id', 'name'])
             ->map(fn ($t) => [
-                'target_type'    => Tool::class,
-                'target_id'      => $t->id,
-                'anchor_text'    => $t->name,
-                'context_snippet'=> null,
+                'target_type' => Tool::class,
+                'target_id' => $t->id,
+                'anchor_text' => $t->name,
+                'context_snippet' => null,
             ])
             ->all();
     }

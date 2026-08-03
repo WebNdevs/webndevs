@@ -6,8 +6,8 @@ class InternalLinksPrompt extends BasePrompt
 {
     public function buildPrompt(array $context): string
     {
-        $pageTitle      = $context['page_title']   ?? 'the page';
-        $pageContent    = mb_substr($context['page_content'] ?? '', 0, 1500);
+        $pageTitle = $context['page_title'] ?? 'the page';
+        $pageContent = mb_substr($context['page_content'] ?? '', 0, 1500);
         $availablePages = implode(', ', (array) ($context['available_pages'] ?? []));
 
         return <<<PROMPT

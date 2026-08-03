@@ -1,57 +1,57 @@
 <?php
 
 use App\Http\Controllers\Api\AiContentController;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\AuditLogController;
-use App\Http\Controllers\Api\ContentPageController;
-use App\Http\Controllers\Api\ContentGapController;
-use App\Http\Controllers\Api\ContentSectionController;
-use App\Http\Controllers\Api\ContentItemController;
+use App\Http\Controllers\Api\ArticleItemController;
 use App\Http\Controllers\Api\ArticlePageController;
 use App\Http\Controllers\Api\ArticleSectionController;
-use App\Http\Controllers\Api\ArticleItemController;
-use App\Http\Controllers\Api\PublicArticleController;
-use App\Http\Controllers\Api\ServicePageController;
-use App\Http\Controllers\Api\ServiceSectionController;
-use App\Http\Controllers\Api\ServiceItemController;
-use App\Http\Controllers\Api\PublicServiceController;
+use App\Http\Controllers\Api\AuditLogController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ContentGapController;
+use App\Http\Controllers\Api\ContentItemController;
+use App\Http\Controllers\Api\ContentPageController;
+use App\Http\Controllers\Api\ContentSectionController;
+use App\Http\Controllers\Api\CrossReferencePageController;
+use App\Http\Controllers\Api\DataHubItemController;
 use App\Http\Controllers\Api\DataHubPageController;
 use App\Http\Controllers\Api\DataHubSectionController;
-use App\Http\Controllers\Api\DataHubItemController;
-use App\Http\Controllers\Api\PublicDataHubController;
-use App\Http\Controllers\Api\SinglePagePageController;
-use App\Http\Controllers\Api\SinglePageSectionController;
-use App\Http\Controllers\Api\SinglePageItemController;
-use App\Http\Controllers\Api\PublicSinglePageController;
-use App\Http\Controllers\Api\CrossReferencePageController;
 use App\Http\Controllers\Api\FAQController;
+use App\Http\Controllers\Api\FeatureController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\InternalLinkController;
-use App\Http\Controllers\Api\NavigationController;
 use App\Http\Controllers\Api\MediaLibraryController;
-use App\Http\Controllers\Api\PublicContentController;
+use App\Http\Controllers\Api\NavigationController;
 use App\Http\Controllers\Api\PackageOfferController;
 use App\Http\Controllers\Api\ProcessStepController;
+use App\Http\Controllers\Api\PublicArticleController;
+use App\Http\Controllers\Api\PublicContentController;
+use App\Http\Controllers\Api\PublicDataHubController;
+use App\Http\Controllers\Api\PublicServiceController;
+use App\Http\Controllers\Api\PublicSinglePageController;
 use App\Http\Controllers\Api\RedirectController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\SeoMetadataController;
-use App\Http\Controllers\Api\FeatureController;
-use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\ServiceCategoryController;
+use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\ServiceInquiryController;
+use App\Http\Controllers\Api\ServiceItemController;
 use App\Http\Controllers\Api\ServicePageContentController;
+use App\Http\Controllers\Api\ServicePageController;
 use App\Http\Controllers\Api\ServicePageSectionController;
 use App\Http\Controllers\Api\ServicePlanController;
+use App\Http\Controllers\Api\ServiceSectionController;
 use App\Http\Controllers\Api\ServiceTemplateController;
 use App\Http\Controllers\Api\SettingsController;
+use App\Http\Controllers\Api\SinglePageItemController;
+use App\Http\Controllers\Api\SinglePagePageController;
+use App\Http\Controllers\Api\SinglePageSectionController;
 use App\Http\Controllers\Api\SitemapController;
 use App\Http\Controllers\Api\TestimonialController;
+use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\UseCaseController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
@@ -64,19 +64,19 @@ Route::get('/health', function () {
     try {
         DB::select('select 1');
         $checks['database'] = true;
-    } catch (\Throwable) {
+    } catch (Throwable) {
     }
 
     try {
         Cache::put('health:ping', 'ok', now()->addMinute());
         $checks['cache'] = Cache::get('health:ping') === 'ok';
-    } catch (\Throwable) {
+    } catch (Throwable) {
     }
 
     try {
         Queue::size();
         $checks['queue'] = true;
-    } catch (\Throwable) {
+    } catch (Throwable) {
     }
 
     $ok = ! in_array(false, $checks, true);
@@ -125,37 +125,37 @@ Route::prefix('v1')->group(function () {
     Route::get('/media/assets', [MediaLibraryController::class, 'assets']);
     Route::get('/media/folders/tree', [MediaLibraryController::class, 'foldersTree']);
     Route::post('/service-inquiries', [ServiceInquiryController::class, 'store'])->middleware('throttle:3,1');
-    
+
     Route::get('/articles', [PublicArticleController::class, 'index']);
     Route::get('/article-pages', [ArticlePageController::class, 'index']);
     Route::get('/article-pages/{articlePage:slug}/sections/{section}', [ArticleSectionController::class, 'show'])->where('articlePage', '.*');
     Route::get('/article-pages/{articlePage:slug}/sections', [ArticleSectionController::class, 'index'])->where('articlePage', '.*');
     Route::get('/article-pages/{articlePage:slug}', [ArticlePageController::class, 'show'])->where('articlePage', '.*');
-    
+
     Route::get('/service', [PublicServiceController::class, 'index']);
     Route::get('/service-pages', [ServicePageController::class, 'index']);
     Route::get('/service-pages/{servicePage:slug}/sections/{section}', [ServiceSectionController::class, 'show'])->where('servicePage', '.*');
     Route::get('/service-pages/{servicePage:slug}/sections', [ServiceSectionController::class, 'index'])->where('servicePage', '.*');
     Route::get('/service-pages/{servicePage:slug}', [ServicePageController::class, 'show'])->where('servicePage', '.*');
-    
+
     Route::get('/content', [PublicContentController::class, 'index']);
     Route::get('/content-pages', [ContentPageController::class, 'index']);
     Route::get('/content-pages/{contentPage:slug}/sections/{section}', [ContentSectionController::class, 'show'])->where('contentPage', '.*');
     Route::get('/content-pages/{contentPage:slug}/sections', [ContentSectionController::class, 'index'])->where('contentPage', '.*');
     Route::get('/content-pages/{contentPage:slug}', [ContentPageController::class, 'show'])->where('contentPage', '.*');
-    
+
     Route::get('/datahub', [PublicDataHubController::class, 'index']);
     Route::get('/datahub-pages', [DataHubPageController::class, 'index']);
     Route::get('/datahub-pages/{datahubPage:slug}/sections/{section}', [DataHubSectionController::class, 'show'])->where('datahubPage', '.*');
     Route::get('/datahub-pages/{datahubPage:slug}/sections', [DataHubSectionController::class, 'index'])->where('datahubPage', '.*');
     Route::get('/datahub-pages/{datahubPage:slug}', [DataHubPageController::class, 'show'])->where('datahubPage', '.*');
-    
+
     Route::get('/singlepage', [PublicSinglePageController::class, 'index']);
     Route::get('/singlepage-pages', [SinglePagePageController::class, 'index']);
     Route::get('/singlepage-pages/{singlepagePage:slug}/sections/{section}', [SinglePageSectionController::class, 'show'])->where('singlepagePage', '.*');
     Route::get('/singlepage-pages/{singlepagePage:slug}/sections', [SinglePageSectionController::class, 'index'])->where('singlepagePage', '.*');
     Route::get('/singlepage-pages/{singlepagePage:slug}', [SinglePagePageController::class, 'show'])->where('singlepagePage', '.*');
-    
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
@@ -220,7 +220,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('/service-sections/{section}/items/reorder', [ServiceItemController::class, 'reorder']);
                 Route::post('/service-sections/{section}/items/bulk-action', [ServiceItemController::class, 'bulkAction']);
             });
-    
+
             // Content pages management - requires content.manage permission
             Route::middleware(['permission:content.manage'])->group(function () {
                 Route::post('/content-pages', [ContentPageController::class, 'store']);
@@ -348,7 +348,7 @@ Route::prefix('v1')->group(function () {
                 Route::apiResource('cross-reference-pages', CrossReferencePageController::class)->only(['store', 'update', 'destroy']);
                 Route::post('/cross-reference-pages/{crossReferencePage}/publish', [CrossReferencePageController::class, 'publish']);
                 Route::post('/cross-reference-pages/{crossReferencePage}/draft', [CrossReferencePageController::class, 'draft']);
-                Route::apiResource('testimonials', TestimonialController::class)->except(['index', 'show','create', 'edit']);
+                Route::apiResource('testimonials', TestimonialController::class)->except(['index', 'show', 'create', 'edit']);
                 Route::apiResource('faqs', FAQController::class)->except(['create', 'edit']);
                 Route::put('/faqs/reorder', [FAQController::class, 'reorder']);
                 Route::apiResource('process-steps', ProcessStepController::class)->except(['create', 'edit']);
@@ -374,7 +374,7 @@ Route::prefix('v1')->group(function () {
 
             // Content items - requires content.manage permission
             Route::middleware(['permission:content.manage'])->group(function () {
-                Route::post('/upload', [\App\Http\Controllers\Api\UploadController::class, 'upload']);
+                Route::post('/upload', [UploadController::class, 'upload']);
                 Route::get('/content-sections/{section}/items', [ContentItemController::class, 'index']);
                 Route::post('/content-sections/{section}/items', [ContentItemController::class, 'store']);
                 Route::get('/content-sections/{section}/items/{item}', [ContentItemController::class, 'show']);

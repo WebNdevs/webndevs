@@ -7,7 +7,6 @@ use App\Http\Requests\StoreSinglePageSectionRequest;
 use App\Http\Requests\UpdateSinglePageSectionRequest;
 use App\Models\SinglePagePage;
 use App\Models\SinglePageSection;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SinglePageSectionController extends Controller
@@ -30,6 +29,7 @@ class SinglePageSectionController extends Controller
 
         $section = DB::transaction(function () use ($validated, $singlepagePage, $request) {
             $nextOrder = ($singlepagePage->sectionItems()->max('sort_order') ?? 0) + 1;
+
             return SinglePageSection::query()->create([
                 'singlepage_page_id' => $singlepagePage->id,
                 'section_key' => $validated['section_key'],

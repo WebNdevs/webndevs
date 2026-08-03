@@ -10,12 +10,12 @@ class FAQResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'            => $this->id,
-            'question'      => $this->question,
-            'answer'        => $this->answer,
-            'sort_order'    => $this->sort_order,
-            'is_active'     => $this->is_active,
-            'ai_generated'  => $this->ai_generated,
+            'id' => $this->id,
+            'question' => $this->question,
+            'answer' => $this->answer,
+            'sort_order' => $this->sort_order,
+            'is_active' => $this->is_active,
+            'ai_generated' => $this->ai_generated,
         ];
     }
 }

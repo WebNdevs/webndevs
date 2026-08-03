@@ -15,7 +15,6 @@ use App\Models\Tool;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class CaseStudyController extends Controller
 {
@@ -65,8 +64,8 @@ class CaseStudyController extends Controller
 
     public function store(StoreCaseStudyRequest $request): JsonResponse
     {
-        $data        = $request->validated();
-        $metrics     = $data['metrics'] ?? [];
+        $data = $request->validated();
+        $metrics = $data['metrics'] ?? [];
         $entityLinks = $data['entity_links'] ?? [];
         unset($data['metrics'], $data['entity_links']);
 
@@ -76,20 +75,20 @@ class CaseStudyController extends Controller
             foreach ($metrics as $i => $metric) {
                 CaseStudyMetric::create([
                     'case_study_id' => $model->id,
-                    'label'         => $metric['label'],
-                    'before_value'  => $metric['before_value'],
-                    'after_value'   => $metric['after_value'],
-                    'unit'          => $metric['unit'] ?? null,
-                    'improvement'   => $metric['improvement'] ?? null,
-                    'sort_order'    => $metric['sort_order'] ?? $i,
+                    'label' => $metric['label'],
+                    'before_value' => $metric['before_value'],
+                    'after_value' => $metric['after_value'],
+                    'unit' => $metric['unit'] ?? null,
+                    'improvement' => $metric['improvement'] ?? null,
+                    'sort_order' => $metric['sort_order'] ?? $i,
                 ]);
             }
 
             foreach ($entityLinks as $link) {
                 CaseStudyEntityPivot::create([
                     'case_study_id' => $model->id,
-                    'entity_type'   => $link['entity_type'],
-                    'entity_id'     => $link['entity_id'],
+                    'entity_type' => $link['entity_type'],
+                    'entity_id' => $link['entity_id'],
                 ]);
             }
 
@@ -102,7 +101,6 @@ class CaseStudyController extends Controller
     public function update(UpdateCaseStudyRequest $request, CaseStudy $caseStudy): JsonResponse
     {
         $caseStudy->update($request->validated());
-        
 
         return $this->success($caseStudy->fresh()->load(['metrics', 'entityLinks']), 'Case study updated.');
     }
@@ -122,12 +120,12 @@ class CaseStudyController extends Controller
             foreach ($request->validated()['metrics'] as $i => $metric) {
                 CaseStudyMetric::create([
                     'case_study_id' => $caseStudy->id,
-                    'label'         => $metric['label'],
-                    'before_value'  => $metric['before_value'],
-                    'after_value'   => $metric['after_value'],
-                    'unit'          => $metric['unit'] ?? null,
-                    'improvement'   => $metric['improvement'] ?? null,
-                    'sort_order'    => $metric['sort_order'] ?? $i,
+                    'label' => $metric['label'],
+                    'before_value' => $metric['before_value'],
+                    'after_value' => $metric['after_value'],
+                    'unit' => $metric['unit'] ?? null,
+                    'improvement' => $metric['improvement'] ?? null,
+                    'sort_order' => $metric['sort_order'] ?? $i,
                 ]);
             }
         });

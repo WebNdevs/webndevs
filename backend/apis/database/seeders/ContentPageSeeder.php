@@ -15,7 +15,7 @@ class ContentPageSeeder extends Seeder
 
         // Single complete seeding data for Content Module: "/" (Home)
         $page = ContentPage::query()->updateOrCreate(
-            ['slug' => '/'],
+            ['slug' => '/home'],
             [
                 'title' => 'Home',
                 'status' => 'published',
@@ -57,7 +57,7 @@ class ContentPageSeeder extends Seeder
                     'title' => 'Rapid Execution',
                     'description' => 'Agile sprints designed to launch robust MVPs and features on schedule.',
                 ],
-            ]
+            ],
         ], $admin?->id);
 
         $this->createSection($page->id, 'comparison', 'comparison', 3, [
@@ -90,14 +90,14 @@ class ContentPageSeeder extends Seeder
                     'icon' => 'Search',
                     'title' => 'Discovery & Architecture',
                     'description' => 'Requirements gathering, system design, and tech stack alignment.',
-                    'duration' => '1-2 Days'
+                    'duration' => '1-2 Days',
                 ],
                 [
                     'number' => '02',
                     'icon' => 'Code',
                     'title' => 'Agile Sprint Execution',
                     'description' => 'Iterative development sprints with continuous review demos.',
-                    'duration' => '2-3 Weeks'
+                    'duration' => '2-3 Weeks',
                 ],
             ],
         ], $admin?->id);
@@ -108,10 +108,10 @@ class ContentPageSeeder extends Seeder
             'subheading2' => '& Metrics',
             'subtext' => 'Quantifiable results delivered across client engineering projects.',
             'items' => [
-                [ 'value' => '150+', 'title' => 'Projects Shipped' ],
-                [ 'value' => '99.9%', 'title' => 'Uptime Guarantee' ],
-                [ 'value' => '3.5x', 'title' => 'Average Performance Lift' ],
-            ]
+                ['value' => '150+', 'title' => 'Projects Shipped'],
+                ['value' => '99.9%', 'title' => 'Uptime Guarantee'],
+                ['value' => '3.5x', 'title' => 'Average Performance Lift'],
+            ],
         ], $admin?->id);
 
         $this->createSection($page->id, 'result', 'result', 6, [
@@ -126,8 +126,8 @@ class ContentPageSeeder extends Seeder
                     'badge' => 'Featured Case Study',
                     'description' => 'Architected a multi-vendor digital marketplace with sub-second page loads and automated inventory sync.',
                     'url' => 'https://webndevs.com',
-                ]
-            ]
+                ],
+            ],
         ], $admin?->id);
 
         $this->createSection($page->id, 'review', 'review', 7, [
@@ -142,8 +142,8 @@ class ContentPageSeeder extends Seeder
                     'role' => 'CTO',
                     'content' => 'WebNDevs transformed our legacy application into a high-performance modern web app ahead of schedule.',
                     'rating' => 5,
-                ]
-            ]
+                ],
+            ],
         ], $admin?->id);
 
         $this->createSection($page->id, 'technologies', 'technologies', 8, [
@@ -151,7 +151,7 @@ class ContentPageSeeder extends Seeder
             'subheading1' => 'Modern Technologies',
             'subheading2' => 'We Specialize In',
             'subtext' => 'Production-ready frameworks and infrastructure powering our solutions.',
-            'tags' => ['React', 'Next.js', 'TypeScript', 'Laravel', 'PostgreSQL', 'Docker', 'Tailwind CSS']
+            'tags' => ['React', 'Next.js', 'TypeScript', 'Laravel', 'PostgreSQL', 'Docker', 'Tailwind CSS'],
         ], $admin?->id);
 
         $this->createSection($page->id, 'faq', 'faq', 9, [
@@ -162,9 +162,9 @@ class ContentPageSeeder extends Seeder
             'items' => [
                 [
                     'question' => 'How do you manage project timelines and deliverables?',
-                    'answer' => 'We run 2-week agile sprints with dedicated Slack channels, staging environments, and weekly progress demos.'
-                ]
-            ]
+                    'answer' => 'We run 2-week agile sprints with dedicated Slack channels, staging environments, and weekly progress demos.',
+                ],
+            ],
         ], $admin?->id);
 
         $this->createSection($page->id, 'data', 'data', 10, [
@@ -183,7 +183,7 @@ class ContentPageSeeder extends Seeder
                 'text' => 'Build Your Next Project With Us',
                 'description' => 'Ready to build high-performance web applications? Contact our engineering team today.',
                 'url' => '/contact',
-            ]
+            ],
         ], $admin?->id);
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreToolRequest;
 use App\Http\Requests\UpdateToolRequest;
+use App\Http\Resources\CrossReferencePageResource;
 use App\Http\Resources\ToolResource;
 use App\Models\CaseStudy;
 use App\Models\CrossReferencePage;
@@ -153,7 +154,7 @@ class ToolController extends Controller
         $crossReferences = $this->toolCrossReferenceQuery($tool)->get();
 
         return $this->success(
-            \App\Http\Resources\CrossReferencePageResource::collection($crossReferences),
+            CrossReferencePageResource::collection($crossReferences),
             'Tool cross references fetched.'
         );
     }

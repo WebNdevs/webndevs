@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('article_pages')) {
+        if (! Schema::hasTable('article_pages')) {
             Schema::create('article_pages', function (Blueprint $table) {
                 $table->id();
                 $table->string('title');
@@ -22,7 +22,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('article_sections')) {
+        if (! Schema::hasTable('article_sections')) {
             Schema::create('article_sections', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('article_page_id')->constrained('article_pages')->cascadeOnDelete();
@@ -38,7 +38,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('article_section_items')) {
+        if (! Schema::hasTable('article_section_items')) {
             Schema::create('article_section_items', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('article_section_id')->constrained('article_sections')->cascadeOnDelete();

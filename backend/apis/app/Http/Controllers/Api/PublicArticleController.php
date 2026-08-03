@@ -46,7 +46,7 @@ class PublicArticleController extends Controller
             $compiledPage = [];
 
             foreach ($page->sectionItems as $section) {
-                if (!in_array($section->section_key, self::ALLOWED_SECTION_KEYS, true)) {
+                if (! in_array($section->section_key, self::ALLOWED_SECTION_KEYS, true)) {
                     continue;
                 }
 
@@ -59,7 +59,7 @@ class PublicArticleController extends Controller
                 $compiledPage[$key] = $compiledSection;
             }
 
-            if (!empty($compiledPage)) {
+            if (! empty($compiledPage)) {
                 $articlePages[$pagePath] = $compiledPage;
             }
         }
@@ -77,7 +77,7 @@ class PublicArticleController extends Controller
             return '/';
         }
 
-        return '/' . trim($slug, '/');
+        return '/'.trim($slug, '/');
     }
 
     private function compileSection(ArticleSection $section)
@@ -89,6 +89,7 @@ class PublicArticleController extends Controller
             return $section->items
                 ->map(function ($item) {
                     $itemData = is_array($item->data) ? $item->data : [];
+
                     return $this->removeEmptyValues($itemData);
                 })
                 ->filter()

@@ -31,9 +31,9 @@ class RedirectController extends Controller
 
     public function store(StoreRedirectRequest $request): JsonResponse
     {
-        $data             = $request->validated();
+        $data = $request->validated();
         $data['from_url'] = $this->normalizeSourceUrl($data['from_url']);
-        $data['to_url']   = $this->normalizeTargetUrl($data['to_url']);
+        $data['to_url'] = $this->normalizeTargetUrl($data['to_url']);
 
         if (Redirect::query()->where('from_url', $data['from_url'])->exists()) {
             return $this->error('Validation failed.', ['from_url' => ['The from_url has already been taken.']], 422);
@@ -71,9 +71,9 @@ class RedirectController extends Controller
 
     private function normalizeSourceUrl(string $value): string
     {
-        $path       = parse_url(trim($value), PHP_URL_PATH);
+        $path = parse_url(trim($value), PHP_URL_PATH);
         $normalized = $path ?: trim($value);
-        $normalized = '/' . ltrim($normalized, '/');
+        $normalized = '/'.ltrim($normalized, '/');
 
         return rtrim($normalized, '/') ?: '/';
     }
@@ -85,6 +85,6 @@ class RedirectController extends Controller
             return $value;
         }
 
-        return '/' . ltrim($value, '/');
+        return '/'.ltrim($value, '/');
     }
 }

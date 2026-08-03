@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
-    public function __construct(private readonly SearchIndexService $searchIndexService)
-    {
-    }
+    public function __construct(private readonly SearchIndexService $searchIndexService) {}
 
     public function index(Request $request): JsonResponse
     {

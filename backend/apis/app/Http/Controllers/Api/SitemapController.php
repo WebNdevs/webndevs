@@ -4,14 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\SitemapGeneratorService;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 
 class SitemapController extends Controller
 {
-    public function __construct(private readonly SitemapGeneratorService $sitemapGenerator)
-    {
-    }
+    public function __construct(private readonly SitemapGeneratorService $sitemapGenerator) {}
 
     public function show(): Response
     {

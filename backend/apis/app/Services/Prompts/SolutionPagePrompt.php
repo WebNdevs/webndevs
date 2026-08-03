@@ -6,10 +6,10 @@ class SolutionPagePrompt extends BasePrompt
 {
     public function buildPrompt(array $context): string
     {
-        $name     = $context['solution_name']      ?? 'the solution';
-        $problem  = $context['problem_statement']  ?? 'a common business problem';
-        $tools    = implode(', ', (array) ($context['tools'] ?? ['the relevant tools']));
-        $industry = $context['industry']           ?? 'the target industry';
+        $name = $context['solution_name'] ?? 'the solution';
+        $problem = $context['problem_statement'] ?? 'a common business problem';
+        $tools = implode(', ', (array) ($context['tools'] ?? ['the relevant tools']));
+        $industry = $context['industry'] ?? 'the target industry';
 
         return <<<PROMPT
 Write the full content for a solution page titled "{$name}".

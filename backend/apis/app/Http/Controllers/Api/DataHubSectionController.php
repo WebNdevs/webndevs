@@ -7,7 +7,6 @@ use App\Http\Requests\StoreDataHubSectionRequest;
 use App\Http\Requests\UpdateDataHubSectionRequest;
 use App\Models\DataHubPage;
 use App\Models\DataHubSection;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DataHubSectionController extends Controller
@@ -30,6 +29,7 @@ class DataHubSectionController extends Controller
 
         $section = DB::transaction(function () use ($validated, $datahubPage, $request) {
             $nextOrder = ($datahubPage->sectionItems()->max('sort_order') ?? 0) + 1;
+
             return DataHubSection::query()->create([
                 'datahub_page_id' => $datahubPage->id,
                 'section_key' => $validated['section_key'],

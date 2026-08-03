@@ -39,6 +39,7 @@ class MediaLibraryController extends Controller
             $parentId = $node['parent_id'];
             if ($parentId && isset($nodes[$parentId])) {
                 $nodes[$parentId]['children'][] = $node;
+
                 continue;
             }
             $tree[] = $node;

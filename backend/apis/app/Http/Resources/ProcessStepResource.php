@@ -10,12 +10,12 @@ class ProcessStepResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'          => $this->id,
+            'id' => $this->id,
             'step_number' => $this->step_number,
-            'title'       => $this->title,
+            'title' => $this->title,
             'description' => $this->description,
-            'icon'        => $this->icon,
-            'duration'    => $this->duration,
+            'icon' => $this->icon,
+            'duration' => $this->duration,
         ];
     }
 }

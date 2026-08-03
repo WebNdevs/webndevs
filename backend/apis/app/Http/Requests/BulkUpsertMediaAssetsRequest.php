@@ -68,6 +68,7 @@ class BulkUpsertMediaAssetsRequest extends FormRequest
         }
 
         $url = strtolower((string) ($item['url'] ?? ''));
+
         return (bool) preg_match('/\.(png|jpe?g|gif|webp|avif|svg)(\?.*)?$/', $url);
     }
 }

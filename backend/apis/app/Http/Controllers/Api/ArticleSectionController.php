@@ -7,7 +7,6 @@ use App\Http\Requests\StoreArticleSectionRequest;
 use App\Http\Requests\UpdateArticleSectionRequest;
 use App\Models\ArticlePage;
 use App\Models\ArticleSection;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ArticleSectionController extends Controller
@@ -30,6 +29,7 @@ class ArticleSectionController extends Controller
 
         $section = DB::transaction(function () use ($validated, $articlePage, $request) {
             $nextOrder = ($articlePage->sectionItems()->max('sort_order') ?? 0) + 1;
+
             return ArticleSection::query()->create([
                 'article_page_id' => $articlePage->id,
                 'section_key' => $validated['section_key'],

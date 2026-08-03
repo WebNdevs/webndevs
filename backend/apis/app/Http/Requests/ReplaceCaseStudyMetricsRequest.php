@@ -14,13 +14,13 @@ class ReplaceCaseStudyMetricsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'metrics'               => ['required', 'array'],
-            'metrics.*.label'       => ['required', 'string', 'max:200'],
-            'metrics.*.before_value'=> ['required', 'string', 'max:100'],
+            'metrics' => ['required', 'array'],
+            'metrics.*.label' => ['required', 'string', 'max:200'],
+            'metrics.*.before_value' => ['required', 'string', 'max:100'],
             'metrics.*.after_value' => ['required', 'string', 'max:100'],
-            'metrics.*.unit'        => ['nullable', 'string', 'max:50'],
+            'metrics.*.unit' => ['nullable', 'string', 'max:50'],
             'metrics.*.improvement' => ['nullable', 'string', 'max:100'],
-            'metrics.*.sort_order'  => ['nullable', 'integer', 'min:0'],
+            'metrics.*.sort_order' => ['nullable', 'integer', 'min:0'],
         ];
     }
 }

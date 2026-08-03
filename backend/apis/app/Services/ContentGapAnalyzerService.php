@@ -11,7 +11,7 @@ class ContentGapAnalyzerService
 {
     public function analyzeAndStore(string $entityType, int $entityId): int
     {
-        $created  = 0;
+        $created = 0;
         $created += $this->analyzeAgainstTools($entityType, $entityId);
         $created += $this->analyzeAgainstIndustries($entityType, $entityId);
 
@@ -20,7 +20,7 @@ class ContentGapAnalyzerService
 
     private function analyzeAgainstTools(string $entityType, int $entityId): int
     {
-        $source  = $entityType === Tool::class ? Tool::find($entityId) : null;
+        $source = $entityType === Tool::class ? Tool::find($entityId) : null;
         $created = 0;
 
         $tools = Tool::query()
@@ -40,21 +40,21 @@ class ContentGapAnalyzerService
                 continue;
             }
 
-            $score    = $this->scoreToolPair($source, $tool);
-            $title    = $source
+            $score = $this->scoreToolPair($source, $tool);
+            $title = $source
                 ? "{$source->name} vs {$tool->name} — Comparison & Integration Guide"
                 : "Integration Guide with {$tool->name}";
             $rationale = $this->buildToolRationale($source, $tool, $score);
 
             ContentGap::create([
-                'entity_a_type'   => $entityType,
-                'entity_a_id'     => $entityId,
-                'entity_b_type'   => Tool::class,
-                'entity_b_id'     => $tool->id,
+                'entity_a_type' => $entityType,
+                'entity_a_id' => $entityId,
+                'entity_b_type' => Tool::class,
+                'entity_b_id' => $tool->id,
                 'suggested_title' => $title,
-                'gap_score'       => $score,
-                'rationale'       => $rationale,
-                'status'          => 'pending',
+                'gap_score' => $score,
+                'rationale' => $rationale,
+                'status' => 'pending',
             ]);
             $created++;
         }
@@ -69,7 +69,7 @@ class ContentGapAnalyzerService
             return 0;
         }
 
-        $source  = Tool::find($entityId);
+        $source = Tool::find($entityId);
         $created = 0;
 
         $industries = Industry::query()
@@ -88,21 +88,21 @@ class ContentGapAnalyzerService
                 continue;
             }
 
-            $score     = $this->scoreIndustryPair($source, $industry);
-            $title     = $source
+            $score = $this->scoreIndustryPair($source, $industry);
+            $title = $source
                 ? "{$source->name} for {$industry->name} — Use Cases & Integration Guide"
                 : "Industry guide for {$industry->name}";
             $rationale = $this->buildIndustryRationale($source, $industry, $score);
 
             ContentGap::create([
-                'entity_a_type'   => $entityType,
-                'entity_a_id'     => $entityId,
-                'entity_b_type'   => Industry::class,
-                'entity_b_id'     => $industry->id,
+                'entity_a_type' => $entityType,
+                'entity_a_id' => $entityId,
+                'entity_b_type' => Industry::class,
+                'entity_b_id' => $industry->id,
                 'suggested_title' => $title,
-                'gap_score'       => $score,
-                'rationale'       => $rationale,
-                'status'          => 'pending',
+                'gap_score' => $score,
+                'rationale' => $rationale,
+                'status' => 'pending',
             ]);
             $created++;
         }
@@ -150,18 +150,18 @@ class ContentGapAnalyzerService
         $parts = [];
 
         if (! $source) {
-            $parts[] = "No cross-reference page exists for this tool pair.";
+            $parts[] = 'No cross-reference page exists for this tool pair.';
         } elseif ($source->tool_category_id === $target->tool_category_id) {
-            $parts[] = "Both tools share the same category — a comparison page targets high-intent search queries.";
+            $parts[] = 'Both tools share the same category — a comparison page targets high-intent search queries.';
         } else {
-            $parts[] = "Tools are in different categories — an integration guide captures complementary-tool searches.";
+            $parts[] = 'Tools are in different categories — an integration guide captures complementary-tool searches.';
         }
 
         if ($source?->is_featured) {
-            $parts[] = "Source tool is featured (high authority).";
+            $parts[] = 'Source tool is featured (high authority).';
         }
         if ($target->is_featured) {
-            $parts[] = "Target tool is featured (high authority).";
+            $parts[] = 'Target tool is featured (high authority).';
         }
 
         $parts[] = "Gap score: {$score}/10.";
@@ -171,13 +171,13 @@ class ContentGapAnalyzerService
 
     private function buildIndustryRationale(?Tool $source, Industry $target, int $score): string
     {
-        $parts = ["No industry-specific page exists for this tool × industry combination."];
+        $parts = ['No industry-specific page exists for this tool × industry combination.'];
 
         if ($source?->is_featured) {
-            $parts[] = "Source tool is featured.";
+            $parts[] = 'Source tool is featured.';
         }
         if ($target->is_featured) {
-            $parts[] = "Target industry is featured.";
+            $parts[] = 'Target industry is featured.';
         }
 
         $parts[] = "Gap score: {$score}/10.";
@@ -190,11 +190,11 @@ class ContentGapAnalyzerService
         return CrossReferencePage::query()
             ->where(function ($q) use ($aType, $aId, $bType, $bId) {
                 $q->where('entity_a_type', $aType)->where('entity_a_id', $aId)
-                  ->where('entity_b_type', $bType)->where('entity_b_id', $bId);
+                    ->where('entity_b_type', $bType)->where('entity_b_id', $bId);
             })
             ->orWhere(function ($q) use ($aType, $aId, $bType, $bId) {
                 $q->where('entity_a_type', $bType)->where('entity_a_id', $bId)
-                  ->where('entity_b_type', $aType)->where('entity_b_id', $aId);
+                    ->where('entity_b_type', $aType)->where('entity_b_id', $aId);
             })
             ->exists();
     }

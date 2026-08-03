@@ -18,6 +18,7 @@ class ArticlePageSeeder extends Seeder
             ['slug' => '/blogs'],
             [
                 'title' => 'Blogs',
+                'slug' => '/blogs',
                 'status' => 'published',
                 'seo_title' => 'Our Blogs & Insights | Article Module',
                 'seo_description' => 'Read our latest technical articles, software architecture tutorials, and web development insights.',
@@ -53,7 +54,7 @@ class ArticlePageSeeder extends Seeder
                     'description' => 'A step-by-step architectural breakdown of scaling dynamic pages using React state and Laravel backend compilers.',
                     'url' => '/blogs/programmatic-seo-engine',
                 ],
-            ]
+            ],
         ], $admin?->id);
 
         $this->createSection($page->id, 'cta', 'cta', 3, [
@@ -65,7 +66,7 @@ class ArticlePageSeeder extends Seeder
                 'text' => 'Stay Ahead in Web Engineering',
                 'description' => 'Subscribe to get our weekly software architecture articles delivered to your inbox.',
                 'url' => '/subscribe',
-            ]
+            ],
         ], $admin?->id);
     }
 

@@ -19,6 +19,7 @@ class GenerateCrossReferencePagesJob implements ShouldQueue
     use SerializesModels;
 
     public int $timeout = 60;
+
     public int $tries = 1;
 
     public function __construct(private readonly int $toolId)
@@ -45,16 +46,16 @@ class GenerateCrossReferencePagesJob implements ShouldQueue
 
             if (! $exists) {
                 GenerateContentJob::dispatch([
-                    'entity_type'     => 'cross_reference',
-                    'entity_id'       => $tool->id,
-                    'section_key'     => 'overview',
+                    'entity_type' => 'cross_reference',
+                    'entity_id' => $tool->id,
+                    'section_key' => 'overview',
                     'prompt_template' => 'cross_reference',
-                    'entity_a_type'   => Tool::class,
-                    'entity_a_id'     => $tool->id,
-                    'entity_a_name'   => $tool->name,
-                    'entity_b_type'   => Industry::class,
-                    'entity_b_id'     => $industry->id,
-                    'entity_b_name'   => $industry->name,
+                    'entity_a_type' => Tool::class,
+                    'entity_a_id' => $tool->id,
+                    'entity_a_name' => $tool->name,
+                    'entity_b_type' => Industry::class,
+                    'entity_b_id' => $industry->id,
+                    'entity_b_name' => $industry->name,
                 ]);
             }
         }
@@ -68,30 +69,30 @@ class GenerateCrossReferencePagesJob implements ShouldQueue
             $exists = CrossReferencePage::query()
                 ->where(function ($q) use ($tool, $other) {
                     $q->where('entity_a_type', Tool::class)
-                      ->where('entity_a_id', $tool->id)
-                      ->where('entity_b_type', Tool::class)
-                      ->where('entity_b_id', $other->id);
+                        ->where('entity_a_id', $tool->id)
+                        ->where('entity_b_type', Tool::class)
+                        ->where('entity_b_id', $other->id);
                 })
                 ->orWhere(function ($q) use ($tool, $other) {
                     $q->where('entity_a_type', Tool::class)
-                      ->where('entity_a_id', $other->id)
-                      ->where('entity_b_type', Tool::class)
-                      ->where('entity_b_id', $tool->id);
+                        ->where('entity_a_id', $other->id)
+                        ->where('entity_b_type', Tool::class)
+                        ->where('entity_b_id', $tool->id);
                 })
                 ->exists();
 
             if (! $exists) {
                 GenerateContentJob::dispatch([
-                    'entity_type'     => 'cross_reference',
-                    'entity_id'       => $tool->id,
-                    'section_key'     => 'overview',
+                    'entity_type' => 'cross_reference',
+                    'entity_id' => $tool->id,
+                    'section_key' => 'overview',
                     'prompt_template' => 'cross_reference',
-                    'entity_a_type'   => Tool::class,
-                    'entity_a_id'     => $tool->id,
-                    'entity_a_name'   => $tool->name,
-                    'entity_b_type'   => Tool::class,
-                    'entity_b_id'     => $other->id,
-                    'entity_b_name'   => $other->name,
+                    'entity_a_type' => Tool::class,
+                    'entity_a_id' => $tool->id,
+                    'entity_a_name' => $tool->name,
+                    'entity_b_type' => Tool::class,
+                    'entity_b_id' => $other->id,
+                    'entity_b_name' => $other->name,
                 ]);
             }
         }

@@ -10,11 +10,11 @@ class NavigationMenuResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'        => $this->id,
-            'location'  => $this->location,
-            'name'      => $this->name,
+            'id' => $this->id,
+            'location' => $this->location,
+            'name' => $this->name,
             'is_active' => $this->is_active,
-            'items'     => NavigationItemResource::collection($this->whenLoaded('items')),
+            'items' => NavigationItemResource::collection($this->whenLoaded('items')),
         ];
     }
 }

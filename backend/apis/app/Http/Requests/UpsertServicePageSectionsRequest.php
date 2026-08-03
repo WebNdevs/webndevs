@@ -86,7 +86,7 @@ class UpsertServicePageSectionsRequest extends FormRequest
             'sections.*.items.*.icon' => ['nullable', 'string', 'max:100'],
             'sections.*.items.*.number' => ['nullable', 'string', 'max:20'],
             'sections.*.items.*.project_url' => ['nullable', 'url', 'max:255'],
-            
+
             // New Catalog and Directory Item properties
             'sections.*.items.*.tag' => ['nullable', 'string', 'max:255'],
             'sections.*.items.*.heading' => ['nullable', 'string', 'max:255'],
@@ -120,7 +120,7 @@ class UpsertServicePageSectionsRequest extends FormRequest
             'sections.*.items.*.full.description' => ['nullable', 'string', 'max:2000'],
             'sections.*.items.*.full.text' => ['nullable', 'string', 'max:255'],
             'sections.*.items.*.full.url' => ['nullable', 'string', 'max:2000'],
-            
+
             // Missing frontend page item properties
             'sections.*.items.*.url' => ['nullable', 'string', 'max:2000'],
             'sections.*.items.*.duration' => ['nullable', 'string', 'max:255'],

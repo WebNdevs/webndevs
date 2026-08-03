@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('content_pages')) {
+        if (! Schema::hasTable('content_pages')) {
             Schema::create('content_pages', function (Blueprint $table) {
                 $table->id();
                 $table->string('title');
@@ -22,7 +22,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('content_sections')) {
+        if (! Schema::hasTable('content_sections')) {
             Schema::create('content_sections', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
@@ -38,7 +38,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('content_section_items')) {
+        if (! Schema::hasTable('content_section_items')) {
             Schema::create('content_section_items', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('content_section_id')->constrained('content_sections')->cascadeOnDelete();

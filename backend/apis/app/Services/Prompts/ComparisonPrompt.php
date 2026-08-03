@@ -6,7 +6,7 @@ class ComparisonPrompt extends BasePrompt
 {
     public function buildPrompt(array $context): string
     {
-        $tools   = implode(' vs ', (array) ($context['entities'] ?? ['Tool A', 'Tool B']));
+        $tools = implode(' vs ', (array) ($context['entities'] ?? ['Tool A', 'Tool B']));
         $section = $context['section_key'] ?? 'verdict';
 
         return <<<PROMPT

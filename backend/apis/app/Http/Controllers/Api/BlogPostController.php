@@ -27,7 +27,7 @@ class BlogPostController extends Controller
             $search = trim((string) $request->input('search'));
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                ->orWhere('slug', 'like', "%{$search}%");
+                    ->orWhere('slug', 'like', "%{$search}%");
             });
         }
 

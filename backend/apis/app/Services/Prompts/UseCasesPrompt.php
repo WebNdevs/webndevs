@@ -6,8 +6,8 @@ class UseCasesPrompt extends BasePrompt
 {
     public function buildPrompt(array $context): string
     {
-        $name     = $context['entity_name'] ?? $context['entity_type'] ?? 'the tool';
-        $industry = $context['industry']    ?? 'various industries';
+        $name = $context['entity_name'] ?? $context['entity_type'] ?? 'the tool';
+        $industry = $context['industry'] ?? 'various industries';
 
         return <<<PROMPT
 Generate 6 concrete use cases for {$name} in the {$industry} sector.

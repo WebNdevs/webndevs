@@ -10,12 +10,12 @@ class ToolCategoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'          => $this->id,
-            'name'        => $this->name,
-            'slug'        => $this->slug,
-            'icon'        => $this->icon,
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'icon' => $this->icon,
             'description' => $this->description,
-            'sort_order'  => $this->sort_order,
+            'sort_order' => $this->sort_order,
         ];
     }
 }

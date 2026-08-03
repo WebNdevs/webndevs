@@ -10,8 +10,8 @@ use App\Models\CaseStudyMetric;
 use App\Models\ComparisonEntity;
 use App\Models\ComparisonFeature;
 use App\Models\ComparisonPage;
-use App\Models\CrossRefSection;
 use App\Models\CrossReferencePage;
+use App\Models\CrossRefSection;
 use App\Models\FAQ;
 use App\Models\Feature;
 use App\Models\Industry;
@@ -635,7 +635,7 @@ class ProgrammaticContentSeeder extends Seeder
                 [
                     "What outcome does {$solution->name} target?" => 'It targets faster service delivery, fewer handoff errors, and better customer communication.',
                     "Is {$solution->name} suitable for SMB teams?" => 'Yes, the implementation can be phased and scoped to SMB budget and process maturity.',
-                    "Can this solution scale to enterprise usage?" => 'Yes, with proper API governance, queueing, and monitoring standards.',
+                    'Can this solution scale to enterprise usage?' => 'Yes, with proper API governance, queueing, and monitoring standards.',
                 ]
             );
         }

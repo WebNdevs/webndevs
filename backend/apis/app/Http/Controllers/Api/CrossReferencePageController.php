@@ -47,18 +47,18 @@ class CrossReferencePageController extends Controller
 
     public function store(StoreCrossReferenceRequest $request): JsonResponse
     {
-        $payload  = $request->validated();
+        $payload = $request->validated();
         $sections = $payload['sections'] ?? [];
         unset($payload['sections']);
 
-        $slugBase       = $payload['slug'] ?? Str::slug(
-            ($payload['entity_a_type'] ?? 'entity') . '-' .
-            ($payload['entity_a_id']   ?? 0)        . '-vs-' .
-            ($payload['entity_b_type'] ?? 'entity') . '-' .
-            ($payload['entity_b_id']   ?? 0)
+        $slugBase = $payload['slug'] ?? Str::slug(
+            ($payload['entity_a_type'] ?? 'entity').'-'.
+            ($payload['entity_a_id'] ?? 0).'-vs-'.
+            ($payload['entity_b_type'] ?? 'entity').'-'.
+            ($payload['entity_b_id'] ?? 0)
         );
-        $payload['slug']     = $this->uniqueSlug($slugBase);
-        $payload['url_path'] = $payload['url_path'] ?? '/compare/' . $payload['slug'];
+        $payload['slug'] = $this->uniqueSlug($slugBase);
+        $payload['url_path'] = $payload['url_path'] ?? '/compare/'.$payload['slug'];
 
         $page = DB::transaction(function () use ($payload, $sections) {
             $page = CrossReferencePage::create($payload);
@@ -66,12 +66,12 @@ class CrossReferencePageController extends Controller
             foreach ($sections as $index => $section) {
                 CrossRefSection::create([
                     'cross_reference_page_id' => $page->id,
-                    'section_key'  => $section['section_key'],
-                    'title'        => $section['title']      ?? null,
-                    'content'      => $section['content']    ?? null,
-                    'data'         => $section['data']       ?? null,
-                    'sort_order'   => $section['sort_order'] ?? $index,
-                    'is_visible'   => $section['is_visible'] ?? true,
+                    'section_key' => $section['section_key'],
+                    'title' => $section['title'] ?? null,
+                    'content' => $section['content'] ?? null,
+                    'data' => $section['data'] ?? null,
+                    'sort_order' => $section['sort_order'] ?? $index,
+                    'is_visible' => $section['is_visible'] ?? true,
                     'ai_generated' => false,
                 ]);
             }
@@ -176,12 +176,12 @@ class CrossReferencePageController extends Controller
 
     private function uniqueSlug(string $base): string
     {
-        $slug      = Str::slug($base);
+        $slug = Str::slug($base);
         $candidate = $slug;
-        $i         = 1;
+        $i = 1;
 
         while (CrossReferencePage::withTrashed()->where('slug', $candidate)->exists()) {
-            $candidate = $slug . '-' . $i;
+            $candidate = $slug.'-'.$i;
             $i++;
         }
 
