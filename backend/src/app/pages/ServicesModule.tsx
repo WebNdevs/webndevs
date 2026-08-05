@@ -13,6 +13,8 @@ import { API_BASE_URL } from "../../config/api.config";
 import { clearStoredAuth, fetchAuthenticatedUser, getStoredToken, setStoredToken, TOKEN_KEYS } from "../auth";
 import { Pill, Tabs, Card, Button as CustomButton, ConfirmModal } from "../components/blocks";
 import { getItemSchema, mergeSectionData, mergeItemData } from "../../data/schema";
+import { Upload } from "@figma/astraui";
+import { Download } from "lucide-react";
 
 
 type PageStatus = "published" | "draft";
@@ -517,115 +519,182 @@ export function ServiceModule() {
     }
   }
 
+  function hydratePage(pageData: ServicePageModel) {
+    // Map dynamic database sections to frontend sections
+    const apiSections = pageData.sections || [];
+    const initialManagedSections = SECTION_KEYS.map((key) => {
+      const match = apiSections.find((s) => s.section_key === key);
+      const data = mergeSectionData(key, (match?.data || {}) as Record<string, any>);
+      
+      // Map database section items to local layout fields
+      const items = (match?.items || []).map((item) => {
+        const rawItemData = (item.data || {}) as Record<string, any>;
+        const itemData = mergeItemData(key, rawItemData);
+        const urlVal = itemData.url || itemData.href || "";
+        const tagsTextVal = Array.isArray(itemData.tags)
+          ? itemData.tags.join(", ")
+          : (typeof itemData.tags === "string" ? itemData.tags : (itemData.tagsText || ""));
+        const resultsTextVal = Array.isArray(itemData.results)
+          ? itemData.results.join("\n")
+          : (typeof itemData.results === "string" ? itemData.results : (itemData.resultsText || ""));
+
+        return {
+          row_id: `item-${item.id}`,
+          id: item.id,
+          is_active: item.is_active,
+          is_featured: item.is_featured,
+          ...itemData,
+          url: urlVal,
+          href: urlVal,
+          tagsText: tagsTextVal,
+          resultsText: resultsTextVal,
+          service: itemData.service || "",
+          comparison: {
+            leftHeading: itemData.comparison?.leftHeading || "",
+            rightHeading: itemData.comparison?.rightHeading || "",
+            leftPoints: Array.isArray(itemData.comparison?.leftPoints) ? itemData.comparison.leftPoints : [],
+            rightPoints: Array.isArray(itemData.comparison?.rightPoints) ? itemData.comparison.rightPoints : [],
+            leftPointsText: Array.isArray(itemData.comparison?.leftPoints)
+              ? itemData.comparison.leftPoints.join("\n")
+              : (typeof itemData.comparison?.leftPoints === "string" ? itemData.comparison.leftPoints : (itemData.comparison?.leftPointsText || "")),
+            rightPointsText: Array.isArray(itemData.comparison?.rightPoints)
+              ? itemData.comparison.rightPoints.join("\n")
+              : (typeof itemData.comparison?.rightPoints === "string" ? itemData.comparison.rightPoints : (itemData.comparison?.rightPointsText || "")),
+          },
+        };
+      });
+
+      const cta = key === "cta" ? data : {};
+      const preview = cta.preview || {};
+      const full = cta.full || {};
+      const processCta = key === "process" && data.cta ? data.cta : {};
+      const processCtaPreview = processCta.preview || {};
+      const processCtaFull = processCta.full || {};
+      const techspec = key === "techspec" ? data : {};
+
+      return {
+        id: match?.id,
+        section_key: key,
+        label: SECTION_LABELS[key],
+        subheading1: data.subheading1 || "",
+        subheading2: data.subheading2 || "",
+        heading: data.heading || "",
+        title: data.title || "",
+        title1: data.title1 || "",
+        title2: data.title2 || "",
+        description: data.description || "",
+        subheading: data.subheading || "",
+        tag: data.tag || "",
+        subtext: data.subtext || "",
+        is_active: match ? Boolean(match.is_visible) : true,
+        items,
+
+        // cta
+        ctaPreviewText: preview.text || "",
+        ctaPreviewUrl: preview.url || "",
+        ctaFullDescription: full.description || "",
+        ctaFullText: full.text || "",
+        ctaFullUrl: full.url || "",
+        // process cta
+        processCtaPreviewText: processCtaPreview.text || "",
+        processCtaPreviewUrl: processCtaPreview.url || "",
+        processCtaFullDescription: processCtaFull.description || "",
+        processCtaFullText: processCtaFull.text || "",
+        processCtaFullUrl: processCtaFull.url || "",
+        // techspec (previously tech-specs)
+        techtag: techspec.techtag || "",
+        techHeading1: techspec.techHeading1 || "",
+        techHeading2: techspec.techHeading2 || "",
+        techSubtext: techspec.techSubtext || "",
+        techTagsText: Array.isArray(techspec.tags)
+          ? techspec.tags.join(", ")
+          : typeof techspec.tags === "string"
+          ? techspec.tags
+          : (techspec.techTagsText || ""),
+      };
+    });
+
+    setManagedSections(initialManagedSections);
+    setDeletedItemIds([]);
+  }
+
   async function loadPage(slug: string) {
     setIsLoading(true);
     setErrorText("");
     try {
       const pageData = await requestJson<ServicePageModel>(`/service-pages/${slug}`);
       setSelectedPage(pageData);
-
-      // Map dynamic database sections to frontend sections
-      const apiSections = pageData.sections || [];
-      const initialManagedSections = SECTION_KEYS.map((key) => {
-        const match = apiSections.find((s) => s.section_key === key);
-        const data = mergeSectionData(key, (match?.data || {}) as Record<string, any>);
-        
-        // Map database section items to local layout fields
-        const items = (match?.items || []).map((item) => {
-          const rawItemData = (item.data || {}) as Record<string, any>;
-          const itemData = mergeItemData(key, rawItemData);
-          const urlVal = itemData.url || itemData.href || "";
-          const tagsTextVal = Array.isArray(itemData.tags)
-            ? itemData.tags.join(", ")
-            : (typeof itemData.tags === "string" ? itemData.tags : (itemData.tagsText || ""));
-          const resultsTextVal = Array.isArray(itemData.results)
-            ? itemData.results.join("\n")
-            : (typeof itemData.results === "string" ? itemData.results : (itemData.resultsText || ""));
-
-          return {
-            row_id: `item-${item.id}`,
-            id: item.id,
-            is_active: item.is_active,
-            is_featured: item.is_featured,
-            ...itemData,
-            url: urlVal,
-            href: urlVal,
-            tagsText: tagsTextVal,
-            resultsText: resultsTextVal,
-            service: itemData.service || "",
-            comparison: {
-              leftHeading: itemData.comparison?.leftHeading || "",
-              rightHeading: itemData.comparison?.rightHeading || "",
-              leftPoints: Array.isArray(itemData.comparison?.leftPoints) ? itemData.comparison.leftPoints : [],
-              rightPoints: Array.isArray(itemData.comparison?.rightPoints) ? itemData.comparison.rightPoints : [],
-              leftPointsText: Array.isArray(itemData.comparison?.leftPoints)
-                ? itemData.comparison.leftPoints.join("\n")
-                : (typeof itemData.comparison?.leftPoints === "string" ? itemData.comparison.leftPoints : (itemData.comparison?.leftPointsText || "")),
-              rightPointsText: Array.isArray(itemData.comparison?.rightPoints)
-                ? itemData.comparison.rightPoints.join("\n")
-                : (typeof itemData.comparison?.rightPoints === "string" ? itemData.comparison.rightPoints : (itemData.comparison?.rightPointsText || "")),
-            },
-          };
-        });
-
-        const cta = key === "cta" ? data : {};
-        const preview = cta.preview || {};
-        const full = cta.full || {};
-        const processCta = key === "process" && data.cta ? data.cta : {};
-        const processCtaPreview = processCta.preview || {};
-        const processCtaFull = processCta.full || {};
-        const techspec = key === "techspec" ? data : {};
-
-        return {
-          id: match?.id,
-          section_key: key,
-          label: SECTION_LABELS[key],
-          subheading1: data.subheading1 || "",
-          subheading2: data.subheading2 || "",
-          heading: data.heading || "",
-          title: data.title || "",
-          title1: data.title1 || "",
-          title2: data.title2 || "",
-          description: data.description || "",
-          subheading: data.subheading || "",
-          tag: data.tag || "",
-          subtext: data.subtext || "",
-          is_active: match ? Boolean(match.is_visible) : true,
-          items,
-
-          // cta
-          ctaPreviewText: preview.text || "",
-          ctaPreviewUrl: preview.url || "",
-          ctaFullDescription: full.description || "",
-          ctaFullText: full.text || "",
-          ctaFullUrl: full.url || "",
-          // process cta
-          processCtaPreviewText: processCtaPreview.text || "",
-          processCtaPreviewUrl: processCtaPreview.url || "",
-          processCtaFullDescription: processCtaFull.description || "",
-          processCtaFullText: processCtaFull.text || "",
-          processCtaFullUrl: processCtaFull.url || "",
-          // techspec (previously tech-specs)
-          techtag: techspec.techtag || "",
-          techHeading1: techspec.techHeading1 || "",
-          techHeading2: techspec.techHeading2 || "",
-          techSubtext: techspec.techSubtext || "",
-          techTagsText: Array.isArray(techspec.tags)
-            ? techspec.tags.join(", ")
-            : typeof techspec.tags === "string"
-            ? techspec.tags
-            : (techspec.techTagsText || ""),
-        };
-      });
-
-      setManagedSections(initialManagedSections);
-      setDeletedItemIds([]);
+      hydratePage(pageData);
+      
     } catch (err) {
       setErrorText(err instanceof Error ? err.message : "Failed to load page service.");
     } finally {
       setIsLoading(false);
     }
   }
+
+  const handleJsonDownload = async () => {
+    const json = JSON.stringify(previewJson, null, 2); // TODO: Add SEO and Page Data
+
+    const blob = new Blob([json], {
+      type: "application/json",
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${selectedPage?.slug}.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportJson = () => {
+    const input = document.createElement("input");
+
+    input.type = "file";
+    input.accept = ".json,application/json";
+
+    input.onchange = async (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const json = JSON.parse(text);
+
+        const pageData: ServicePageModel = {
+        ...selectedPage!,
+
+        sections: (selectedPage?.sections || []).map((section) => ({
+          ...section,
+
+          data: json[section.section_key] || section.data,
+
+          items: json[section.section_key]?.items
+            ? json[section.section_key].items.map((item: any) => ({
+                id: undefined,
+                is_active: true,
+                is_featured: false,
+                data: item,
+              }))
+            : section.items,
+        })),
+      };
+
+      setSelectedPage(pageData);
+      hydratePage(pageData);
+
+      } catch (error) {
+        console.error("Invalid JSON file", error);
+        alert("Invalid JSON file.");
+      }
+    };
+
+    input.click();
+  };
 
   const handlePageSelect = (slug: string) => {
     setSelectedPageSlug(slug);
@@ -1354,7 +1423,7 @@ export function ServiceModule() {
                     <p className="text-label-sm text-text-secondary mb-md">
                       Clear the frontend cache to publish all saved service changes live.
                     </p>
-                    <div className="flex gap-md">
+                    <div className="flex flex-col gap-md">
                       <CustomButton
                         variant="primary"
                         iconStart={<Globe size={16} />}
@@ -1362,6 +1431,20 @@ export function ServiceModule() {
                         disabled={isSaving || !canManage}
                       >
                         Publish Changes (Clear Cache)
+                      </CustomButton>
+                      <CustomButton
+                        variant="primary"
+                        iconEnd={<Download size={16} />}
+                        onClick={handleJsonDownload}
+                      >
+                        Download JSON Preview
+                      </CustomButton>
+                      <CustomButton
+                      variant="primary"
+                      iconEnd={<Upload size={16} />}
+                      onClick={handleImportJson}
+                      >
+                        Upload JSON
                       </CustomButton>
                     </div>
                   </Card>

@@ -8,11 +8,11 @@ export type LadderCardProps = {
   title?: string;
   number?: string;
   description?: string;
-  text?: string;
+  duration?: string;
   align?: 'left' | 'right';
 }
 
-export function LadderCard({icon, title, number, description, text, align} : LadderCardProps) {
+export function LadderCard({icon, title, number, description, duration, align} : LadderCardProps) {
   const Icon = ICONS[icon as keyof typeof ICONS];
   const isLeft = align === 'left';
   
@@ -63,7 +63,7 @@ export function LadderCard({icon, title, number, description, text, align} : Lad
               {description}
             </p>
             <p className="text-[12px] text-[#22C55E] font-medium">
-              {text}
+              {duration}
             </p>
           </div>
         </div>

@@ -23,7 +23,7 @@ export function CompareTable({items}: CompareTableProps) {
   return(
     <>
     {items?.map((item, i) => (
-    <div key={i} className="mb-10"> 
+    <div key={i} className="mb-8"> 
       {/* Title Card */}
       {item.title && (
         <div className="space-y-6 mb-3">

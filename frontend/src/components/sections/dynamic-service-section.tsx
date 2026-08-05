@@ -71,7 +71,7 @@ export type DynamicServiceData = {
     items?: FAQItemProps[];
   };
   cta?: ShortCTAProps;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export type DynamicServiceProps = {

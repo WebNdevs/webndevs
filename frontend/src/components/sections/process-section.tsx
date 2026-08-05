@@ -1,4 +1,4 @@
-import { getPage, getPageSection, NormalizedPage } from '@/data/content';
+import { getPage, getPageSection } from '@/data/content';
 import { HeaderSection, HeaderSectionProps } from '../cards/header-card';
 import { ShortCTA, ShortCTAProps } from './cta-section';
 import { LadderCardProps, LadderSection } from '../cards/ladder-card';
@@ -6,7 +6,7 @@ import { LadderCardProps, LadderSection } from '../cards/ladder-card';
 
 export async function ProcessSection() {
   const page = await getPage("content", "/");
-  const process = getPageSection<HeaderSectionProps & { items?: LadderCardProps[] } & ShortCTAProps>(page, "process");
+  const process = getPageSection<HeaderSectionProps & { items?: LadderCardProps[] } & { cta?: ShortCTAProps }>(page, "process");
 
   if (!page) return null;
 
@@ -20,7 +20,7 @@ export async function ProcessSection() {
         <LadderSection items={process?.items as LadderCardProps[]}/>
 
         {/* Bottom CTA */}
-        <ShortCTA {...process as ShortCTAProps}/>
+        <ShortCTA variant="full" {...process?.cta as ShortCTAProps} />
       </div>
     </section>
   );

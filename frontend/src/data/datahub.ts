@@ -1,85 +1,5 @@
 export const dataHubData = {
   sections: [
-    // hub
-    {
-      section_key: "hub",
-        header: {
-          tag: "Tools & Resources",
-          subheading1: "Want More From WebNDevs?",
-          subheading2: "Explore Some Tools",
-          subtext:
-            "Explore some tools that we have curated for some curious minds. See what you can learn or maybe tryout.",
-        },
-        items: [
-        {
-          icon: "Wrench",
-          title: "Tools",
-          description:
-            "Discover business, development, and productivity tools.",
-          url: "/tools",
-        },
-        {
-          icon: "Building2",
-          title: "Industries",
-          description:
-            "Explore solutions tailored for different industries.",
-          url: "/industries",
-        },
-        {
-          icon: "Lightbulb",
-          title: "Solutions",
-          description:
-            "Find proven strategies and services for your business.",
-          url: "/solutions",
-        },
-        {
-          icon: "GitCompare",
-          title: "Comparisons",
-          description:
-            "Compare technologies, platforms, and business solutions.",
-          url: "/comparisons",
-        },
-        {
-          icon: "FolderKanban",
-          title: "Case Studies",
-          description:
-            "See how we've solved real business challenges.",
-          url: "/case-studies",
-        },
-        {
-          icon: "BookOpen",
-          title: "Blogs",
-          description:
-            "Read expert insights, guides, and industry updates.",
-          url: "/blogs",
-        },
-        {
-          icon: "Gift",
-          title: "Free Tools",
-          description:
-            "Access free calculators, generators, and resources.",
-          url: "/free-tools",
-        }
-      ],
-      hero: {
-        tag: "KNOWLEDGE CENTER",
-        title1: "Insights That",
-        title2: "Power Decisions.",
-        description:
-          "Explore expert resources, tools, comparisons, industry guides, and practical insights designed to help businesses make smarter technology decisions."
-      },
-      cta: {
-        preview: {
-          text: "Explore Services",
-          url: "/services",
-        },
-        full: {
-          description:
-            "Liked this? Then why not take a look at our services too.",
-          text: "Or Talk to Our Team",
-        },
-      },
-    },
     // blogs
     {
       section_key: "blogs",
@@ -220,6 +140,7 @@ export const dataHubData = {
         },
       },
     },
+
     // tools
     {
       section_key: "tools",
@@ -492,6 +413,7 @@ export const dataHubData = {
         },
       },
     },
+
     // solutions
     {
       section_key: "solutions",
@@ -776,6 +698,7 @@ export const dataHubData = {
         }
       },
     },
+
     // case-studies
     {
       section_key: "case-studies",
@@ -919,6 +842,7 @@ export const dataHubData = {
         }
       }
     },
+
     // comparisons
     {
       section_key: "comparisons",
@@ -1093,6 +1017,7 @@ export const dataHubData = {
         }
       }
     },
+
     // industries
     {
       section_key: "industries",
@@ -1359,6 +1284,7 @@ export const dataHubData = {
         }
       }
     },
+    
     // free tools
     {
       section_key: "free-tools",

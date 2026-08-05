@@ -91,6 +91,7 @@ export const homeData = {
           tags: ["E-Commerce", "WordPress", "Online Grocery"],
           url: "https://sabzithela.com"
         },
+        
         {
           title: "Nidaan Clinic",
           category: "Healthcare",
@@ -104,6 +105,7 @@ export const homeData = {
           tags: ["WordPress", "Healthcare", "UI/UX"],
           url: "https://drgurmeetkaur.in"
         },
+        
         {
           title: "DFR Commercials",
           category: "Real Estate",
@@ -117,6 +119,7 @@ export const homeData = {
           tags: ["Real Estate", "Commercial", "WordPress"],
           url: "https://dfrcommercial.com.au"
         },
+        
         {
           title: "Rentigo",
           category: "Web Application",
@@ -130,6 +133,7 @@ export const homeData = {
           tags: ["WordPress", "Booking System", "Vehicle Rental"],
           url: "https://rentigo.ch"
         },
+        
         {
           title: "Gem Experience",
           category: "E-Commerce",
@@ -143,6 +147,7 @@ export const homeData = {
           tags: ["E-Commerce", "Luxury", "WordPress"],
           url: "https://gem-experience.com"
         },
+        
         {
           title: "Reactive Air",
           category: "Business Website",
@@ -156,6 +161,7 @@ export const homeData = {
           tags: ["WordPress", "Business Website", "Responsive Design"],
           url: "https://reactiveair.com.au"
         },
+        
         {
           title: "Simplicity Ink",
           category: "Beauty & Wellness",
@@ -169,6 +175,7 @@ export const homeData = {
           tags: ["Beauty", "WordPress", "UI/UX"],
           url: "https://simplicityink.com"
         },
+        
         {
           title: "Vakildekho",
           category: "Legal Services",
@@ -182,6 +189,7 @@ export const homeData = {
           tags: ["WordPress", "Legal", "Lead Generation"],
           url: "https://vakildekho.com"
         },
+        
         {
           title: "ContactKloud",
           category: "CRM Software",
@@ -195,6 +203,7 @@ export const homeData = {
           tags: ["CRM", "SaaS", "UI/UX"],
           url: "https://contactkloud.com"
         },
+        
         {
           title: "Austin Ozone",
           category: "Healthcare",
@@ -208,6 +217,7 @@ export const homeData = {
           tags: ["Healthcare", "WordPress", "Responsive Design"],
           url: "https://austinozone.com"
         },
+        
         {
           title: "ChamaCloud",
           category: "SaaS Platform",
@@ -221,6 +231,7 @@ export const homeData = {
           tags: ["SaaS", "AI", "UI/UX"],
           url: "https://chamacloud.com"
         },
+        
         {
           title: "Zen Travels",
           category: "Travel & Tourism",
@@ -234,6 +245,7 @@ export const homeData = {
           tags: ["Travel", "Booking System", "WordPress"],
           url: "https://zentravels.com"
         },
+        
         {
           title: "Inled Technologies",
           category: "Manufacturing",
@@ -247,6 +259,7 @@ export const homeData = {
           tags: ["Manufacturing", "Corporate", "WordPress"],
           url: "https://inledtechnologies.com"
         },
+        
         {
           title: "Jordan & Skala Engineers",
           category: "Engineering",
@@ -260,6 +273,7 @@ export const homeData = {
           tags: ["Engineering", "Corporate", "Responsive Design"],
           url: "https://jordanskala.com"
         },
+        
         {
           title: "ReportCard",
           category: "SEO Platform",
@@ -273,6 +287,7 @@ export const homeData = {
           tags: ["SEO", "SaaS", "WordPress"],
           url: "https://reportcard.com"
         },
+        
         {
           title: "Prime Lawyers",
           category: "Legal Services",
@@ -286,6 +301,7 @@ export const homeData = {
           tags: ["WordPress", "Legal", "Corporate"],
           url: "https://primelawyers.com.au"
         },
+        
         {
           title: "Office Innovations",
           category: "Interior Design",
@@ -299,6 +315,7 @@ export const homeData = {
           tags: ["Interior Design", "Furniture", "WordPress"],
           url: "https://officeinnovations.co.uk"
         },
+        
         {
           title: "Dr. Lauryn",
           category: "Healthcare",
@@ -312,6 +329,7 @@ export const homeData = {
           tags: ["Healthcare", "WordPress", "Medical"],
           url: "https://drlauryn.com"
         },
+        
         // NOt working links
         {
           title: "Party In The City Photo Booth",
@@ -326,6 +344,7 @@ export const homeData = {
           tags: ["WordPress", "Booking", "Business Website"],
           url: "https://partyinthecityphotobooth.com"
         },
+        
         {
           title: "Healing Hands Clinic",
           category: "Healthcare",
@@ -338,7 +357,8 @@ export const homeData = {
           ],
           tags: ["WordPress", "Healthcare", "Responsive Design"],
           url: "https://drabhishekshuklaphysician.com"
-        },    
+        },
+            
         {
           title: "Jeetam Saini",
           category: "Personal Branding",
@@ -352,6 +372,7 @@ export const homeData = {
           tags: ["Personal Branding", "WordPress", "Corporate"],
           url: "https://jeetamsaini.com"
         },
+        
         {
           title: "Hemant Services",
           category: "Business Website",
@@ -365,6 +386,7 @@ export const homeData = {
           tags: ["WordPress", "Business Website", "Responsive Design"],
           url: "https://hemantservices.com"
         },
+        
         {
           title: "Totan Studio",
           category: "Photography Studio",
@@ -377,7 +399,8 @@ export const homeData = {
           ],
           tags: ["WordPress", "Photography", "Portfolio"],
           url: "https://totanstudio.com"
-        },         
+        },
+                 
       ],
       hero: {
         tag: "OUR WORK",
@@ -1100,6 +1123,87 @@ export const homeData = {
         }
       }
     },
+    // hub
+    {
+      section_key: "hub",
+        header: {
+          tag: "Tools & Resources",
+          subheading1: "Want More From WebNDevs?",
+          subheading2: "Explore Some Tools",
+          subtext:
+            "Explore some tools that we have curated for some curious minds. See what you can learn or maybe tryout.",
+        },
+        items: [
+        {
+          icon: "Wrench",
+          title: "Tools",
+          description:
+            "Discover business, development, and productivity tools.",
+          url: "/tools",
+        },
+        {
+          icon: "Building2",
+          title: "Industries",
+          description:
+            "Explore solutions tailored for different industries.",
+          url: "/industries",
+        },
+        {
+          icon: "Lightbulb",
+          title: "Solutions",
+          description:
+            "Find proven strategies and services for your business.",
+          url: "/solutions",
+        },
+        {
+          icon: "GitCompare",
+          title: "Comparisons",
+          description:
+            "Compare technologies, platforms, and business solutions.",
+          url: "/comparisons",
+        },
+        {
+          icon: "FolderKanban",
+          title: "Case Studies",
+          description:
+            "See how we've solved real business challenges.",
+          url: "/case-studies",
+        },
+        {
+          icon: "BookOpen",
+          title: "Blogs",
+          description:
+            "Read expert insights, guides, and industry updates.",
+          url: "/blogs",
+        },
+        {
+          icon: "Gift",
+          title: "Free Tools",
+          description:
+            "Access free calculators, generators, and resources.",
+          url: "/free-tools",
+        }
+      ],
+      hero: {
+        tag: "KNOWLEDGE CENTER",
+        title1: "Insights That",
+        title2: "Power Decisions.",
+        description:
+          "Explore expert resources, tools, comparisons, industry guides, and practical insights designed to help businesses make smarter technology decisions."
+      },
+      cta: {
+        preview: {
+          text: "Explore Services",
+          url: "/services",
+        },
+        full: {
+          description:
+            "Liked this? Then why not take a look at our services too.",
+          text: "Or Talk to Our Team",
+        },
+      },
+    },
+
   ],
 };
 

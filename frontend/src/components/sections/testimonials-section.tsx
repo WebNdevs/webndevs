@@ -3,7 +3,7 @@ import { ShortCTA, ShortCTAProps } from './cta-section';
 import { ReviewCardGrid, ReviewCardProps } from '../cards/review-card';
 import { StatsCardGrid, StatsCardProps } from '../cards/stats-card';
 import { PageHero, PageHeroProps } from './pagehero';
-import { getPage, NormalizedPage } from '@/data/content';
+import { getPage, getPageSection } from '@/data/content';
 import { ContentSections } from './content-sections';
 
 type TestimonialSectionProps = {
@@ -12,6 +12,9 @@ type TestimonialSectionProps = {
 
 export async function TestimonialsSection({variant = 'full'} : TestimonialSectionProps) {
   const page = await getPage("content", "/testimonials");
+  const review = getPageSection<HeaderSectionProps & { items?: ReviewCardProps[] } & { cta?: ShortCTAProps }>(page, "review");
+  const stat = getPageSection<HeaderSectionProps & { items?: StatsCardProps[] } >(page, "stats");
+  const items = (review?.items as ReviewCardProps[])?.splice(0,6) || [];
   if (!page) return null;
 
   if (variant === "full") {
@@ -24,9 +27,6 @@ export async function TestimonialsSection({variant = 'full'} : TestimonialSectio
     );
   }
 
-  const stat = page.stats as NormalizedPage | undefined;
-  const rev = page.review as NormalizedPage | undefined;
-  const items = (rev?.items as NormalizedPage[] | undefined)?.slice(0, 6);
 
   return (
     <section id='testimonials' aria-label="Client Testimonials" className="py-20 px-6 bg-transparent">
@@ -36,7 +36,7 @@ export async function TestimonialsSection({variant = 'full'} : TestimonialSectio
         <HeaderSection {...page.review as HeaderSectionProps}/>
 
         {/* Testimonials Grid */}
-        <ReviewCardGrid items={items as ReviewCardProps[]}/>
+        <ReviewCardGrid items={items}/>
 
         {/* Trust Badges */}
         <StatsCardGrid items={stat?.items as StatsCardProps[]}/>

@@ -36,7 +36,7 @@ export const CtaSchema = {
     }
 };
 
-export const Schemas: Record<string, Record<string, any>> = {
+export const Schemas: Record<string, Record<string, unknown>> = {
     hero: {
         ...HeroSchema,
     },
@@ -116,7 +116,7 @@ export const Schemas: Record<string, Record<string, any>> = {
     }
 };
 
-export const ItemSchemas: Record<string, Record<string, any>> = {
+export const ItemSchemas: Record<string, Record<string, unknown>> = {
     whyus: {
         icon: "",
         title: "",
@@ -224,8 +224,8 @@ export const ItemSchemas: Record<string, Record<string, any>> = {
  * Recursively merges source properties into a deep clone of target.
  * Retains target default values for missing source keys, while array values overwrite target arrays.
  */
-export function deepMerge<T extends Record<string, any>>(target: T, source: any): T {
-    const result: Record<string, any> = typeof structuredClone === 'function'
+export function deepMerge<T extends Record<string, unknown>>(target: T, source: unknown): T {
+    const result: Record<string, unknown> = typeof structuredClone === 'function'
         ? structuredClone(target)
         : JSON.parse(JSON.stringify(target));
 
@@ -233,8 +233,9 @@ export function deepMerge<T extends Record<string, any>>(target: T, source: any)
         return result as T;
     }
 
-    for (const key of Object.keys(source)) {
-        const sourceVal = source[key];
+    const sourceObj = source as Record<string, unknown>;
+    for (const key of Object.keys(sourceObj)) {
+        const sourceVal = sourceObj[key];
         if (sourceVal === undefined) continue;
 
         const targetVal = result[key];
@@ -247,7 +248,10 @@ export function deepMerge<T extends Record<string, any>>(target: T, source: any)
             typeof sourceVal === 'object' &&
             !Array.isArray(sourceVal)
         ) {
-            result[key] = deepMerge(targetVal, sourceVal);
+            result[key] = deepMerge(
+                targetVal as Record<string, unknown>,
+                sourceVal as Record<string, unknown>
+            );
         } else {
             result[key] = sourceVal;
         }
@@ -259,8 +263,8 @@ export function deepMerge<T extends Record<string, any>>(target: T, source: any)
 /**
  * Returns a deep-cloned default section schema object for the given sectionKey.
  */
-export function getSectionSchema(sectionKey: string): Record<string, any> {
-    const baseSchema = (Schemas as Record<string, any>)[sectionKey] || HeaderSchema;
+export function getSectionSchema(sectionKey: string): Record<string, unknown> {
+    const baseSchema = (Schemas as Record<string, Record<string, unknown>>)[sectionKey] || HeaderSchema;
     return typeof structuredClone === 'function'
         ? structuredClone(baseSchema)
         : JSON.parse(JSON.stringify(baseSchema));
@@ -269,8 +273,8 @@ export function getSectionSchema(sectionKey: string): Record<string, any> {
 /**
  * Returns a deep-cloned default item schema object for the given sectionKey.
  */
-export function getItemSchema(sectionKey: string): Record<string, any> {
-    const baseItemSchema = (ItemSchemas as Record<string, any>)[sectionKey] || { title: "", description: "" };
+export function getItemSchema(sectionKey: string): Record<string, unknown> {
+    const baseItemSchema = (ItemSchemas as Record<string, Record<string, unknown>>)[sectionKey] || { title: "", description: "" };
     return typeof structuredClone === 'function'
         ? structuredClone(baseItemSchema)
         : JSON.parse(JSON.stringify(baseItemSchema));
@@ -280,14 +284,15 @@ export function getItemSchema(sectionKey: string): Record<string, any> {
  * Merges raw section data from API/state with the section schema defaults.
  * Automatically deep merges section fields and individual items in items array.
  */
-export function mergeSectionData(sectionKey: string, data?: any): Record<string, any> {
+export function mergeSectionData(sectionKey: string, data?: unknown): Record<string, unknown> {
     const defaultSchema = getSectionSchema(sectionKey);
-    if (!data || typeof data !== 'object') return defaultSchema;
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return defaultSchema;
 
-    const merged = deepMerge(defaultSchema, data);
+    const dataObj = data as Record<string, unknown>;
+    const merged = deepMerge(defaultSchema, dataObj);
 
-    if (Array.isArray(data.items)) {
-        merged.items = data.items.map((item: any) => mergeItemData(sectionKey, item));
+    if (Array.isArray(dataObj.items)) {
+        merged.items = dataObj.items.map((item: unknown) => mergeItemData(sectionKey, item));
     }
 
     return merged;
@@ -296,9 +301,9 @@ export function mergeSectionData(sectionKey: string, data?: any): Record<string,
 /**
  * Merges raw item data with item schema defaults for the section.
  */
-export function mergeItemData(sectionKey: string, item?: any): Record<string, any> {
+export function mergeItemData(sectionKey: string, item?: unknown): Record<string, unknown> {
     const defaultItemSchema = getItemSchema(sectionKey);
-    if (!item || typeof item !== 'object') return defaultItemSchema;
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return defaultItemSchema;
 
-    return deepMerge(defaultItemSchema, item);
+    return deepMerge(defaultItemSchema, item as Record<string, unknown>);
 }

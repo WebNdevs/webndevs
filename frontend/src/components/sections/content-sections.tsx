@@ -68,7 +68,6 @@ export function ContentSections({ page }: { page?: NormalizedPage }) {
         <>
           <HeaderSection {...result} />
           <ResultCardGrid items={result.items || []} />
-          <ShortCTA {...result.cta} />
         </>
       )}
 
@@ -76,7 +75,6 @@ export function ContentSections({ page }: { page?: NormalizedPage }) {
         <>
           <HeaderSection {...review} />
           <ReviewCardGrid items={review.items || []} />
-          <ShortCTA {...review.cta} />
         </>
       )}
 
@@ -99,7 +97,6 @@ export function ContentSections({ page }: { page?: NormalizedPage }) {
       {cta && (
         <>
           <ShortCTA variant="full" {...cta} />
-          <ShortCTA variant="preview" {...cta} />
         </>
       )}
     </>

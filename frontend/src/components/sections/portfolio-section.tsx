@@ -1,5 +1,5 @@
 import { HeaderSection, HeaderSectionProps } from '../cards/header-card';
-import { getPage, NormalizedPage } from '@/data/content';
+import { getPage, getPageSection } from '@/data/content';
 import { StatsCardGrid, StatsCardProps } from '../cards/stats-card';
 import { ShortCTA, ShortCTAProps } from './cta-section';
 import { PageHero, PageHeroProps } from './pagehero';
@@ -12,6 +12,9 @@ export type PortfolioSectionProps = {
 
 export async function PortfolioSection({ variant = 'full' }: PortfolioSectionProps) {
   const page = await getPage("content", "/portfolio");
+  const result = getPageSection<HeaderSectionProps & { items?: ResultCardProps[] } & { cta?: ShortCTAProps }>(page, "result");
+  const stat = getPageSection<HeaderSectionProps & { items?: StatsCardProps[] } >(page, "stats");
+  const items = (result?.items as ResultCardProps[])?.splice(0,6) || [];
   if (!page) return null;
 
   if (variant === "full") {
@@ -24,10 +27,7 @@ export async function PortfolioSection({ variant = 'full' }: PortfolioSectionPro
     );
   }
 
-  const stat = page.stats as NormalizedPage | undefined;
-  const res = page.result as NormalizedPage | undefined;
-  const items = (res?.items as NormalizedPage[] | undefined)?.slice(0, 6);
-
+  
   return (
     <section id="portfolio" aria-label="Our Portfolio" className="py-20 px-6 bg-transparent text-gray-100">
       <div className="max-w-7xl mx-auto">
@@ -37,7 +37,7 @@ export async function PortfolioSection({ variant = 'full' }: PortfolioSectionPro
         <HeaderSection {...page.result as HeaderSectionProps} />
 
         {/* Projects Grid */}
-        <ResultCardGrid items={items as ResultCardProps[]} />
+        <ResultCardGrid items={items} />
 
         {/* Stats Section - dynamically rendered from API if present, otherwise static */}
         <StatsCardGrid items={stat?.items as StatsCardProps[]} />

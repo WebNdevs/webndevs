@@ -425,18 +425,15 @@ export function findPageByRoute(
   module: ModuleName,
   pathname: string
 ): NormalizedPage | undefined {
-  const cleanPath =
-    (pathname || "/")
-      .trim()
-      .toLowerCase()
-      .replace(/\/+$/, "") || "/";
+  const normalizeForCompare = (p: string | undefined) => {
+    const s = (p || "/").trim().toLowerCase().replace(/^\/+|\/+$/g, "");
+    return s === "" ? "/" : `/${s}`;
+  };
+
+  const cleanPath = normalizeForCompare(pathname);
 
   return pages.find((page) => {
-    const route =
-      buildRoute(page, module)
-        .toLowerCase()
-        .replace(/\/+$/, "") || "/";
-
+    const route = normalizeForCompare(buildRoute(page, module));
     return route === cleanPath;
   });
 }

@@ -53,7 +53,7 @@ export type DynamicSectionData = {
     items?: FAQItemProps[];
   };
   cta?: ShortCTAProps;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export type DynamicSectionProps = {

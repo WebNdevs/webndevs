@@ -15,7 +15,7 @@ export type ReviewCardProps = {
 
 export function ReviewCard({ name, company, content, rating, photo_url, role }: ReviewCardProps) {
   return (
-    <DSCard hoverable className="flex flex-col bg-transparent bg-linear-to-r from-[#22C55E]/5 to-[#06B6D4]/5">
+    <DSCard hoverable className="flex min-h-90 flex-col bg-transparent bg-linear-to-r from-[#22C55E]/5 to-[#06B6D4]/5">
       {/* Stars */}
       {rating && (
         <div role="img" className="flex gap-1 mb-4" aria-label={`Rating: ${rating} out of 5 stars`}>
@@ -34,7 +34,7 @@ export function ReviewCard({ name, company, content, rating, photo_url, role }: 
 
       {/* Content */}
       {content && (
-        <p className="text-[14px] text-[#9CA3AF] leading-relaxed mb-6 grow">
+        <p className="text-[14px] text-[#9CA3AF] leading-relaxed mb-2 grow">
           {content}
         </p>
       )}
