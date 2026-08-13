@@ -1,5 +1,7 @@
 export const homeData = {
   sections: [
+
+
     // why choose us
     {
       section_key: "why-choose", 
@@ -68,6 +70,8 @@ export const homeData = {
         ],
       },
     },
+
+
     // portfolio
     {
       section_key: "portfolio",
@@ -330,6 +334,8 @@ export const homeData = {
           url: "https://drlauryn.com"
         },
         
+    
+    
         // NOt working links
         {
           title: "Party In The City Photo Booth",
@@ -427,6 +433,8 @@ export const homeData = {
         }
       }
     },
+
+
     // process
     {
       section_key: "process",
@@ -484,6 +492,8 @@ export const homeData = {
           }
         },
     },
+
+
     // testimonials
     {
       section_key: "testimonials",
@@ -737,6 +747,8 @@ export const homeData = {
         }
       },
     },
+
+
     // privacy
     {
       section_key: "privacy",
@@ -771,6 +783,7 @@ export const homeData = {
           "Your privacy matters. Learn how we collect, use, protect, and responsibly manage your information while delivering our services."
       },
     },
+    
     // terms
     {
       section_key: "terms",
@@ -805,6 +818,8 @@ export const homeData = {
           "These terms outline the responsibilities, expectations, and commitments that help create successful and transparent working relationships."
       },
     },
+    
+    
     // contact-us
     {
       section_key: "contact-us",
@@ -839,6 +854,8 @@ export const homeData = {
           "Whether you're launching a startup, modernizing your business, or scaling with AI and automation, we're ready to help bring your vision to life."
       },
     },
+    
+    
     // faq
     {
       section_key: "faq",
@@ -908,6 +925,8 @@ export const homeData = {
         },
       },
     },
+    
+    
     // error
     {
       section_key: "error",
@@ -964,6 +983,8 @@ export const homeData = {
         },
       }
     },
+    
+    
     // services
     {
       section_key: "services",
@@ -1123,6 +1144,8 @@ export const homeData = {
         }
       }
     },
+
+
     // hub
     {
       section_key: "hub",

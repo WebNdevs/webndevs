@@ -192,6 +192,7 @@ export function SinglePageModule() {
     }
   }, [categories]);
 
+  const [hasImportedChanges, setHasImportedChanges] = useState(false);
   const [_isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorText, setErrorText] = useState("");
@@ -546,7 +547,7 @@ export function SinglePageModule() {
       const data = mergeSectionData(key, (match?.data || {}) as Record<string, any>);
       
       // Map database section items to local layout fields
-      const items = (match?.items || []).map((item) => {
+      const items = (match?.items || []).map((item, idx) => {
         const rawItemData = (item.data || {}) as Record<string, any>;
         const itemData = mergeItemData(key, rawItemData);
         const hrefVal = itemData.href || itemData.url || "";
@@ -554,11 +555,15 @@ export function SinglePageModule() {
           ? itemData.tags.join(", ")
           : (typeof itemData.tags === "string" ? itemData.tags : (itemData.tagsText || ""));
 
+        const uniqueRowId = item.id
+          ? `item-${item.id}`
+          : `import-${key}-${idx}-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+
         return {
-          row_id: `item-${item.id}`,
+          row_id: uniqueRowId,
           id: item.id,
-          is_active: item.is_active,
-          is_featured: item.is_featured,
+          is_active: item.is_active ?? true,
+          is_featured: item.is_featured ?? (rawItemData.featured || false),
           ...itemData,
           href: hrefVal,
           url: hrefVal,
@@ -577,6 +582,33 @@ export function SinglePageModule() {
           },
         };
       });
+
+      // For featured section, if no direct items in database match, derive items from all page items where is_featured is true
+      if (key === "featured" && items.length === 0) {
+        apiSections.forEach((sec) => {
+          (sec.items || []).forEach((item, idx) => {
+            if (item.is_featured || (item.data as any)?.featured) {
+              const rawItemData = (item.data || {}) as Record<string, any>;
+              const itemData = mergeItemData(sec.section_key, rawItemData);
+              const hrefVal = itemData.href || itemData.url || "";
+              const tagsTextVal = Array.isArray(itemData.tags)
+                ? itemData.tags.join(", ")
+                : (typeof itemData.tags === "string" ? itemData.tags : (itemData.tagsText || ""));
+              items.push({
+                row_id: `derived-featured-${item.id || idx}`,
+                id: item.id,
+                is_active: item.is_active ?? true,
+                is_featured: true,
+                ...itemData,
+                href: hrefVal,
+                url: hrefVal,
+                tagsText: tagsTextVal,
+                comparison: { leftHeading: "", rightHeading: "", leftPoints: [], rightPoints: [], leftPointsText: "", rightPointsText: "" },
+              });
+            }
+          });
+        });
+      }
 
       const cta = key === "cta" ? data : {};
       const preview = cta.preview || {};
@@ -626,7 +658,7 @@ export function SinglePageModule() {
   }
 
     const handleJsonDownload = async () => {
-    const json = JSON.stringify(previewJson, null, 2); // TODO: Add SEO and Page Data
+    const json = JSON.stringify(previewJson, null, 2);
 
     const blob = new Blob([json], {
       type: "application/json",
@@ -657,27 +689,50 @@ export function SinglePageModule() {
         const text = await file.text();
         const json = JSON.parse(text);
 
-        const pageData: SinglePagePageModel = {
-        ...selectedPage!,
+        const existingSections = selectedPage?.sections || [];
 
-        sections: (selectedPage?.sections || []).map((section) => ({
-          ...section,
+        const updatedSections = SECTION_KEYS.map((key) => {
+          const existingSec = existingSections.find((s) => s.section_key === key);
+          const hasJsonData = json && typeof json === "object" && Object.prototype.hasOwnProperty.call(json, key);
 
-          data: json[section.section_key] || section.data,
+          if (!hasJsonData) {
+            return existingSec || null;
+          }
 
-          items: json[section.section_key]?.items
-            ? json[section.section_key].items.map((item: any) => ({
+          const importedSec = json[key] || {};
+          const importedItems = Array.isArray(importedSec.items)
+            ? importedSec.items.map((item: any) => ({
                 id: undefined,
-                is_active: true,
-                is_featured: false,
+                is_active: item.is_active ?? true,
+                is_featured: item.is_featured ?? item.featured ?? false,
                 data: item,
               }))
-            : section.items,
-        })),
-      };
+            : existingSec?.items;
 
-      setSelectedPage(pageData);
-      hydratePage(pageData);
+          const { items: _droppedItems, ...importedDataOnly } = importedSec;
+
+          return {
+            id: existingSec?.id,
+            singlepage_page_id: selectedPage?.id || 0,
+            section_key: key,
+            section_type: ["hero", "header", "cta"].includes(key) ? key : "items",
+            is_visible: existingSec?.is_visible ?? true,
+            sort_order: existingSec?.sort_order ?? 0,
+            data: Object.keys(importedDataOnly).length > 0 ? importedDataOnly : (existingSec?.data || {}),
+            items: importedItems,
+            updated_at: existingSec?.updated_at || null,
+          };
+        }).filter((s): s is SinglePageSectionModel => s !== null);
+
+        const pageData: SinglePagePageModel = {
+          ...selectedPage!,
+          sections: updatedSections,
+        };
+
+        setSelectedPage(pageData);
+        hydratePage(pageData);
+        setHasImportedChanges(true);
+        setSuccessText("JSON imported successfully. All provided sections populated.");
 
       } catch (error) {
         console.error("Invalid JSON file", error);
@@ -686,6 +741,149 @@ export function SinglePageModule() {
     };
 
     input.click();
+  };
+
+  const handlePublishAll = async () => {
+    if (!canManage || !selectedPage) return;
+    setIsSaving(true);
+    setErrorText("");
+    setSuccessText("");
+
+    try {
+      for (const sec of managedSections) {
+        const dataPayload: Record<string, any> = {};
+
+        if (sec.section_key === "hero") {
+          dataPayload.tag = sec.tag?.trim() || null;
+          dataPayload.title1 = sec.title1?.trim() || null;
+          dataPayload.title2 = sec.title2?.trim() || null;
+          dataPayload.description = sec.description?.trim() || null;
+        } else if (sec.section_key === "header" || sec.section_key === "comparison" || sec.section_key === "directory" || sec.section_key === "benefits" || sec.section_key === "featured" || sec.section_key === "stats" || sec.section_key === "faq") {
+          dataPayload.tag = sec.tag?.trim() || null;
+          dataPayload.subheading1 = sec.subheading1?.trim() || null;
+          dataPayload.subheading2 = sec.subheading2?.trim() || null;
+          dataPayload.subtext = sec.subtext?.trim() || null;
+        } else if (sec.section_key === "cta") {
+          dataPayload.preview = omitEmptyKeys({
+            text: sec.ctaPreviewText?.trim() || null,
+            url: sec.ctaPreviewUrl?.trim() || null,
+          });
+          dataPayload.full = omitEmptyKeys({
+            description: sec.ctaFullDescription?.trim() || null,
+            text: sec.ctaFullText?.trim() || null,
+            url: sec.ctaFullUrl?.trim() || null,
+          });
+        }
+
+        const sectionPayload = {
+          section_key: sec.section_key,
+          section_type: ["hero", "header", "cta"].includes(sec.section_key) ? sec.section_key : "items",
+          data: omitEmptyKeys(dataPayload) || {},
+          is_visible: sec.is_active,
+          sort_order: 0,
+        };
+
+        let sectionId = sec.id;
+        if (sectionId) {
+          await requestJson(`/singlepage-pages/${selectedPage.slug}/sections/${sectionId}`, {
+            method: "PUT",
+            body: JSON.stringify(sectionPayload),
+          });
+        } else {
+          const createdSection = await requestJson<{ section: SinglePageSectionModel }>(`/singlepage-pages/${selectedPage.slug}/sections`, {
+            method: "POST",
+            body: JSON.stringify(sectionPayload),
+          });
+          sectionId = createdSection.section.id;
+        }
+
+        // Do not save duplicate items for featured section
+        if (sec.section_key !== "featured") {
+          for (const item of sec.items) {
+            const itemData: Record<string, any> = {};
+
+            if (sec.section_key === "benefits" || sec.section_key === "directory") {
+              itemData.icon = item.icon?.trim() || null;
+              itemData.title = item.title?.trim() || null;
+              itemData.description = item.description?.trim() || null;
+              itemData.badge = item.badge?.trim() || null;
+              itemData.href = item.href?.trim() || null;
+              itemData.tags = item.tagsText !== undefined ? (item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null) : (Array.isArray(item.tags) ? item.tags : null);
+            } else if (sec.section_key === "stats") {
+              itemData.icon = item.icon?.trim() || null;
+              itemData.title = item.title?.trim() || null;
+              itemData.value = item.value?.trim() || null;
+              itemData.href = item.href?.trim() || null;
+            } else if (sec.section_key === "comparison") {
+              itemData.title = item.title?.trim() || null;
+              itemData.description = item.description?.trim() || null;
+              itemData.tag = item.tag?.trim() || null;
+              itemData.comparison = omitEmptyKeys({
+                leftHeading: item.comparison?.leftHeading?.trim() || null,
+                rightHeading: item.comparison?.rightHeading?.trim() || null,
+                leftPoints: item.comparison?.leftPointsText
+                  ? item.comparison.leftPointsText.split("\n").map(s => s.trim()).filter(Boolean)
+                  : (Array.isArray(item.comparison?.leftPoints) && item.comparison.leftPoints.length > 0 ? item.comparison.leftPoints : null),
+                rightPoints: item.comparison?.rightPointsText
+                  ? item.comparison.rightPointsText.split("\n").map(s => s.trim()).filter(Boolean)
+                  : (Array.isArray(item.comparison?.rightPoints) && item.comparison.rightPoints.length > 0 ? item.comparison.rightPoints : null),
+              });
+            } else if (sec.section_key === "faq") {
+              itemData.question = item.question?.trim() || null;
+              itemData.answer = item.answer?.trim() || null;
+            } else {
+              itemData.title = item.title?.trim() || null;
+              itemData.description = item.description?.trim() || null;
+              Object.keys(item).forEach((k) => {
+                if (!["row_id", "id", "is_active", "is_featured", "title", "description"].includes(k) && (item as any)[k] !== undefined) {
+                  itemData[k] = (item as any)[k];
+                }
+              });
+            }
+
+            const itemPayload = {
+              data: omitEmptyKeys(itemData) || {},
+              sort_order: 0,
+              is_featured: item.is_featured,
+              is_active: item.is_active,
+            };
+
+            if (item.id && item.id > 0) {
+              await requestJson(`/singlepage-sections/${sectionId}/items/${item.id}`, {
+                method: "PUT",
+                body: JSON.stringify(itemPayload),
+              });
+            } else {
+              await requestJson(`/singlepage-sections/${sectionId}/items`, {
+                method: "POST",
+                body: JSON.stringify(itemPayload),
+              });
+            }
+          }
+        }
+
+        if (sectionId) {
+          const sectionDeletedItems = deletedItemIds.filter((d) => d.sectionId === sectionId);
+          for (const d of sectionDeletedItems) {
+            if (d.itemId > 0) {
+              await requestJson(`/singlepage-sections/${d.sectionId}/items/${d.itemId}`, {
+                method: "DELETE",
+              });
+            }
+          }
+        }
+      }
+
+      setDeletedItemIds([]);
+      await requestJson("/settings/cache/clear", { method: "POST" });
+      setHasImportedChanges(false);
+      setSuccessText("Page published successfully and all sections persisted live!");
+      await loadPage(selectedPage.slug);
+    } catch (err) {
+      setErrorText(err instanceof Error ? err.message : "Failed to publish changes");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handlePageSelect = (slug: string) => {
@@ -950,101 +1148,100 @@ export function SinglePageModule() {
           body: JSON.stringify(sectionPayload),
         });
         sectionId = createdSection.section.id;
-        setManagedSections((current) => current.map((s) => s.section_key === secKey ? { ...s, id: sectionId } : s));
       }
 
-      // Save list items
-      const savePromises = sec.items.map(async (item) => {
-        const itemData: Record<string, any> = {};
+      // Save list items (skip for featured section to avoid duplicate item records)
+      let updatedItems = sec.items;
+      if (sec.section_key !== "featured") {
+        updatedItems = await Promise.all(
+          sec.items.map(async (item) => {
+            const itemData: Record<string, any> = {};
 
-        if (sec.section_key === "featured") {
-          itemData.icon = item.icon?.trim() || null;
-          itemData.title = item.title?.trim() || null;
-          itemData.description = item.description?.trim() || null;
-          itemData.badge = item.badge?.trim() || null;
-          itemData.href = item.href?.trim() || null;
-          itemData.tags = item.tagsText !== undefined ? (item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null) : (Array.isArray(item.tags) ? item.tags : null);
-        } else if (sec.section_key === "benefits") {
-          itemData.icon = item.icon?.trim() || null;
-          itemData.title = item.title?.trim() || null;
-          itemData.description = item.description?.trim() || null;
-          itemData.badge = item.badge?.trim() || null;
-          itemData.href = item.href?.trim() || null;
-          itemData.tags = item.tagsText !== undefined ? (item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null) : (Array.isArray(item.tags) ? item.tags : null);
-        } else if (sec.section_key === "directory") {
-          itemData.icon = item.icon?.trim() || null;
-          itemData.title = item.title?.trim() || null;
-          itemData.description = item.description?.trim() || null;
-          itemData.badge = item.badge?.trim() || null;
-          itemData.href = item.href?.trim() || null;
-          itemData.tags = item.tagsText !== undefined ? (item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null) : (Array.isArray(item.tags) ? item.tags : null);
-        } else if (sec.section_key === "stats") {
-          itemData.icon = item.icon?.trim() || null;
-          itemData.title = item.title?.trim() || null;
-          itemData.value = item.value?.trim() || null;
-          itemData.href = item.href?.trim() || null;
-        } else if (sec.section_key === "comparison") {
-          itemData.title = item.title?.trim() || null;
-          itemData.description = item.description?.trim() || null;
-          itemData.tag = item.tag?.trim() || null;
-          itemData.comparison = omitEmptyKeys({
-            leftHeading: item.comparison?.leftHeading?.trim() || null,
-            rightHeading: item.comparison?.rightHeading?.trim() || null,
-            leftPoints: item.comparison?.leftPointsText
-              ? item.comparison.leftPointsText.split("\n").map(s => s.trim()).filter(Boolean)
-              : (Array.isArray(item.comparison?.leftPoints) && item.comparison.leftPoints.length > 0 ? item.comparison.leftPoints : null),
-            rightPoints: item.comparison?.rightPointsText
-              ? item.comparison.rightPointsText.split("\n").map(s => s.trim()).filter(Boolean)
-              : (Array.isArray(item.comparison?.rightPoints) && item.comparison.rightPoints.length > 0 ? item.comparison.rightPoints : null),
-          });
-        } else if (sec.section_key === "faq") {
-          itemData.question = item.question?.trim() || null;
-          itemData.answer = item.answer?.trim() || null;
-        } else {
-          itemData.title = item.title?.trim() || null;
-          itemData.description = item.description?.trim() || null;
-          Object.keys(item).forEach((k) => {
-            if (!["row_id", "id", "is_active", "is_featured", "title", "description"].includes(k) && (item as any)[k] !== undefined) {
-              itemData[k] = (item as any)[k];
+            if (sec.section_key === "benefits" || sec.section_key === "directory") {
+              itemData.icon = item.icon?.trim() || null;
+              itemData.title = item.title?.trim() || null;
+              itemData.description = item.description?.trim() || null;
+              itemData.badge = item.badge?.trim() || null;
+              itemData.href = item.href?.trim() || null;
+              itemData.tags = item.tagsText !== undefined ? (item.tagsText ? item.tagsText.split(",").map((s) => s.trim()).filter(Boolean) : null) : (Array.isArray(item.tags) ? item.tags : null);
+            } else if (sec.section_key === "stats") {
+              itemData.icon = item.icon?.trim() || null;
+              itemData.title = item.title?.trim() || null;
+              itemData.value = item.value?.trim() || null;
+              itemData.href = item.href?.trim() || null;
+            } else if (sec.section_key === "comparison") {
+              itemData.title = item.title?.trim() || null;
+              itemData.description = item.description?.trim() || null;
+              itemData.tag = item.tag?.trim() || null;
+              itemData.comparison = omitEmptyKeys({
+                leftHeading: item.comparison?.leftHeading?.trim() || null,
+                rightHeading: item.comparison?.rightHeading?.trim() || null,
+                leftPoints: item.comparison?.leftPointsText
+                  ? item.comparison.leftPointsText.split("\n").map(s => s.trim()).filter(Boolean)
+                  : (Array.isArray(item.comparison?.leftPoints) && item.comparison.leftPoints.length > 0 ? item.comparison.leftPoints : null),
+                rightPoints: item.comparison?.rightPointsText
+                  ? item.comparison.rightPointsText.split("\n").map(s => s.trim()).filter(Boolean)
+                  : (Array.isArray(item.comparison?.rightPoints) && item.comparison.rightPoints.length > 0 ? item.comparison.rightPoints : null),
+              });
+            } else if (sec.section_key === "faq") {
+              itemData.question = item.question?.trim() || null;
+              itemData.answer = item.answer?.trim() || null;
+            } else {
+              itemData.title = item.title?.trim() || null;
+              itemData.description = item.description?.trim() || null;
+              Object.keys(item).forEach((k) => {
+                if (!["row_id", "id", "is_active", "is_featured", "title", "description"].includes(k) && (item as any)[k] !== undefined) {
+                  itemData[k] = (item as any)[k];
+                }
+              });
             }
-          });
-        }
 
-        const itemPayload = {
-          data: omitEmptyKeys(itemData) || {},
-          sort_order: 0,
-          is_featured: item.is_featured,
-          is_active: item.is_active,
-        };
+            const itemPayload = {
+              data: omitEmptyKeys(itemData) || {},
+              sort_order: 0,
+              is_featured: item.is_featured,
+              is_active: item.is_active,
+            };
 
-        if (item.id && item.id > 0) {
-          await requestJson(`/singlepage-sections/${sectionId}/items/${item.id}`, {
-            method: "PUT",
-            body: JSON.stringify(itemPayload),
-          });
-        } else {
-          await requestJson(`/singlepage-sections/${sectionId}/items`, {
-            method: "POST",
-            body: JSON.stringify(itemPayload),
-          });
-        }
-      });
+            if (item.id && item.id > 0) {
+              const resp = await requestJson<{ item: SinglePageItemModel }>(`/singlepage-sections/${sectionId}/items/${item.id}`, {
+                method: "PUT",
+                body: JSON.stringify(itemPayload),
+              });
+              const savedId = resp.item?.id || item.id;
+              return { ...item, id: savedId, row_id: `item-${savedId}` };
+            } else {
+              const resp = await requestJson<{ item: SinglePageItemModel }>(`/singlepage-sections/${sectionId}/items`, {
+                method: "POST",
+                body: JSON.stringify(itemPayload),
+              });
+              const savedId = resp.item.id;
+              return { ...item, id: savedId, row_id: `item-${savedId}` };
+            }
+          })
+        );
+      }
 
       // Handle deleted items scoped to sectionId
-      const sectionDeletedItems = deletedItemIds.filter((d) => d.sectionId === sectionId);
-      const deletedPromises = sectionDeletedItems.map(async (d) => {
-        if (d.itemId > 0) {
-          await requestJson(`/singlepage-sections/${d.sectionId}/items/${d.itemId}`, {
-            method: "DELETE",
-          });
-        }
-      });
+      if (sectionId) {
+        const sectionDeletedItems = deletedItemIds.filter((d) => d.sectionId === sectionId);
+        await Promise.all(
+          sectionDeletedItems.map(async (d) => {
+            if (d.itemId > 0) {
+              await requestJson(`/singlepage-sections/${d.sectionId}/items/${d.itemId}`, {
+                method: "DELETE",
+              });
+            }
+          })
+        );
+        setDeletedItemIds((prev) => prev.filter((d) => d.sectionId !== sectionId));
+      }
 
-      await Promise.all([...savePromises, ...deletedPromises]);
-      setDeletedItemIds((prev) => prev.filter((d) => d.sectionId !== sectionId));
+      setManagedSections((current) =>
+        current.map((s) => s.section_key === secKey ? { ...s, id: sectionId, items: updatedItems } : s)
+      );
 
       setSuccessText(`Section "${sec.label}" saved successfully.`);
-      await loadPage(selectedPage.slug);
     } catch (e) {
       setErrorText(e instanceof Error ? e.message : "Failed to save section data.");
     } finally {
@@ -1415,15 +1612,27 @@ export function SinglePageModule() {
                     <p className="text-label-sm text-text-secondary mb-md">
                       Clear the frontend cache to publish all saved singlepage changes live.
                     </p>
-                    <div className="flex gap-md">
-                      <CustomButton
-                        variant="primary"
-                        iconStart={<Globe size={16} />}
-                        onClick={handleClearCache}
-                        disabled={isSaving || !canManage}
-                      >
-                        Publish Changes (Clear Cache)
-                      </CustomButton>
+                    <div className="flex flex-col gap-md mb-md">
+                      <div className="flex items-center gap-sm">
+                        <CustomButton
+                          variant="primary"
+                          iconStart={<Globe size={16} />}
+                          onClick={handlePublishAll}
+                          disabled={isSaving || !canManage}
+                        >
+                          Publish Changes (Clear Cache)
+                        </CustomButton>
+                        {hasImportedChanges && (
+                          <Badge label="Imported" variant="default" />
+                        )}
+                        <CustomButton
+                          variant="primary"
+                          onClick={handleClearCache}
+                          disabled={isSaving || !canManage}
+                        >
+                          Clear Cache
+                        </CustomButton>
+                      </div>
                       <CustomButton
                         variant="primary"
                         iconEnd={<Download size={16} />}

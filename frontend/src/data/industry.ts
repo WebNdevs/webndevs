@@ -1,6 +1,8 @@
 import { DynamicSectionData } from "@/components/sections/dynamic-content-section";
 
 export const IndustryPages: DynamicSectionData[] = [
+  
+  // Healthcare
   {
     slug: "healthcare",
 
@@ -238,6 +240,9 @@ export const IndustryPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Real Estate
   {
     slug: "real-estate",
 
@@ -475,6 +480,9 @@ export const IndustryPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Finance Banking
   {
     slug: "finance-banking",
 
@@ -712,6 +720,9 @@ export const IndustryPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Education
   {
     slug: "education",
 
@@ -949,6 +960,9 @@ export const IndustryPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Retail & eCommerce
   {
     slug: "retail-ecommerce",
 
@@ -1186,6 +1200,9 @@ export const IndustryPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Manufacturing
   {
     slug: "manufacturing",
 
@@ -1423,6 +1440,9 @@ export const IndustryPages: DynamicSectionData[] = [
       }
     }
   },
+  
+
+  // Logistics & Supply Chain
   {
     slug: "logistics-supply-chain",
 
@@ -1660,6 +1680,9 @@ export const IndustryPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Hospitality & Travel
   {
     slug: "hospitality-travel",
 
@@ -1897,6 +1920,9 @@ export const IndustryPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Legal Services
   {
     slug: "legal-services",
 
@@ -2134,6 +2160,9 @@ export const IndustryPages: DynamicSectionData[] = [
       }
     }
   },
+ 
+ 
+  // Construction
   {
     slug: "construction",
 
@@ -2371,6 +2400,9 @@ export const IndustryPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // SaaS & Technology
   {
     slug: "saas-technology",
 
@@ -2608,6 +2640,9 @@ export const IndustryPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Nonprofit & NGOs
   {
     slug: "nonprofit-ngos",
 

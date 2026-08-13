@@ -1,6 +1,8 @@
 import { DynamicServiceData } from "@/components/sections/dynamic-service-section";
 
 export const ServicePages: DynamicServiceData[] = [
+  
+  
   // web-development
   {
     slug: "web-development",
@@ -301,6 +303,8 @@ export const ServicePages: DynamicServiceData[] = [
       }
     },
   },
+  
+  
   // mobile-app-development
   {
 
@@ -603,6 +607,8 @@ export const ServicePages: DynamicServiceData[] = [
     },
 
   },
+  
+  
   // ui-ux-design
   {
 
@@ -818,6 +824,8 @@ export const ServicePages: DynamicServiceData[] = [
     },
 
   },
+  
+  
   // digital-marketing
   {
 
@@ -1038,6 +1046,8 @@ export const ServicePages: DynamicServiceData[] = [
     },
 
   },
+  
+  
   // data-analytics
   {
 
@@ -1332,6 +1342,8 @@ export const ServicePages: DynamicServiceData[] = [
   },
 
   },
+  
+  
   // branding
   {
 
@@ -1617,6 +1629,8 @@ export const ServicePages: DynamicServiceData[] = [
     },
 
   },
+  
+  
   // automation
   {
 

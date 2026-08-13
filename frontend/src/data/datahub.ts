@@ -1,5 +1,6 @@
 export const dataHubData = {
   sections: [
+    
     // blogs
     {
       section_key: "blogs",

@@ -1,6 +1,9 @@
 import { DynamicSectionData } from "@/components/sections/dynamic-content-section";
 
 export const solutionPages: DynamicSectionData[] = [
+  
+  
+  // CRM Solutions
   {
     slug: "crm-solutions",
 
@@ -216,6 +219,9 @@ export const solutionPages: DynamicSectionData[] = [
       }
     },
   },
+  
+  
+  // ERP Solutions
   {
     slug: "erp-solutions",
 
@@ -442,6 +448,9 @@ export const solutionPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // AI Automation Solutions
   {
     slug: "ai-automation",
 
@@ -678,6 +687,9 @@ export const solutionPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Workflow Automation Solutions
   {
     slug: "workflow-automation",
 
@@ -914,6 +926,9 @@ export const solutionPages: DynamicSectionData[] = [
       }
     }
   },
+ 
+ 
+  // Customer Support Solutions
   {
     slug: "customer-support-solutions",
 
@@ -1150,6 +1165,9 @@ export const solutionPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Project Management Solutions
   {
     slug: "project-management",
 
@@ -1386,6 +1404,9 @@ export const solutionPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Business Intelligence Solutions
   {
     slug: "business-intelligence",
 
@@ -1622,6 +1643,9 @@ export const solutionPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Cybersecurity Solutions
   {
     slug: "cybersecurity",
 
@@ -1858,6 +1882,9 @@ export const solutionPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Cloud Infrastructure Solutions
   {
     slug: "cloud-infrastructure",
 
@@ -2094,6 +2121,9 @@ export const solutionPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Document Management Solutions
   {
     slug: "document-management",
 
@@ -2330,6 +2360,9 @@ export const solutionPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Email Marketing Solutions
   {
     slug: "email-marketing",
 
@@ -2566,6 +2599,9 @@ export const solutionPages: DynamicSectionData[] = [
       }
     }
   },
+  
+  
+  // Payment Solutions
   {
     slug: "payment-solutions",
 
