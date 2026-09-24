@@ -5,7 +5,6 @@ export function SolutionsPage() {
   return(
     <div className="space-y-10">
       <SolutionSection/>
-      <CTASection/>
     </div>
   )
 }

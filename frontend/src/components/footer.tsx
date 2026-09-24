@@ -11,14 +11,24 @@ const FOOTER_LINKS = {
     { label: "UI/UX Design", href: "/services/ui-ux-design" },
     { label: "AI & Automation", href: "/services/ai-automation" },
     { label: "Digital Marketing", href: "/services/digital-marketing" },
+    { label: "All Services", href: "/services" },
+  ],
+
+  solutions: [
+    { label: "Solutions Directory", href: "/solutions" },
+    { label: "Industries Served", href: "/industries" },
+    { label: "Developer Tools", href: "/tools" },
+    { label: "Tech Comparisons", href: "/comparisons" },
+    { label: "Free Utilities", href: "/free-tools" },
   ],
 
   company: [
     { label: "Portfolio", href: "/portfolio" },
-    { label: "Blogs", href: "/blogs" },
-    { label: "FAQ", href: "/faq" },
+    { label: "Case Studies", href: "/case-studies" },
+    { label: "Tech Blog", href: "/blogs" },
     { label: "Testimonials", href: "/testimonials" },
     { label: "Data Hub", href: "/datahub" },
+    { label: "FAQ & Support", href: "/faq" },
   ],
 
   social: [
@@ -77,18 +87,18 @@ export function Footer() {
   return (
     <footer className="bg-transparent border-t border-[#374151]" aria-label="Site footer">
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-20 mb-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-10 mb-8">
           {/* Company Info */}
-          <div>
+          <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-4">
               <Image src={logo} className="rounded h-14 w-14 object-cover" alt="WebNDevs Logo" />
               <span className="font-bold text-xl text-[#F9FAFB] hover:text-[#22C55E] transition-colors">
                 WebNDevs
               </span>
             </Link>
-            <p className="text-[14px] text-[#9CA3AF] mb-4 leading-relaxed">
-              Your complete digital partner for web development, mobile apps, 
-              design, automation, and marketing.
+            <p className="text-[14px] text-[#9CA3AF] mb-4 leading-relaxed max-w-sm">
+              Your complete digital partner for web development, custom software engineering, 
+              AI automation, design, and growth solutions.
             </p>
             {/* Social Icons*/}
             <div className="flex gap-2">
@@ -126,9 +136,26 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Solutions & Directory */}
           <div>
-            <h4 className="text-[16px] font-semibold text-[#F9FAFB] mb-4">Company</h4>
+            <h4 className="text-[16px] font-semibold text-[#F9FAFB] mb-4">Solutions & Tools</h4>
+            <ul className="space-y-3">
+              {FOOTER_LINKS.solutions.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="text-sm text-[#9CA3AF] hover:text-[#22C55E] transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Company & Resources */}
+          <div>
+            <h4 className="text-[16px] font-semibold text-[#F9FAFB] mb-4">Resources</h4>
             <ul className="space-y-3">
               {FOOTER_LINKS.company.map((item) => (
                 <li key={item.href}>

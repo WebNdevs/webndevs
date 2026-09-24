@@ -125,10 +125,12 @@ type PlanGridProps = {
 export function PlanGrid({
   items,
 }: PlanGridProps) {
-  if (!items) return null;
+  const validItems = items?.filter((item) => Boolean(item.title?.trim())) || [];
+  if (validItems.length === 0) return null;
+
   return (
-    <div className="grid gap-8 lg:grid-cols-3">
-      {items.map((item, index) => (
+    <div className="grid gap-8 lg:grid-cols-3 mb-16">
+      {validItems.map((item, index) => (
         <ScrollReveal
           key={index}
           direction="up"

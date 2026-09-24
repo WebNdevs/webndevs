@@ -14,7 +14,7 @@ export async function TestimonialsSection({variant = 'full'} : TestimonialSectio
   const page = await getPage("content", "/testimonials");
   const review = getPageSection<HeaderSectionProps & { items?: ReviewCardProps[] } & { cta?: ShortCTAProps }>(page, "review");
   const stat = getPageSection<HeaderSectionProps & { items?: StatsCardProps[] } >(page, "stats");
-  const items = (review?.items as ReviewCardProps[])?.splice(0,6) || [];
+  const items = (review?.items as ReviewCardProps[])?.slice(0,6) || [];
   if (!page) return null;
 
   if (variant === "full") {

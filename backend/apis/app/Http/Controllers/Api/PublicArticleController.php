@@ -55,8 +55,7 @@ class PublicArticleController extends Controller
                     continue;
                 }
 
-                $key = $section->section_key === 'content' ? 'items' : $section->section_key;
-                $compiledPage[$key] = $compiledSection;
+                $compiledPage[$section->section_key] = $compiledSection;
             }
 
             if (! empty($compiledPage)) {
@@ -86,7 +85,7 @@ class PublicArticleController extends Controller
         unset($sectionData['variant']);
 
         if ($section->section_key === 'content') {
-            return $section->items
+            $items = $section->items
                 ->map(function ($item) {
                     $itemData = is_array($item->data) ? $item->data : [];
 
@@ -95,6 +94,18 @@ class PublicArticleController extends Controller
                 ->filter()
                 ->values()
                 ->toArray();
+
+            if (empty($items) && isset($sectionData['items']) && is_array($sectionData['items'])) {
+                $items = $this->removeEmptyValues($sectionData['items']);
+            }
+
+            return $this->removeEmptyValues([
+                'tag' => $sectionData['tag'] ?? null,
+                'subheading1' => $sectionData['subheading1'] ?? null,
+                'subheading2' => $sectionData['subheading2'] ?? null,
+                'subtext' => $sectionData['subtext'] ?? null,
+                'items' => $items,
+            ]);
         }
 
         if ($section->section_key === 'hero') {

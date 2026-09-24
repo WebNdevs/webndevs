@@ -26,6 +26,45 @@ class ContentPageSeeder extends Seeder
             ]
         );
 
+        // Seeding data for Content Module: "/services" (Services Directory)
+        $servicesPage = ContentPage::query()->updateOrCreate(
+            ['slug' => '/services'],
+            [
+                'title' => 'Services',
+                'status' => 'published',
+                'seo_title' => 'Professional Web Development & Software Services | WebNDevs',
+                'seo_description' => 'Explore our complete range of digital services including web development, mobile apps, database integrations, and AI automation.',
+                'meta_keywords' => 'Services, Web Development, Custom Software, Digital Agency',
+                'updated_by' => $admin?->id,
+            ]
+        );
+
+        $this->createSection($servicesPage->id, 'hero', 'hero', 0, [
+            'tag' => 'OUR SERVICES',
+            'title1' => 'End-to-End Digital &',
+            'title2' => 'Software Engineering',
+            'description' => 'From custom web application development to cloud architecture and AI workflow automation.',
+        ], $admin?->id);
+
+        $this->createSection($servicesPage->id, 'header', 'header', 1, [
+            'tag' => 'SERVICE DIRECTORY',
+            'subheading1' => 'Professional Digital',
+            'subheading2' => 'Agency Solutions',
+            'subtext' => 'High-performance software built with modern engineering standards.',
+        ], $admin?->id);
+
+        $this->createSection($servicesPage->id, 'cta', 'cta', 2, [
+            'preview' => [
+                'text' => 'Schedule a Service Consultation',
+                'url' => '/contact',
+            ],
+            'full' => [
+                'text' => 'Start Your Development Project',
+                'description' => 'Discuss your web development specifications with our lead software architects today.',
+                'url' => '/contact',
+            ],
+        ], $admin?->id);
+
         // Seed all sections cleanly aligned with Content Module structure
         $this->createSection($page->id, 'hero', 'hero', 0, [
             'tag' => 'WEBSITE & DIGITAL PRODUCTS',

@@ -5,7 +5,6 @@ export function ToolsPage() {
   return(
     <div className="space-y-10">
       <ToolSection/>
-      <CTASection/>
     </div>
   )
 }

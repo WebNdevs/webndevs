@@ -2,10 +2,13 @@ import { MetadataRoute } from "next";
 import { IndustryPages } from "@/data/industry";
 import { ServicePages } from "@/data/services";
 import { solutionPages } from "@/data/solution";
+import { blogArticles, caseStudyArticles } from "@/data/articles";
+import { getModule } from "@/data/content";
+import { ContentCardProps } from "@/components/cards/content-card";
 
 export const dynamic = "force-static";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://webndevs.com";
 
   // Static routes
@@ -29,10 +32,45 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/tools`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
   ];
 
-  // Dynamic routes populated from data sources
-  const industrySlugs = IndustryPages.map((item) => item.slug);
-  const serviceSlugs = ServicePages.map((item) => item.slug);
-  const solutionSlugs = solutionPages.map((item) => item.slug);
+  // Attempt fetching live module pages from backend API
+  const [liveServices, liveArticles] = await Promise.all([
+    getModule("service").catch(() => []),
+    getModule("article").catch(() => []),
+  ]);
+
+  const industrySlugs = IndustryPages.map((item) => (item.slug || "").replace(/^\/+/, "")).filter(Boolean);
+
+  const serviceSlugSet = new Set<string>([
+    ...ServicePages.map((item) => (item.slug || "").replace(/^\/+/, "")),
+    ...liveServices.map((page) => (page.slug || "").replace(/^\/+/, "")),
+  ]);
+
+  const solutionSlugs = solutionPages.map((item) => (item.slug || "").replace(/^\/+/, "")).filter(Boolean);
+
+  // Extract live articles items from backend API
+  const blogSection = liveArticles.find((p) => p.slug === "/blogs" || p.slug === "blogs");
+  const liveBlogItems = (
+    (blogSection?.content as { items?: ContentCardProps[] })?.items ||
+    blogSection?.items ||
+    []
+  ) as ContentCardProps[];
+
+  const caseStudySection = liveArticles.find((p) => p.slug === "/case-studies" || p.slug === "case-studies");
+  const liveCaseStudyItems = (
+    (caseStudySection?.content as { items?: ContentCardProps[] })?.items ||
+    caseStudySection?.items ||
+    []
+  ) as ContentCardProps[];
+
+  const blogSlugSet = new Set<string>([
+    ...blogArticles.map((item) => (item.slug || "").replace(/^\/+/, "")),
+    ...liveBlogItems.map((item) => (item.slug || "").replace(/^\/+/, "")),
+  ]);
+
+  const caseStudySlugSet = new Set<string>([
+    ...caseStudyArticles.map((item) => (item.slug || "").replace(/^\/+/, "")),
+    ...liveCaseStudyItems.map((item) => (item.slug || "").replace(/^\/+/, "")),
+  ]);
 
   const dynamicRoutes: MetadataRoute.Sitemap = [
     ...industrySlugs.map((slug) => ({
@@ -41,7 +79,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly" as const,
       priority: 0.7,
     })),
-    ...serviceSlugs.map((slug) => ({
+    ...Array.from(serviceSlugSet).filter(Boolean).map((slug) => ({
       url: `${baseUrl}/services/${slug}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
@@ -52,6 +90,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8,
+    })),
+    ...Array.from(blogSlugSet).filter(Boolean).map((slug) => ({
+      url: `${baseUrl}/blogs/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
+    ...Array.from(caseStudySlugSet).filter(Boolean).map((slug) => ({
+      url: `${baseUrl}/case-studies/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
     })),
   ];
 

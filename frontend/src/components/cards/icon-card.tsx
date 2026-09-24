@@ -84,7 +84,9 @@ export function IconCard({icon, title, description, url, tags}: IconCardProps) {
 }
 
 export function IconCardGrid({items} : {items: IconCardProps[]}) {
-  if (!items) return null;
+  const validItems = items?.filter((item) => Boolean(item.title?.trim() || item.description?.trim())) || [];
+  if (validItems.length === 0) return null;
+
   return(
     <motion.div 
       variants={gridVariants}
@@ -93,7 +95,7 @@ export function IconCardGrid({items} : {items: IconCardProps[]}) {
       viewport={{ once: true, margin: "-100px" }}
       className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
     >
-      {items.map((item, index) => (
+      {validItems.map((item, index) => (
         <IconCard key={index} {...item}/>
       ))}
     </motion.div>

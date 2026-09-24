@@ -14,10 +14,13 @@ class PublicDataHubController extends Controller
         'header',
         'featured',
         'directory',
+        'tools',
         'benefits',
+        'features',
         'review',
         'stats',
         'comparison',
+        'process',
         'faq',
         'cta',
     ];
@@ -91,8 +94,8 @@ class PublicDataHubController extends Controller
         if (
             $slug === '' ||
             $slug === '/' ||
-            $slug === 'tools' ||
-            $slug === 'toolspage'
+            $slug === 'home' ||
+            $slug === 'homepage'
         ) {
             return '/';
         }

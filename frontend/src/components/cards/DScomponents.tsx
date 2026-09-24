@@ -184,10 +184,12 @@ type DSTilesProps = {
 };
 
 export function DSTiles({items = []}: DSTilesProps) {
-  if (!items) return null;
+  const validItems = items?.filter((item) => Boolean(item.title?.trim() || item.description?.trim())) || [];
+  if (validItems.length === 0) return null;
+
   return (
-    <div className="space-y-6 mb-3">
-      {items.map((item, index) => (
+    <div className="space-y-6 mb-8">
+      {validItems.map((item, index) => (
         <ScrollReveal
           key={index}
           direction="up"

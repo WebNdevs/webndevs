@@ -27,7 +27,11 @@ export default function GlobalOrganizationSchema() {
             "sameAs": [
               "https://github.com/webndevs",
               "https://twitter.com/webndevs",
-              "https://linkedin.com/company/webndevs"
+              "https://linkedin.com/company/webndevs",
+              "https://clutch.co/profile/webndevs",
+              "https://goodfirms.co/company/webndevs",
+              "https://designrush.com/agency/profile/webndevs",
+              "https://upwork.com/agencies/webndevs"
             ]
           },
           {

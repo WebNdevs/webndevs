@@ -17,9 +17,12 @@ export function FAQCard({items = []} : FAQCardProps) {
   const [openIndex, setOpenIndex] =
   useState<number | null>(0);
 
+  const validItems = items.filter((item) => Boolean(item.question?.trim() || item.answer?.trim()));
+  if (validItems.length === 0) return null;
+
   return (
-    <div className="space-y-4">
-      {items.map((item, index) => {
+    <div className="space-y-4 mb-16">
+      {validItems.map((item, index) => {
         const isOpen = openIndex === index;
         return (
           <DSCard 

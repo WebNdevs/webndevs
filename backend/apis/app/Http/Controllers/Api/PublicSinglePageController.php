@@ -14,10 +14,12 @@ class PublicSinglePageController extends Controller
         'header',
         'featured',
         'directory',
+        'features',
         'benefits',
         'review',
         'stats',
         'comparison',
+        'process',
         'faq',
         'cta',
     ];
@@ -47,7 +49,8 @@ class PublicSinglePageController extends Controller
 
         foreach ($pages as $page) {
             $pagePath = $this->normalizePagePath(
-                $page->slug
+                $page->slug,
+                $page->category_slug
             );
 
             $singlepagePages[$pagePath] = [];
@@ -84,20 +87,28 @@ class PublicSinglePageController extends Controller
     }
 
     private function normalizePagePath(
-        ?string $slug
+        ?string $slug,
+        ?string $categorySlug = null
     ): string {
         $slug = trim((string) $slug);
 
         if (
             $slug === '' ||
             $slug === '/' ||
-            $slug === 'tools' ||
-            $slug === 'toolspage'
+            $slug === 'home' ||
+            $slug === 'homepage'
         ) {
             return '/';
         }
 
-        return '/'.trim($slug, '/');
+        $cleanSlug = trim($slug, '/');
+        $cleanCategory = trim((string) $categorySlug, '/');
+
+        if ($cleanCategory !== '' && ! str_starts_with($cleanSlug, $cleanCategory.'/')) {
+            return '/'.$cleanCategory.'/'.$cleanSlug;
+        }
+
+        return '/'.$cleanSlug;
     }
 
     private function compileSection(

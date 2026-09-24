@@ -5,7 +5,9 @@ import { PortfolioSection } from '@/components/sections/portfolio-section';
 import { ProcessSection } from '@/components/sections/process-section';
 import { TestimonialsSection } from '@/components/sections/testimonials-section';
 
-export function HomePage() {
+import { NormalizedPage } from '@/data/content';
+
+export function HomePage({ page }: { page?: NormalizedPage | null } = {}) {
   return (
     <div className="space-y-10">
       <HeroSection />

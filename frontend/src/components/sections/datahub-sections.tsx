@@ -25,7 +25,9 @@ export function DataHubSections({ page }: { page?: NormalizedPage }) {
   const stats = page.stats as WithItems<StatsCardProps> | undefined;
   const comparison = page.comparison as WithItems<CompareTableItem> | undefined;
   const featured = page.featured as WithItems<EntityCardProps> | undefined;
-  const directory = page.directory as WithItems<EntityCardProps> | undefined;
+  const directory = (page.directory && Array.isArray((page.directory as WithItems<EntityCardProps>).items) && (page.directory as WithItems<EntityCardProps>).items!.length > 0)
+    ? (page.directory as WithItems<EntityCardProps>)
+    : ((page.tools || page.directory) as WithItems<EntityCardProps> | undefined);
   const benefits = page.benefits as WithItems<IconCardProps> | undefined;
   const faq = page.faq as WithItems<FAQItemProps> | undefined;
   const cta = page.cta as ShortCTAProps | undefined;
@@ -75,10 +77,7 @@ export function DataHubSections({ page }: { page?: NormalizedPage }) {
       )}
 
       {cta && (
-        <>
-          <ShortCTA variant="full" {...cta} />
-          <ShortCTA variant="preview" {...cta} />
-        </>
+        <ShortCTA variant="full" {...cta} />
       )}
     </>
   );

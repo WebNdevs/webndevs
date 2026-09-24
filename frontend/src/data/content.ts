@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { API_BASE_URL } from "@/config/api";
 import { mergeSectionData, mergeItemData } from "@/data/schema";
+import { blogArticles, caseStudyArticles } from "@/data/articles";
 
 // `next.config.ts` builds this app with `output: "export"` (a static HTML
 // export, no Next.js server in production), so this `revalidate` value has
@@ -51,8 +52,24 @@ export type NormalizedPage = {
   seo_title?: string | null;
   seo_description?: string | null;
   meta_keywords?: string | null;
+  // Lineage tracking fields
+  sourceId?: number | string;
+  sourceModule?: ModuleName;
+  sourceSlug?: string;
+  sourceRoute?: string;
+  sourceTitle?: string;
   [section_key: string]: NormalizedSection | unknown;
 };
+
+export function logPageTrace(
+  requestedUrl: string,
+  expectedModule: ModuleName,
+  page: NormalizedPage | undefined
+) {
+  if (process.env.NODE_ENV === "production") return;
+  const sections = page ? Object.keys(page).filter(k => !["id", "title", "slug", "category_slug", "seo_title", "seo_description", "meta_keywords", "sourceId", "sourceModule", "sourceSlug", "sourceRoute", "sourceTitle"].includes(k)) : [];
+  console.log(`[PAGE TRACE] URL: ${requestedUrl} | Module: ${expectedModule} | Record ID: ${page?.id ?? "none"} | Slug: ${page?.slug ?? "none"} | Title: "${page?.title ?? ""}" | Sections: [${sections.join(", ")}]`);
+}
 
 function isRecord(value: unknown): value is SectionRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -208,33 +225,40 @@ export function normalizeSection(rawSection: SectionRecord | null | undefined): 
 
   const sectionKey = toString(rawSection.section_key);
   const data = mergeSectionData(sectionKey, toRecord(rawSection.data));
-  const fallbackSection = getDefaultSection(sectionKey);
-  const fallbackItems = Array.isArray(fallbackSection?.items) ? fallbackSection.items : [];
 
+  // Determine items strictly from the section itself, never from Home page fallback!
   const rawItems = Array.isArray(rawSection.items) && rawSection.items.length > 0
     ? rawSection.items
     : Array.isArray(data.items) && data.items.length > 0
     ? data.items
-    : fallbackItems;
-
+    : [];
 
   const items = Array.isArray(rawItems)
     ? rawItems.map((item: unknown) => {
       const itemRecord = toRecord(item);
       const itemData = toRecord(itemRecord.data ?? itemRecord);
       const resultsArray = toStringArray(itemData.results);
+      const categoryStr = toString(itemData.category || itemData.badge || "");
       const tagsArray = toStringArray(itemData.tags, ",");
+      if (tagsArray.length === 0 && categoryStr) {
+        tagsArray.push(categoryStr);
+      }
       const comp = toRecord(itemData.comparison ?? itemRecord.comparison);
+      const desc = toString(itemData.description || itemData.answer || itemData.content || itemData.text || "");
+
+      const val = toString(itemData.value || itemRecord.value || "");
 
       return {
         ...itemData,
         id: itemRecord.id ?? itemData.id,
-        icon: toString(itemData.icon || "Check"),
+        icon: toString(itemData.icon || (itemData.title || itemData.description || val ? "Check" : "")),
+        value: val,
         number: toString(itemData.number || ""),
         title: toString(itemData.title || itemData.question || itemData.name || ""),
-        description: toString(itemData.description || itemData.answer || itemData.content || itemData.text || ""),
-        text: toString(itemData.text || itemData.description || ""),
-        tag: toString(itemData.tag || itemData.tag || ""),
+        description: desc,
+        excerpt: toString(itemData.excerpt || desc),
+        text: toString(itemData.text || desc),
+        tag: toString(itemData.tag || ""),
         url: toString(itemData.url || itemData.href || itemData.project_url || ""),
         results: resultsArray,
         tags: tagsArray,
@@ -245,7 +269,12 @@ export function normalizeSection(rawSection: SectionRecord | null | undefined): 
           rightPoints: toStringArray(comp.rightPoints || comp.right_points),
         },
       };
-
+    })
+    .filter((item) => {
+      const it = item as Record<string, unknown>;
+      return Boolean(
+        it.title || it.description || it.value || it.name || it.question || it.text || it.number || it.url || it.tag
+      );
     })
     : [];
 
@@ -270,8 +299,10 @@ export function normalizeSection(rawSection: SectionRecord | null | undefined): 
   };
   const sectionObj: NormalizedSection = {
     ...data,
-    section_key: toString(rawSection.section_key),
+    section_key: sectionKey,
     section_type: toString(rawSection.section_type),
+    sourceKey: sectionKey,
+    sourceType: toString(rawSection.section_type),
     tag: toString(rawSection.tag || data.tag || null),
     subheading1: toString(rawSection.subheading1 || data.heading || data.title || data.subheading1 || null),
     subheading2: toString(rawSection.subheading2 || data.subheading || data.content || data.subheading2 || null),
@@ -280,7 +311,6 @@ export function normalizeSection(rawSection: SectionRecord | null | undefined): 
     items,
     cta,
   };
-
 
   if (data.techspec || rawSection.techspec) {
     const ts = toRecord(data.techspec ?? rawSection.techspec);
@@ -295,30 +325,75 @@ export function normalizeSection(rawSection: SectionRecord | null | undefined): 
   return sectionObj;
 }
 
-export function normalizePage(rawPage: SectionRecord | null | undefined): NormalizedPage {
+export function hasMeaningfulHeader(header?: SectionRecord | null): boolean {
+  if (!header) return false;
+  return Boolean(
+    toString(header.tag).trim() ||
+    toString(header.subheading1).trim() ||
+    toString(header.subheading2).trim() ||
+    toString(header.subtext).trim()
+  );
+}
+
+export function hasMeaningfulContent(section?: NormalizedSection | SectionRecord | null): boolean {
+  if (!section || typeof section !== "object") return false;
+  const sec = section as NormalizedSection;
+  if (Array.isArray(sec.items) && sec.items.length > 0) return true;
+  if (hasMeaningfulHeader(sec.header as SectionRecord || sec as SectionRecord)) return true;
+  if (sec.cta && isRecord(sec.cta)) {
+    const full = toRecord(sec.cta.full);
+    const prev = toRecord(sec.cta.preview);
+    if (toString(full.text).trim() || toString(prev.text).trim()) return true;
+  }
+  if (sec.techspec && isRecord(sec.techspec)) {
+    const ts = toRecord(sec.techspec);
+    if (toString(ts.techHeading1).trim() || (Array.isArray(ts.tags) && ts.tags.length > 0)) return true;
+  }
+  // If section has title1/title2/description (like hero)
+  const rec = section as SectionRecord;
+  if (toString(rec.title1).trim() || toString(rec.title2).trim() || toString(rec.description).trim()) return true;
+  return false;
+}
+
+export function normalizePage(rawPage: SectionRecord | null | undefined, moduleName?: ModuleName): NormalizedPage {
   if (!rawPage) return { slug: "/" };
+
+  const rawSlug = toString(rawPage.slug || "");
+  const categorySlug = toString(rawPage.category_slug || getNestedStringValue(rawPage, "category", "slug") || null);
+  const title = toString(rawPage.title || "");
 
   const page: NormalizedPage = {
     id: rawPage.id as number | string | undefined,
-    title: toString(rawPage.title || ""),
-    slug: toString(rawPage.slug || ""),
-    category_slug: toString(rawPage.category_slug || getNestedStringValue(rawPage, "category", "slug") || null),
+    title,
+    slug: rawSlug,
+    category_slug: categorySlug || null,
     seo_title: toString(rawPage.seo_title || null),
     seo_description: toString(rawPage.seo_description || null),
     meta_keywords: toString(rawPage.meta_keywords || null),
+    sourceId: rawPage.id as number | string | undefined,
+    sourceModule: moduleName,
+    sourceSlug: rawSlug,
+    sourceTitle: title,
   };
 
   if (Array.isArray(rawPage.sections)) {
     rawPage.sections.forEach((section: unknown) => {
       const sectionRecord = toRecord(section);
       if (sectionRecord.is_visible !== false && typeof sectionRecord.section_key === "string") {
-        page[sectionRecord.section_key as string] = normalizeSection(sectionRecord);
+        const key = sectionRecord.section_key as string;
+        const normalized = normalizeSection(sectionRecord);
+        if (hasMeaningfulContent(normalized)) {
+          page[key] = normalized;
+        }
       }
     });
   } else {
     Object.keys(rawPage).forEach((key) => {
-      if (!["id", "title", "slug", "category_slug", "seo_title", "seo_description", "meta_keywords"].includes(key)) {
-        page[key] = rawPage[key];
+      if (!["id", "title", "slug", "category_slug", "seo_title", "seo_description", "meta_keywords", "sourceId", "sourceModule", "sourceSlug", "sourceTitle"].includes(key)) {
+        const val = rawPage[key];
+        if (val && (typeof val !== "object" || Object.keys(val as object).length > 0)) {
+          page[key] = val;
+        }
       }
     });
   }
@@ -331,12 +406,9 @@ export function normalizePage(rawPage: SectionRecord | null | undefined): Normal
 // ========================================================
 //
 // Fetches fresh from the API on every call, relying on Next.js's fetch
-// Data Cache + `revalidate` for cross-request caching (so published CMS
-// edits appear within MODULE_REVALIDATE_SECONDS instead of requiring a
-// server restart). `cache()` from "react" memoizes the parsed/normalized
-// result across the many section components that request the same
-// module within a single render pass, without leaking state across
-// requests.
+// Data Cache + `revalidate` for cross-request caching. `cache()` from
+// "react" memoizes the parsed/normalized result across section components
+// in a single render pass without leaking across requests.
 
 async function fetchModulePagesUncached(moduleName: string): Promise<NormalizedPage[]> {
   try {
@@ -364,7 +436,7 @@ async function fetchModulePagesUncached(moduleName: string): Promise<NormalizedP
       }
     }
 
-    return rawPages.map((rawPage: unknown) => normalizePage(toRecord(rawPage)));
+    return rawPages.map((rawPage: unknown) => normalizePage(toRecord(rawPage), moduleName as ModuleName));
   } catch (e) {
     console.warn(`Failed to fetch module pages for ${moduleName}:`, e);
     return [];
@@ -411,6 +483,12 @@ export function buildRoute(
     case "article":
       return `/${slug}`;
 
+    case "datahub":
+      return `/${slug}`;
+
+    case "singlepage":
+      return `/${slug}`;
+
     default:
       return `/${slug}`;
   }
@@ -432,10 +510,31 @@ export function findPageByRoute(
 
   const cleanPath = normalizeForCompare(pathname);
 
-  return pages.find((page) => {
+  // 1. Exact route match via buildRoute
+  const directMatch = pages.find((page) => {
     const route = normalizeForCompare(buildRoute(page, module));
     return route === cleanPath;
   });
+  if (directMatch) return directMatch;
+
+  // 2. Exact slug match
+  const slugClean = cleanPath.replace(/^\/+/, "");
+  const slugMatch = pages.find((page) => {
+    const pSlug = (page.slug || "").trim().toLowerCase().replace(/^\/+|\/+$/g, "");
+    return pSlug === slugClean;
+  });
+  if (slugMatch) return slugMatch;
+
+  // 3. Known aliases (e.g. /privacy and /privacy-policy)
+  if (cleanPath === "/privacy" || cleanPath === "/privacy-policy") {
+    const privacyMatch = pages.find((page) => {
+      const pSlug = (page.slug || "").trim().toLowerCase().replace(/^\/+|\/+$/g, "");
+      return pSlug === "privacy" || pSlug === "privacy-policy";
+    });
+    if (privacyMatch) return privacyMatch;
+  }
+
+  return undefined;
 }
 
 // ========================================================
@@ -445,6 +544,56 @@ export async function getModule(module: ModuleName): Promise<NormalizedPage[]> {
   return fetchModulePages(module);
 }
 
+export const defaultStaticBlogPage: NormalizedPage = {
+  title: "Tech Blog",
+  slug: "/blogs",
+  hero: {
+    tag: "INSIGHTS",
+    title1: "Ideas Worth",
+    title2: "Building On.",
+    description: "Stay ahead with practical articles covering AI, automation, web development, analytics, business growth, and emerging technologies.",
+  },
+  header: {
+    tag: "Insights & Information",
+    subheading1: "Practical Knowledge",
+    subheading2: "For Modern Businesses",
+    subtext: "Explore expert insights on web development, AI automation, analytics, SEO, and growth strategies that help businesses scale smarter.",
+  },
+  content: {
+    section_key: "blogs",
+    items: blogArticles,
+  },
+  cta: {
+    preview: { text: "Explore Data Hub", url: "/datahub" },
+    full: { description: "Want insights like these applied directly to your business?", text: "Talk to Our Team", url: "/contact" },
+  },
+};
+
+export const defaultStaticCaseStudiesPage: NormalizedPage = {
+  title: "Case Studies",
+  slug: "/case-studies",
+  hero: {
+    tag: "CASE STUDIES",
+    title1: "Success",
+    title2: "In Action.",
+    description: "Explore real-world examples of how organizations improved efficiency, increased revenue, and accelerated digital transformation.",
+  },
+  header: {
+    tag: "Case Studies",
+    subheading1: "Real Results From",
+    subheading2: "Real World Businesses",
+    subtext: "Discover how businesses transformed their operations, increased efficiency, and achieved measurable growth through innovative technology solutions.",
+  },
+  content: {
+    section_key: "case-studies",
+    items: caseStudyArticles,
+  },
+  cta: {
+    preview: { text: "View All Services", url: "/services" },
+    full: { description: "Ready to become our next success story?", text: "Start Your Project", url: "/contact" },
+  },
+};
+
 export async function getPage(
   module: ModuleName,
   pathname: string
@@ -452,12 +601,24 @@ export async function getPage(
   const pages = await getModule(module);
   const page = findPageByRoute(pages, module, pathname);
 
-  if (page) return page;
+  if (page) {
+    logPageTrace(pathname, module, page);
+    return page;
+  }
 
   const cleanPath = (pathname || "/").trim().replace(/^\/+/, "");
 
-  if (cleanPath === "" || cleanPath === "home") {
+  if (module === "content" && (cleanPath === "" || cleanPath === "home")) {
     return defaultStaticHomePage;
+  }
+
+  if (module === "article") {
+    if (cleanPath === "blogs" || cleanPath === "blog" || cleanPath === "") {
+      return defaultStaticBlogPage;
+    }
+    if (cleanPath === "case-studies" || cleanPath === "case-study") {
+      return defaultStaticCaseStudiesPage;
+    }
   }
 
   return undefined;
@@ -469,15 +630,11 @@ export async function getSection(module: ModuleName, pathname: string, key: stri
 }
 
 export function getPageSection<T = NormalizedSection>(page: NormalizedPage | undefined, key: string): T | undefined {
-  const fallbackSection = getDefaultSection(key);
-  const section = page?.[key] || fallbackSection;
+  if (!page) return undefined;
+  const section = page[key];
   if (!section) return undefined;
+  if (typeof section === "object" && !hasMeaningfulContent(section as unknown as NormalizedSection)) return undefined;
 
   const merged = mergeSectionData(key, section as Record<string, unknown>);
-
-  if ((!merged.items || (Array.isArray(merged.items) && merged.items.length === 0)) && Array.isArray(fallbackSection?.items) && fallbackSection.items.length > 0) {
-    merged.items = fallbackSection.items.map((item: unknown) => mergeItemData(key, item));
-  }
-
   return merged as unknown as T;
 }

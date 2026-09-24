@@ -5,7 +5,6 @@ export function CaseStudyPage() {
   return (
     <div className="space-y-10">
       <CaseStudySection/>
-      <CTASection/>
     </div>
   );
 }

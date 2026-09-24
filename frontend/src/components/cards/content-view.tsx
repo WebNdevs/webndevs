@@ -88,9 +88,10 @@ export function ContentModal({ content, onClose }: ContentModalProps) {
 
 type ContentViewerProps = {
   items?: ContentCardProps[];
+  category?: "blogs" | "case-studies";
 };
 
-export function ContentViewer({ items = [] }: ContentViewerProps) {
+export function ContentViewer({ items = [], category = "blogs" }: ContentViewerProps) {
   const [selectedContent, setSelectedContent] = useState<ContentCardProps | null>(null);
 
   const [filter, setFilter] = useState<"latest" | "featured">("latest");
@@ -142,6 +143,7 @@ export function ContentViewer({ items = [] }: ContentViewerProps) {
 
       <ContentCardGrid
         items={filteredContents}
+        category={category}
         onSelect={setSelectedContent}
       />
 

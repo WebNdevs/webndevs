@@ -104,7 +104,9 @@ export function ResultCard({title, category, description, tags, badge, url, resu
 }
 
 export function ResultCardGrid({items} : {items: ResultCardProps[]}) {
-  if (!items) return null;
+  const validItems = items?.filter((item) => Boolean(item.title?.trim() || item.description?.trim())) || [];
+  if (validItems.length === 0) return null;
+
   return(
     <motion.div 
       variants={gridVariants}
@@ -113,7 +115,7 @@ export function ResultCardGrid({items} : {items: ResultCardProps[]}) {
       viewport={{ once: true, margin: "-100px" }}
       className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16"
     >
-      {items.map((item, index) => (
+      {validItems.map((item, index) => (
         <ResultCard key={index} {...item}/>
       ))}
     </motion.div>

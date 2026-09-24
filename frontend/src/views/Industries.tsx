@@ -5,7 +5,6 @@ export function IndustriesPage() {
   return(
     <div className="space-y-10">
       <IndustrySection/>
-      <CTASection/>
     </div>
   )
 }

@@ -5,7 +5,6 @@ export function ComparisonPage() {
   return(
     <div className="space-y-10">
       <ComparisonSection/>
-      <CTASection/>
     </div>
   )
 }

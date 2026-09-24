@@ -16,6 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return generateSEOFromCMS(DEFAULT_SEO, page);
 }
 
-export default function Page() {
-  return <HomePage />;
+export default async function Page() {
+  const page = await getPage("content", "/");
+  return <HomePage page={page} />;
 }

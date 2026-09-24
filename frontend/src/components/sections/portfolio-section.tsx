@@ -14,7 +14,7 @@ export async function PortfolioSection({ variant = 'full' }: PortfolioSectionPro
   const page = await getPage("content", "/portfolio");
   const result = getPageSection<HeaderSectionProps & { items?: ResultCardProps[] } & { cta?: ShortCTAProps }>(page, "result");
   const stat = getPageSection<HeaderSectionProps & { items?: StatsCardProps[] } >(page, "stats");
-  const items = (result?.items as ResultCardProps[])?.splice(0,6) || [];
+  const items = (result?.items as ResultCardProps[])?.slice(0,6) || [];
   if (!page) return null;
 
   if (variant === "full") {

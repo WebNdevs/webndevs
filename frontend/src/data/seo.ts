@@ -25,8 +25,11 @@ export function generateSEO({
   const cleanPath = path.split("?")[0].replace(/\/+$/, "").replace(/\/+/g, "/");
   const absoluteUrl = `https://webndevs.com${cleanPath.startsWith("/") ? cleanPath : "/" + cleanPath}`;
 
+  // Strip trailing duplicate brand name if present so layout template appends it once
+  const cleanTitle = title.replace(/\s*\|\s*WebNDevs$/i, "").trim();
+
   return {
-    title,
+    title: cleanTitle,
 
     description,
 

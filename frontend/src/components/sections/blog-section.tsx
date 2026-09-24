@@ -8,6 +8,7 @@ import { getPage, NormalizedPage } from '@/data/content';
 export async function BlogSection() {
   const section = await getPage("article", "/blogs");
   const blog = section?.content as NormalizedPage | undefined;
+  const items = ((blog?.items || section?.items || (section as any)?.content?.items || []) as ContentCardProps[]);
   
   if(!section) return null;
 
@@ -17,7 +18,7 @@ export async function BlogSection() {
         <PageHero {...section?.hero as PageHeroProps}/>
         <HeaderSection {...section?.header as HeaderSectionProps}/>
 
-        <ContentViewer items={blog?.items as ContentCardProps[]}/>
+        <ContentViewer items={items} category="blogs" />
 
         <ShortCTA variant="full" {...section?.cta as ShortCTAProps}/>
 

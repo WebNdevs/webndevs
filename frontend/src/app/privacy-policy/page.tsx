@@ -12,7 +12,7 @@ const DEFAULT_SEO = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const page = await getPage("content", "/privacy");
+  const page = (await getPage("content", "/privacy-policy")) || (await getPage("content", "/privacy"));
   return generateSEOFromCMS(DEFAULT_SEO, page);
 }
 

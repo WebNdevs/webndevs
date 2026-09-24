@@ -102,7 +102,9 @@ export function LadderCard({icon, title, number, description, duration, align} :
 
 
 export function LadderSection({items} : {items: LadderCardProps[]}) {
-  if (!items) return null;
+  const validItems = items?.filter((item) => Boolean(item.title?.trim() || item.description?.trim())) || [];
+  if (validItems.length === 0) return null;
+
   return (
     <div className="relative">
       {/* Timeline Line */}
@@ -116,7 +118,7 @@ export function LadderSection({items} : {items: LadderCardProps[]}) {
       />
 
       <div className="space-y-12">
-        {items.map((item, index) => (
+        {validItems.map((item, index) => (
           <div key={index} className="relative">
             {/* Center Dot */}
             <motion.div 

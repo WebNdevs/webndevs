@@ -40,64 +40,66 @@ export function ContentSections({ page }: { page?: NormalizedPage }) {
       {hero && <PageHero {...hero} />}
       {header && <HeaderSection {...header} />}
 
-      {whyus && (
-        <>
+      {whyus && (whyus.items?.length || 0) > 0 && (
+        <div className="mb-14">
           <HeaderSection {...whyus} />
           <IconCardGrid items={whyus.items || []} />
-        </>
+        </div>
       )}
 
-      {comparison && (
-        <>
+      {comparison && (comparison.items?.length || 0) > 0 && (
+        <div className="mb-14">
           <HeaderSection {...comparison} />
           <CompareTable items={comparison.items || []} />
-        </>
+        </div>
       )}
 
-      {process && (
-        <>
+      {process && (process.items?.length || 0) > 0 && (
+        <div className="mb-14">
           <HeaderSection {...process} />
           <LadderSection items={process.items || []} />
           <ShortCTA {...process.cta} />
-        </>
+        </div>
       )}
 
-      {stats && <StatsCardGrid items={stats.items || []} />}
+      {stats && (stats.items?.length || 0) > 0 && (
+        <StatsCardGrid items={stats.items || []} />
+      )}
 
-      {result && (
-        <>
+      {result && (result.items?.length || 0) > 0 && (
+        <div className="mb-14">
           <HeaderSection {...result} />
           <ResultCardGrid items={result.items || []} />
-        </>
+        </div>
       )}
 
-      {review && (
-        <>
+      {review && (review.items?.length || 0) > 0 && (
+        <div className="mb-14">
           <HeaderSection {...review} />
           <ReviewCardGrid items={review.items || []} />
-        </>
+        </div>
       )}
 
-      {techspec && <TechCard {...techspec} />}
+      {techspec && (techspec.tags?.length || 0) > 0 && (
+        <TechCard {...techspec} />
+      )}
 
-      {faq && (
-        <>
+      {faq && (faq.items?.length || 0) > 0 && (
+        <div className="mb-14">
           <HeaderSection {...faq} />
           <FAQCard items={faq.items || []} />
-        </>
+        </div>
       )}
 
-      {data && (
-        <>
+      {data && (data.items?.length || 0) > 0 && (
+        <div className="mb-14">
           <HeaderSection {...data} />
           <DSTiles items={data.items || []} />
-        </>
+        </div>
       )}
 
-      {cta && (
-        <>
-          <ShortCTA variant="full" {...cta} />
-        </>
+      {Boolean(cta?.full?.text || cta?.preview?.text) && (
+        <ShortCTA variant="full" {...cta} />
       )}
     </>
   );

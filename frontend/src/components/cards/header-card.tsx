@@ -11,6 +11,10 @@ export type HeaderSectionProps = {
 
 
 export function HeaderSection({tag, subheading1, subheading2, subtext} : HeaderSectionProps) {
+  if (!tag?.trim() && !subheading1?.trim() && !subheading2?.trim() && !subtext?.trim()) {
+    return null;
+  }
+
   return(
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -29,7 +33,8 @@ export function HeaderSection({tag, subheading1, subheading2, subtext} : HeaderS
 
       { subheading1 && (
         <h2 style={{ fontSize: '42px' }} className="font-bold text-[#F9FAFB] mb-4">
-          {subheading1} <span className='bg-linear-to-r from-[#22C55E] to-[#06B6D4] bg-clip-text text-transparent'>
+          {subheading1}{" "}
+          <span className='bg-linear-to-r from-[#22C55E] to-[#06B6D4] bg-clip-text text-transparent'>
             {subheading2}  
           </span>
         </h2>

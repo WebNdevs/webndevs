@@ -2,7 +2,7 @@ import { ContentSections } from "@/components/sections/content-sections";
 import { getPage } from "@/data/content";
 
 export async function PrivacyPolicyPage() {
-  const page = await getPage("content", "/privacy");
+  const page = (await getPage("content", "/privacy-policy")) || (await getPage("content", "/privacy"));
   if (!page) return null;
 
   return (

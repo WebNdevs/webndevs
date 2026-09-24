@@ -16,6 +16,7 @@ class PublicServiceController extends Controller
         'comparison',
         'process',
         'stats',
+        'plans',
         'result',
         'review',
         'techspec',

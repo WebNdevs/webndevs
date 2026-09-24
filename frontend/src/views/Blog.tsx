@@ -5,7 +5,6 @@ export function BlogPage() {
   return (
     <div className="space-y-10">
       <BlogSection/>
-      <CTASection/>
     </div>
   );
 }

@@ -62,10 +62,12 @@ export function ReviewCard({ name, company, content, rating, photo_url, role }: 
 }
 
 export function ReviewCardGrid({ items }: { items: ReviewCardProps[] }) {
-  if (!items) return null;
+  const validItems = items?.filter((item) => Boolean(item.name?.trim() || item.content?.trim())) || [];
+  if (validItems.length === 0) return null;
+
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-      {items.map((item, index) => (
+      {validItems.map((item, index) => (
         <ScrollReveal
           key={index}
           direction="up"

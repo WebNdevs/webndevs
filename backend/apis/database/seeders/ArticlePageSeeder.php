@@ -13,7 +13,7 @@ class ArticlePageSeeder extends Seeder
     {
         $admin = User::query()->where('email', 'admin@wnd.local')->first();
 
-        // Single complete seeding data for Article Module: "/blogs" (Blogs)
+        // Seeding data for Article Module: "/blogs" (Blogs)
         $page = ArticlePage::query()->updateOrCreate(
             ['slug' => '/blogs'],
             [
@@ -27,7 +27,6 @@ class ArticlePageSeeder extends Seeder
             ]
         );
 
-        // Seed all sections cleanly aligned with Article Module structure
         $this->createSection($page->id, 'hero', 'hero', 0, [
             'tag' => 'ARTICLE DIRECTORY',
             'title1' => 'Software Engineering',
@@ -66,6 +65,61 @@ class ArticlePageSeeder extends Seeder
                 'text' => 'Stay Ahead in Web Engineering',
                 'description' => 'Subscribe to get our weekly software architecture articles delivered to your inbox.',
                 'url' => '/subscribe',
+            ],
+        ], $admin?->id);
+
+        // Seeding data for Article Module: "/case-studies"
+        $caseStudiesPage = ArticlePage::query()->updateOrCreate(
+            ['slug' => '/case-studies'],
+            [
+                'title' => 'Case Studies',
+                'slug' => '/case-studies',
+                'status' => 'published',
+                'seo_title' => 'Case Studies: Client Success & Technical Results | WebNDevs',
+                'seo_description' => 'Explore our deep-dive case studies. Discover how we helped enterprise companies and startups scale.',
+                'meta_keywords' => 'Case Studies, Client Success, Systems Engineering, WebNDevs',
+                'updated_by' => $admin?->id,
+            ]
+        );
+
+        $this->createSection($caseStudiesPage->id, 'hero', 'hero', 0, [
+            'tag' => 'CLIENT CASE STUDIES',
+            'title1' => 'Real Results &',
+            'title2' => 'Engineering Impact',
+            'description' => 'Explore how our software design, development, and programmatic engines deliver quantifiable business growth.',
+        ], $admin?->id);
+
+        $this->createSection($caseStudiesPage->id, 'header', 'header', 1, [
+            'tag' => 'SUCCESS STORIES',
+            'subheading1' => 'Featured Case',
+            'subheading2' => 'Studies & Results',
+            'subtext' => 'In-depth project architecture breakdowns and client metrics.',
+        ], $admin?->id);
+
+        $this->createSection($caseStudiesPage->id, 'content', 'content', 2, [
+            'tag' => 'FEATURED CASES',
+            'subheading1' => 'High Impact',
+            'subheading2' => 'Client Case Studies',
+            'subtext' => 'Quantifiable results shipped for digital platforms.',
+            'items' => [
+                [
+                    'title' => 'Enterprise E-Commerce Engine & Inventory Automation',
+                    'category' => 'E-Commerce',
+                    'description' => 'Architected a multi-vendor digital marketplace with sub-second page loads and automated inventory sync.',
+                    'url' => '/case-studies/ecommerce-engine',
+                ],
+            ],
+        ], $admin?->id);
+
+        $this->createSection($caseStudiesPage->id, 'cta', 'cta', 3, [
+            'preview' => [
+                'text' => 'View Full Portfolio',
+                'url' => '/portfolio',
+            ],
+            'full' => [
+                'text' => 'Achieve Similar Results for Your Platform',
+                'description' => 'Connect with our engineering lead to discuss custom software development for your business.',
+                'url' => '/contact',
             ],
         ], $admin?->id);
     }

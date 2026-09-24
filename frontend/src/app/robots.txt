@@ -3,7 +3,6 @@
 
 User-agent: *
 Allow: /
-Disallow: /*?*
 Disallow: /_next/
 Disallow: /api/
 Disallow: /admin/

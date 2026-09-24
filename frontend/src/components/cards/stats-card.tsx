@@ -12,6 +12,8 @@ export type StatsCardProps = {
 }
 
 export function StatsCard({icon, title, value, url}: StatsCardProps) {
+  if (!value?.trim() && !title?.trim()) return null;
+
   const Icon =
   ICONS[icon as keyof typeof ICONS];
   const card = (
@@ -51,10 +53,12 @@ export function StatsCard({icon, title, value, url}: StatsCardProps) {
 }
 
 export function StatsCardGrid({items} : {items: StatsCardProps[]}) {
-  if (!items) return null;
+  const validItems = items?.filter((item) => Boolean(item.value?.trim() || item.title?.trim())) || [];
+  if (validItems.length === 0) return null;
+
   return(
-    <div className="mt-16 flex flex-wrap justify-center gap-6 mb-16 w-full">
-      {items.map((item, index) => (
+    <div className="mt-12 flex flex-wrap justify-center gap-6 mb-12 w-full">
+      {validItems.map((item, index) => (
         <ScrollReveal 
           key={index} 
           direction="up" 

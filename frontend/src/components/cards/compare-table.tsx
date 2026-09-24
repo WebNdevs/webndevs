@@ -20,9 +20,12 @@ export type CompareTableProps = {
 };
 
 export function CompareTable({items}: CompareTableProps) {
+  const validItems = items?.filter((item) => Boolean(item.title?.trim() || item.comparison?.leftHeading)) || [];
+  if (validItems.length === 0) return null;
+
   return(
-    <>
-    {items?.map((item, i) => (
+    <div className="mb-16">
+    {validItems.map((item, i) => (
     <div key={i} className="mb-8"> 
       {/* Title Card */}
       {item.title && (
@@ -113,6 +116,6 @@ export function CompareTable({items}: CompareTableProps) {
       )}
     </div>
     ))}
-    </>
+    </div>
   )
 }

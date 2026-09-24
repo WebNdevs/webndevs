@@ -133,10 +133,12 @@ type EntityGridProps = {
 export function EntityGrid({
     items,
 }: EntityGridProps) {
-    if (!items) return null;
+    const validItems = items?.filter((item) => Boolean(item.title?.trim() || item.description?.trim())) || [];
+    if (validItems.length === 0) return null;
+
     return (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 mb-16">
-            {items.map((item, index) => (
+            {validItems.map((item, index) => (
                 <ScrollReveal
                     key={index}
                     direction="up"
