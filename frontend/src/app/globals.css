@@ -16,10 +16,16 @@ html :focus-within {
   --font-mono: var(--font-geist-mono);
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
 }
 
 /* Portfolio Image Scroll Effect */
@@ -45,16 +51,6 @@ body {
   background-position: bottom center;
 }
 
-/* Global utility overrides to make cursor canvas background show through all sections */
-.bg-\[\#0B0F14\],
-.bg-\[\#0b0f14\] {
-  background-color: transparent !important;
-}
-
-.bg-\[\#111827\] {
-  background-color: rgba(17, 24, 39, 0.4) !important;
-}
-
 @utility no-scrollbar {
   &::-webkit-scrollbar {
     display: none;
@@ -62,3 +58,4 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+

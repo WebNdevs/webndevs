@@ -96,7 +96,7 @@ export function Navbar() {
   }, [mobileMenuOpen]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-60 bg-[#111827]/95 backdrop-blur-sm border-b border-[#374151]" role="banner">
+    <header className="fixed top-0 left-0 right-0 z-60 bg-[#0B0F14] shadow-xl border-b border-[#1F2937]" role="banner">
       <nav className="max-w-7xl mx-auto px-6" aria-label="Primary navigation">
         <div className="flex items-center justify-between h-18">
           {/* Logo */}
@@ -119,7 +119,7 @@ export function Navbar() {
                   <Link href={item.href} className=" flex gap-2 items-center rounded-lg hover:bg-white/5 min-h-5 text-[16px] font-medium text-[#9CA3AF] hover:text-[#F9FAFB] transition-colors">
                     {item.label} <ChevronDown size={16} />
                   </Link>
-                  <div className="absolute left-5 top-full hidden group-hover:block w-64 rounded-xl border border-white/10 bg-[#111827] p-2 shadow-xl z-50">
+                  <div className="absolute left-0 top-full hidden group-hover:block w-64 rounded-xl border border-[#374151] bg-[#111827] p-2 shadow-2xl z-50">
                     {item.children?.map((child) => (
                       <Link key={child.label} href={child.href} className="block rounded-lg px-3 py-2 text-[#F9FAFB] hover:text-[#F9FAFB] hover:bg-white/5 transition-colors">
                         {child.label}
@@ -146,7 +146,7 @@ export function Navbar() {
         {/* Overlay */}
         {mobileMenuOpen && (
           <div
-            className="fixed inset-0 top-18 bg-black/50 z-40 lg:hidden"
+            className="fixed inset-0 top-18 bg-black/70 backdrop-blur-xs z-40 lg:hidden"
             onClick={() => {
               setMobileMenuOpen(false);
               setOpenDropdown(null);
@@ -155,7 +155,7 @@ export function Navbar() {
         )}
 
         {/* Side Menu */}
-        <div className={`fixed top-18 right-0 h-[calc(100vh-72px)] overflow-y-auto w-72 overscroll-contain bg-[#111827]/90 border-t border-l rounded-xl border-[#374151] z-50 transition-transform duration-300 lg:hidden ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"}`} onClick={(e) => e.stopPropagation()}>
+        <div className={`fixed top-18 right-0 h-[calc(100vh-72px)] overflow-y-auto w-72 overscroll-contain bg-[#111827] border-t border-l rounded-l-2xl border-[#374151] shadow-2xl z-50 transition-all duration-300 lg:hidden ${mobileMenuOpen ? "translate-x-0 opacity-100 pointer-events-auto" : "translate-x-full opacity-0 pointer-events-none invisible"}`} onClick={(e) => e.stopPropagation()}>
           <div className="flex flex-col p-6">
 
             {NAV_ITEMS.map((item) => {
