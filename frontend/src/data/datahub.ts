@@ -487,7 +487,7 @@ export const dataHubData = {
             icon: "Megaphone",
             badge: "Marketing",
             tags: ["Custom price", "Rating of 4.8"],
-            href: "/solutions/marketing-automation"
+            href: "/solutions/email-marketing"
           },
           {
             title: "Business Intelligence",
@@ -552,7 +552,7 @@ export const dataHubData = {
             icon: "Headset",
             badge: "Support",
             tags: ["Custom price", "Rating of 4.8"],
-            href: "/solutions/customer-support"
+            href: "/solutions/customer-support-solutions"
           },
           {
             title: "Project Management",
@@ -588,7 +588,7 @@ export const dataHubData = {
             icon: "Cloud",
             badge: "Infrastructure",
             tags: ["Custom price", "Rating of 4.8"],
-            href: "/solutions/cloud-solutions"
+            href: "/solutions/cloud-infrastructure"
           },
           {
             title: "Document Management",
